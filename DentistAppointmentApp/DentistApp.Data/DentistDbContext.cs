@@ -1,9 +1,9 @@
 ﻿namespace DentistAppointmentApp.Data
 {
-
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext(options)
+
+    public class DentistDbContext(DbContextOptions<DentistDbContext> options) : IdentityDbContext(options)
     {
     }
 }
