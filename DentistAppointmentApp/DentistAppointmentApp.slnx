@@ -1,3 +1,17 @@
 <Solution>
-  <Project Path="DentistAppointmentApp/DentistAppointmentApp.csproj" />
+  <Folder Name="/Data/">
+    <Project Path="DentistApp.Data.Models/DentistApp.Data.Models.csproj" Id="91df297f-cc33-46ad-92aa-d33be7b5d09d" />
+    <Project Path="DentistApp.Data/DentistApp.Data.csproj" Id="36fa14cb-8849-4e74-a8c2-032a5749b24e" />
+  </Folder>
+  <Folder Name="/GCommon/">
+    <Project Path="DentistApp.GCommon/DentistApp.GCommon.csproj" Id="841448cf-f57a-43f0-985f-cd1f25de82cd" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="DentistApp.Services.Core/DentistApp.Services.Core.csproj" Id="21ee123c-353c-43ae-b89b-1741081a9acf" />
+  </Folder>
+  <Folder Name="/Services/Contracts/" />
+  <Folder Name="/Web/">
+    <Project Path="DentistApp.ViewModels/DentistApp.ViewModels.csproj" Id="b0659d23-1e3c-4a53-8016-3c576dea6982" />
+    <Project Path="DentistAppointmentApp/DentistApp.Web.csproj" />
+  </Folder>
 </Solution>
