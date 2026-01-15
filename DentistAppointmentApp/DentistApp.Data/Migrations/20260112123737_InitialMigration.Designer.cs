@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DentistApp.Data.Migrations
 {
-    [DbContext(typeof(DentistDbContext))]
+    [DbContext(typeof(DentistAppDbContext))]
     [Migration("20260112123737_InitialMigration")]
     partial class InitialMigration
     {

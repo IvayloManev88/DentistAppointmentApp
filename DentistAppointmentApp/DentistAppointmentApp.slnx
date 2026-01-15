@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Data/">
+    <Project Path="DentistApp.Data.EntityConstants/DentistApp.Data.EntityConstants.csproj" Id="fadbf470-8279-4821-b34e-8d6ab95fc17f" />
     <Project Path="DentistApp.Data.Models/DentistApp.Data.Models.csproj" Id="91df297f-cc33-46ad-92aa-d33be7b5d09d" />
     <Project Path="DentistApp.Data/DentistApp.Data.csproj" Id="36fa14cb-8849-4e74-a8c2-032a5749b24e" />
   </Folder>
