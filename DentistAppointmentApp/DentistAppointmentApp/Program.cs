@@ -10,6 +10,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services
     .AddDbContext<DentistAppDbContext>(options => options.UseSqlServer(connectionString));
 
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
 builder.Services
     .AddDatabaseDeveloperPageExceptionFilter();
 

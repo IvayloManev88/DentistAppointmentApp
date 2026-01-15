@@ -11,6 +11,7 @@
         public virtual DbSet<ManipulationType> ManipulationTypes { get; set; } = null!;
         public virtual DbSet<Procedure> Procedures { get; set; } = null!;
         public virtual DbSet<Reservation> Reservations { get; set; } = null!;
+
         
 
         protected override void OnModelCreating(ModelBuilder builder)
