@@ -3,7 +3,7 @@
     using Microsoft.EntityFrameworkCore;
     using System;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+    using static DentistApp.Data.EntityConstants.EntityConstants.Reservation;
 
     [Comment("Table defining the Reservations made")]
     //Side note - was considering making abstract class for matching properties between Reservation and Procedure entities but it is better to have them separate as "Note" for example does something different
@@ -21,6 +21,11 @@
         [Comment("Date and time of the procedure")]
         [Required]
         public DateTime Date { get; set; }
+        //I do not take the phone number from User entity because the user could be making reservation for a third party.
+        [Comment("Patient Phone number")]
+        [MaxLength(PhoneNumberMaxLenght)]
+        [Required]
+        public string PatientPhoneNumber { get; set; } = null!;
 
         [Comment("Id of the Manipulation performed")]
         [Required]

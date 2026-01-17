@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using DentistAppointmentApp.Models;
+using DentistApp.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DentistAppointmentApp.Controllers

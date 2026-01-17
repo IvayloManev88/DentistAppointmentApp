@@ -55,5 +55,10 @@
 
 
         }
+        public static class Reservation
+        {
+            public const int PhoneNumberMaxLenght = 16;
+        }
+
     }
 }

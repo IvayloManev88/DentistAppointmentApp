@@ -1,0 +1,25 @@
+﻿@model IEnumerable<DentistApp.Web.ViewModels.ManipulationViewAllViewModel>
+
+<h2>Manipulations</h2>
+
+<p>
+    <a asp-action="Create">Create new</a>
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price Range</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.Name</td>
+                <td>@m.PriceRange</td>
+            </tr>
+        }
+    </tbody>
+</table>

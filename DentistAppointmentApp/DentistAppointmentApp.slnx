@@ -12,7 +12,6 @@
   </Folder>
   <Folder Name="/Services/Contracts/" />
   <Folder Name="/Web/">
-    <Project Path="DentistApp.ViewModels/DentistApp.ViewModels.csproj" Id="b0659d23-1e3c-4a53-8016-3c576dea6982" />
     <Project Path="DentistAppointmentApp/DentistApp.Web.csproj" />
   </Folder>
 </Solution>

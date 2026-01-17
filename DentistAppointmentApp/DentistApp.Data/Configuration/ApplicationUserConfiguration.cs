@@ -10,6 +10,10 @@
         {
             entity
                  .HasQueryFilter(u => u.IsDeleted == false);
+
+            entity
+                .Property(p => p.IsDeleted)
+                .HasDefaultValue(false);
         }
     }
     

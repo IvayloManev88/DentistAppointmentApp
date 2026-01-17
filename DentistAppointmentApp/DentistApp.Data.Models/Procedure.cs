@@ -18,6 +18,8 @@ namespace DentistApp.Data.Models
         [Required]
         public string PatientId { get; set; } = null!;
 
+
+
         
         [Comment("Date and time of the procedure")]
         [Required]

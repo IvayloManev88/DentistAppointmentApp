@@ -23,6 +23,10 @@ namespace DentistApp.Data.Configuration
                 .WithMany(proc => proc.Procedures)
                 .HasForeignKey(p => p.ManipulationTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity
+                .Property(p => p.IsDeleted)
+                .HasDefaultValue(false);
         }
     }
 
