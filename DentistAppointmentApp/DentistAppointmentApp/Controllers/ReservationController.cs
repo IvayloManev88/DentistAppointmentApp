@@ -2,7 +2,7 @@
 
 namespace DentistApp.Web.Controllers
 {
-    public class ReservationController : Controller
+    public class AppointmentController : Controller
     {
         public IActionResult Index()
         {

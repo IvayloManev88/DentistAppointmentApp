@@ -19,10 +19,13 @@
         [StringLength(ApplicationUserLastNameMaxLength)]
         public string LastName { get; set; } = null!;
 
-        [Comment("User's Reservations collection")]
-        public virtual ICollection<Reservation> Reservations { get; set; } = new HashSet<Reservation>();
+        [Comment("User's Appointments collection")]
+        public virtual ICollection<Appointment> PatientAppointments { get; set; } = new HashSet<Appointment>();
 
-       
+        [Comment("User's Appointments collection")]
+        public virtual ICollection<Appointment> DentistAppointments { get; set; } = new HashSet<Appointment>();
+
+
 
         [Comment("User's Procedures done collection")]
         public virtual ICollection<Procedure> Procedures { get; set; } = new HashSet<Procedure>();

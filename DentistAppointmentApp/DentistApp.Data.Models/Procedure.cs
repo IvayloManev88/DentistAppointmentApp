@@ -6,7 +6,7 @@ namespace DentistApp.Data.Models
     using System.ComponentModel.DataAnnotations.Schema;
 
     [Comment("Table defining the Procedures done.")]
-    //Side note - was considering making abstract class for matching properties between Reservation and Procedure entities but it is better to have them separate as "Note" for example does something different
+    //Side note - was considering making abstract class for matching properties between Appointment and Procedure entities but it is better to have them separate as "Note" for example does something different
     public class Procedure
     {
         [Comment("Primary Key for the Procedure type class")]

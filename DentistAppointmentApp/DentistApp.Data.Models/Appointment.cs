@@ -3,25 +3,29 @@
     using Microsoft.EntityFrameworkCore;
     using System;
     using System.ComponentModel.DataAnnotations;
-    using static DentistApp.Data.EntityConstants.EntityConstants.Reservation;
+    using static DentistApp.Data.EntityConstants.EntityConstants.Appointment;
 
-    [Comment("Table defining the Reservations made")]
-    //Side note - was considering making abstract class for matching properties between Reservation and Procedure entities but it is better to have them separate as "Note" for example does something different
-    public class Reservation
+    [Comment("Table defining the Appointments made")]
+    //Side note - was considering making abstract class for matching properties between Appointment and Procedure entities but it is better to have them separate as "Note" for example does something different
+    public class Appointment
     {
-        [Comment("Primary Key for the Reservations type class")]
+        [Comment("Primary Key for the Appointments type class")]
         [Key]
         [Required]
-        public Guid ReservationId { get; set; }
+        public Guid AppointmentId { get; set; }
 
         [Comment("Id of the Patient to which the procedure was done on")]
         [Required]
         public string PatientId { get; set; } = null!;
 
+        [Comment("Id of the Dentist that will perform the  procedure")]
+        [Required]
+        public string DentistId { get; set; } = null!;
+
         [Comment("Date and time of the procedure")]
         [Required]
         public DateTime Date { get; set; }
-        //I do not take the phone number from User entity because the user could be making reservation for a third party.
+        //I do not take the phone number from User entity because the user could be making Appointment for a third party.
         [Comment("Patient Phone number")]
         [MaxLength(PhoneNumberMaxLenght)]
         [Required]
@@ -31,7 +35,7 @@
         [Required]
         public Guid ManipulationTypeId { get; set; }
              
-        [Comment("Note left by the patient for the dentist while making reservation")]
+        [Comment("Note left by the patient for the dentist while making Appointment")]
         public string? Note { get; set; }
 
         public bool IsConfirmed { get; set; } = true;
@@ -46,6 +50,10 @@
         [Comment("Navigation property to the Manipulation")]
         [Required]
         public virtual ManipulationType ManipulationType { get; set; } = null!;
+
+        [Comment("Navigation property to the Dentist")]
+        [Required]
+        public virtual ApplicationUser Dentist { get; set; } = null!;
 
     }
 

@@ -22,8 +22,8 @@
         [Required]
         public string PriceRange { get; set; } = null!;
 
-        [Comment("Collection of Reservations for each manipulation")]
-        public virtual ICollection<Reservation> Reservations { get; set; } = new HashSet<Reservation>();
+        [Comment("Collection of Appointments for each manipulation")]
+        public virtual ICollection<Appointment> Appointments { get; set; } = new HashSet<Appointment>();
 
         [Comment("Collection of Procedures for each manipulation")]
         public virtual ICollection<Procedure> Procedures { get; set; } = new HashSet<Procedure>();

@@ -55,7 +55,7 @@
 
 
         }
-        public static class Reservation
+        public static class Appointment
         {
             public const int PhoneNumberMaxLenght = 16;
         }
