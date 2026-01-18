@@ -10,7 +10,6 @@
   <Folder Name="/Services/">
     <Project Path="DentistApp.Services.Core/DentistApp.Services.Core.csproj" Id="21ee123c-353c-43ae-b89b-1741081a9acf" />
   </Folder>
-  <Folder Name="/Services/Contracts/" />
   <Folder Name="/Web/">
     <Project Path="DentistAppointmentApp/DentistApp.Web.csproj" />
   </Folder>

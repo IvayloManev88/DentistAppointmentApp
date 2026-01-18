@@ -1,4 +1,6 @@
 using DentistApp.Data.Models;
+using DentistApp.Services.Core;
+using DentistApp.Services.Core.Contracts;
 using DentistAppointmentApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +33,7 @@ builder.Services
     .AddDefaultTokenProviders();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IManipulationService, ManipulationService>();
 
 var app = builder.Build();
 

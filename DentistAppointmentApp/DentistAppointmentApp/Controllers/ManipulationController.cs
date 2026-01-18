@@ -1,7 +1,7 @@
 ﻿namespace DentistApp.Web.Controllers
 {
     using DentistApp.Data.Models;
-    using DentistApp.Web.ViewModels;
+    using DentistApp.Web.ViewModels.ManipulationViewModels;
     using DentistAppointmentApp.Data;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
