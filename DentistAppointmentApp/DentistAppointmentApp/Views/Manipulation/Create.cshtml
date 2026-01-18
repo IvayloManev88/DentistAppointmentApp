@@ -20,7 +20,7 @@
 
                 <div class="card-body px-4 pb-4">
                     <form asp-action="Create" method="post" novalidate>
-                        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+                        
 
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label fw-medium"></label>
@@ -36,7 +36,7 @@
                         <div class="mb-3">
                             <label asp-for="PriceRange" class="form-label fw-medium"></label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-0">BGN</span>
+                                <span class="input-group-text bg-light border-0">EUR</span>
                                 <input asp-for="PriceRange"
                                        class="form-control"
                                        placeholder="e.g. 50-100" />
@@ -58,7 +58,7 @@
             </div>
 
             <p class="text-center text-muted small mt-3 mb-0">
-                Tip: Keep names short and consistent (e.g., “Filling”, “Root canal”).
+                
             </p>
 
         </div>
