@@ -1,0 +1,52 @@
+﻿@using DentistApp.Web.ViewModels.AppointmentViewModels
+@model AppointmentViewAppointmentViewModel[]
+
+@{
+    ViewData["Title"] = "Appointments";
+}
+
+<h2 class="mb-3">Appointments</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No appointments found.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Patient</th>
+                <th>Phone</th>
+                <th>Dentist</th>
+                <th>Date & Time</th>
+                <th>Manipulation</th>
+                <th>Note</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appointment in Model)
+            {
+                <tr>
+                    <td>@appointment.PatientAppointmentName</td>
+                    <td>@appointment.PatientAppointmentPhoneNumber</td>
+                    <td>@appointment.DentistAppointmentName</td>
+                    <td>@appointment.AppointmentDate</td>
+                    <td>@appointment.ManipulationName</td>
+                    <td>
+                        @if (string.IsNullOrWhiteSpace(appointment.AppointmentNote))
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                        else
+                        {
+                            @appointment.AppointmentNote
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
