@@ -14,9 +14,15 @@ namespace DentistApp.Data.Configuration
 
             entity
                 .HasOne(p => p.Patient)
-                .WithMany(pat => pat.Procedures)
+                .WithMany(pat => pat.PatientProcedures)
                 .HasForeignKey(p => p.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity
+             .HasOne(p => p.Dentist)
+             .WithMany(den => den.DentistProcedures)
+             .HasForeignKey(p => p.DentistId)
+             .OnDelete(DeleteBehavior.Restrict);
 
             entity
                 .HasOne(p => p.ManipulationType)

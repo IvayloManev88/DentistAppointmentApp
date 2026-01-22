@@ -28,7 +28,10 @@
 
 
         [Comment("User's Procedures done collection")]
-        public virtual ICollection<Procedure> Procedures { get; set; } = new HashSet<Procedure>();
+        public virtual ICollection<Procedure> PatientProcedures { get; set; } = new HashSet<Procedure>();
+
+        [Comment("User's Procedures done collection")]
+        public virtual ICollection<Procedure> DentistProcedures { get; set; } = new HashSet<Procedure>();
 
         [Comment("If the user is deleted = false then he/she is an active user")]
         public bool IsDeleted { get; set; } = false;

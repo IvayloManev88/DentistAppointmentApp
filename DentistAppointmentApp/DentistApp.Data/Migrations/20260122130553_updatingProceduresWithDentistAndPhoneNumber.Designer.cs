@@ -4,6 +4,7 @@ using DentistAppointmentApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DentistApp.Data.Migrations
 {
     [DbContext(typeof(DentistAppDbContext))]
-    partial class DentistDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260122130553_updatingProceduresWithDentistAndPhoneNumber")]
+    partial class updatingProceduresWithDentistAndPhoneNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
