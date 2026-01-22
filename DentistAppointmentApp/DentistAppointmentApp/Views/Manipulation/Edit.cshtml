@@ -1,0 +1,27 @@
+﻿@using DentistApp.Web.ViewModels.ManipulationViewModels
+@model ManipulationEditViewModel
+
+<h2>Edit manipulation</h2>
+
+<form asp-action="Edit" method="post">
+    <input asp-for="ManipulationId" type="hidden" />
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PriceRange" class="form-label"></label>
+        <input asp-for="PriceRange" class="form-control" />
+        <span asp-validation-for="PriceRange" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

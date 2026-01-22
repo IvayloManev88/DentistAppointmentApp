@@ -21,9 +21,11 @@
             ManipulationViewAllViewModel[] manipulations = await dbContext
                 .ManipulationTypes
                 .AsNoTracking()
+                .Where(m => m.IsDeleted == false)
                 .OrderBy(m => m.Name)
                 .Select(m => new ManipulationViewAllViewModel
                 {
+                    ManipulationId = m.ManipulationId.ToString(),
                     Name = m.Name,
                     PriceRange = m.PriceRange
                 }).ToArrayAsync();
@@ -62,6 +64,76 @@
 
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        public async Task<IActionResult> Delete(string id)
+        {
+            ManipulationType? manipulationToDelete = await dbContext
+                .ManipulationTypes
+                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.ManipulationId.ToString().ToLower() == id.ToLower());
 
+            if (manipulationToDelete == null)
+            {
+                return NotFound();
+            }
+            manipulationToDelete.IsDeleted = true;
+
+            await dbContext.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            ManipulationType? manipulationToEdit = await dbContext
+                .ManipulationTypes
+                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.ManipulationId.ToString().ToLower() == id.ToLower());
+
+            if (manipulationToEdit == null)
+            {
+                return NotFound();
+            }
+            ManipulationEditViewModel editViewModel = new ManipulationEditViewModel
+            {
+                ManipulationId = manipulationToEdit.ManipulationId.ToString(),
+                Name = manipulationToEdit.Name,
+                PriceRange = manipulationToEdit.PriceRange
+            };
+            return View(editViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(ManipulationEditViewModel editViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(editViewModel);
+            }
+
+            if (await this.dbContext.ManipulationTypes
+                .AsNoTracking()
+                .AnyAsync(m => m.Name == editViewModel.Name && m.IsDeleted == false && editViewModel.ManipulationId.ToLower() != m.ManipulationId.ToString().ToLower()))
+            {
+                ModelState
+                    .AddModelError(nameof(editViewModel.Name), "Duplicate manipulation name");
+                return View(editViewModel);
+            }
+
+            ManipulationType? manipulationToEdit = await dbContext
+                .ManipulationTypes
+                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.ManipulationId.ToString().ToLower() == editViewModel.ManipulationId.ToLower());
+
+            if (manipulationToEdit == null)
+            {
+                return NotFound();
+            }
+            manipulationToEdit.Name = editViewModel.Name;
+            manipulationToEdit.PriceRange = editViewModel.PriceRange;
+
+            await dbContext.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
+
+
+        }
     }
 }

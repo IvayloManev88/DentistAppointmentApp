@@ -2,6 +2,7 @@
 {
     public class AppointmentViewAppointmentViewModel
     {
+        public string AppointmentId = null!;
         public string PatientAppointmentName = null!;
         public string DentistAppointmentName = null!;
         public string AppointmentDate = null!;
