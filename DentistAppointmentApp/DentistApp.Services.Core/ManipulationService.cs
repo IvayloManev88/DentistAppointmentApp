@@ -9,6 +9,7 @@ namespace DentistApp.Services.Core
     
     public class ManipulationService : IManipulationService
     {
+       
         private readonly DentistAppDbContext dbContext;
         public ManipulationService(DentistAppDbContext dbContext)
         {

@@ -1,0 +1,75 @@
+﻿@model DentistApp.Web.ViewModels.ProcedureViewModels.ProcedureCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Procedure";
+}
+
+<h2 class="mb-4">Create Procedure</h2>
+
+<form asp-action="Create" method="post" novalidate>
+
+    <!-- Validation summary -->
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <!-- Procedure date -->
+    <div class="mb-3">
+        <label asp-for="ProcedureDate" class="form-label"></label>
+        <input asp-for="ProcedureDate"
+               type="date"
+               class="form-control"
+               min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="ProcedureDate" class="text-danger"></span>
+    </div>
+
+    <!-- Patient -->
+    <div class="mb-3">
+        <label class="form-label">Patient</label>
+        <select asp-for="ProcedureId"
+                asp-items="Model.PatientsNames"
+                class="form-select">
+            <option value="">-- Select patient --</option>
+        </select>
+        <span asp-validation-for="ProcedureId" class="text-danger"></span>
+    </div>
+
+    <!-- Manipulation type -->
+    <div class="mb-3">
+        <label asp-for="ManipulationTypeId" class="form-label"></label>
+        <select asp-for="ManipulationTypeId"
+                asp-items="Model.ManipulationTypes"
+                class="form-select">
+            <option value="">-- Select manipulation --</option>
+        </select>
+        <span asp-validation-for="ManipulationTypeId" class="text-danger"></span>
+    </div>
+
+    <!-- Patient phone -->
+    <div class="mb-3">
+        <label asp-for="PatientPhoneNumber" class="form-label"></label>
+        <input asp-for="PatientPhoneNumber"
+               class="form-control"
+               placeholder="+359XXXXXXXXX or 0XXXXXXXXX" />
+        <span asp-validation-for="PatientPhoneNumber" class="text-danger"></span>
+    </div>
+
+    <!-- Dentist note -->
+    <div class="mb-3">
+        <label asp-for="DentistNote" class="form-label"></label>
+        <textarea asp-for="DentistNote"
+                  class="form-control"
+                  rows="3"></textarea>
+        <span asp-validation-for="DentistNote" class="text-danger"></span>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary">
+        Create Procedure
+    </button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">
+        Cancel
+    </a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

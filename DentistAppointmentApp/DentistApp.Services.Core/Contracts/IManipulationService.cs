@@ -5,7 +5,7 @@ namespace DentistApp.Services.Core.Contracts
    
     public interface IManipulationService
     {
-       
+        
         Task<IEnumerable<LookupItem>> GetManipulationTypesAsync();
     }
 }
