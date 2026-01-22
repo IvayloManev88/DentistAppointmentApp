@@ -16,6 +16,7 @@ namespace DentistApp.Web.Controllers
     using Microsoft.AspNetCore.Mvc.Rendering;
     using System.Collections.Generic;
     using static GCommon.AppointmentConstants;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     [Authorize]
     public class AppointmentController : Controller
@@ -42,6 +43,7 @@ namespace DentistApp.Web.Controllers
                 .OrderBy(a => a.Date)
                 .Select(a => new AppointmentViewAppointmentViewModel
                 {
+                    AppointmentId = a.AppointmentId.ToString(),
                     PatientAppointmentName = $"{a.Patient.FirstName} {a.Patient.LastName}",
                     DentistAppointmentName = $"{a.Dentist.FirstName} {a.Dentist.LastName}",
                     AppointmentDate = a.Date.ToString("hh:mm dd.MM.yyyy"),
@@ -62,7 +64,7 @@ namespace DentistApp.Web.Controllers
             await PopulateManipulationTypesAsync(createModel);
             return View(createModel);
         }
-
+        [HttpPost]
         public async Task<IActionResult> Create(AppointmentCreateViewModel createModel)
         {
             if (!ModelState.IsValid)
@@ -94,7 +96,7 @@ namespace DentistApp.Web.Controllers
                 Date = appointmentDate,
                 PatientPhoneNumber = createModel.PatientPhoneNumber,
                 ManipulationTypeId = createModel.ManipulationTypeId,
-
+                Note = createModel.Note
 
             };
 
@@ -103,7 +105,102 @@ namespace DentistApp.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-       private async Task PopulateManipulationTypesAsync(AppointmentCreateViewModel createViewModel)
+        [HttpPost]
+        public async Task<IActionResult> Delete(string id)
+        {
+            Appointment? appointmentToDelete = await dbContext
+                .Appointments
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId.ToString().ToLower() == id.ToLower());
+
+            if (appointmentToDelete == null)
+            {
+                return NotFound();
+            }
+            appointmentToDelete.IsDeleted = true;
+
+            await dbContext.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            Appointment? appointmentToEdit = await dbContext
+                .Appointments
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId.ToString().ToLower() == id.ToLower());
+
+            if (appointmentToEdit == null)
+            {
+                return NotFound();
+            }
+            AppointmentCreateViewModel editViewModel = new AppointmentCreateViewModel
+            {
+                AppointmentId = appointmentToEdit.AppointmentId.ToString(),
+                AppointmentDate = appointmentToEdit.Date.Date,
+                AppointmentTime = appointmentToEdit.Date.TimeOfDay,
+                PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber,
+                ManipulationTypeId = appointmentToEdit.ManipulationTypeId,
+                Note = appointmentToEdit.Note,
+
+
+            };
+            await PopulateManipulationTypesAsync(editViewModel);
+            return View(editViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(AppointmentCreateViewModel editViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(editViewModel);
+            }
+            DateTime appointmentDate = editViewModel.AppointmentDate.Date + editViewModel.AppointmentTime;
+
+            if (await this.dbContext.Appointments
+                .AsNoTracking()
+                .AnyAsync(a => a.Date == appointmentDate 
+                && a.IsDeleted == false 
+                && editViewModel.AppointmentId!.ToLower() != a.AppointmentId.ToString().ToLower()))
+                
+            {
+                ModelState
+                    .AddModelError(nameof(editViewModel.AppointmentDate), "Duplicate applointment hour");
+                await PopulateManipulationTypesAsync(editViewModel);
+                return View(editViewModel);
+            }
+
+            if (appointmentDate < DateTime.Now)
+            {
+                ModelState
+                   .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appintment in the past");
+                await PopulateManipulationTypesAsync(editViewModel);
+                return View(editViewModel);
+            }
+
+            Appointment? appointmentToEdit = await dbContext
+                .Appointments
+                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.AppointmentId.ToString().ToLower() == editViewModel.AppointmentId!.ToLower());
+
+            if (appointmentToEdit == null)
+            {
+                return NotFound();
+            }
+
+            appointmentToEdit.Date = appointmentDate;
+            appointmentToEdit.PatientPhoneNumber = editViewModel.PatientPhoneNumber;
+            appointmentToEdit.ManipulationTypeId = editViewModel.ManipulationTypeId;
+            appointmentToEdit.Note = editViewModel.Note;
+           
+
+            await dbContext.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
+
+
+        }
+
+        private async Task PopulateManipulationTypesAsync(AppointmentCreateViewModel createViewModel)
         {
             var manipulationTypes = await manipulationService.GetManipulationTypesAsync();
 
