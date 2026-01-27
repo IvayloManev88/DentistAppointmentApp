@@ -1,4 +1,4 @@
-﻿namespace DentistAppointmentApp.Data
+﻿namespace DentistApp.Data
 {
     using DentistApp.Data.Configuration;
     using DentistApp.Data.Models;

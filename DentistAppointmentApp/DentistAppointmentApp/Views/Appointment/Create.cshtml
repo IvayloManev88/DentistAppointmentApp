@@ -18,6 +18,7 @@
         <input asp-for="AppointmentDate"
                type="date"
                class="form-control"
+               value="@DateTime.Today.ToString("yyyy-MM-dd")"
                min="@DateTime.Today.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="AppointmentDate" class="text-danger"></span>
     </div>
@@ -27,7 +28,9 @@
         <label asp-for="AppointmentTime" class="form-label"></label>
         <input asp-for="AppointmentTime"
                type="time"
-               class="form-control" />
+
+               class="form-control" 
+               value="@DateTime.Now.ToString("HH:mm")" />
         <span asp-validation-for="AppointmentTime" class="text-danger"></span>
     </div>
 

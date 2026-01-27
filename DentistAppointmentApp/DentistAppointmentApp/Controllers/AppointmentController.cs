@@ -1,35 +1,30 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-
-namespace DentistApp.Web.Controllers
+﻿namespace DentistApp.Web.Controllers
 {
+    using DentistApp.Data;
     using DentistApp.Data.Models;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.Services.Core.Models;
     using DentistApp.Web.ViewModels.AppointmentViewModels;
-    using DentistAppointmentApp.Data;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
+    using Microsoft.EntityFrameworkCore;
     using System.Collections.Generic;
     using static GCommon.AppointmentConstants;
-
+    
     [Authorize]
     public class AppointmentController : Controller
     {
-
         private readonly UserManager<ApplicationUser> userManager;
         private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
         
-
         public AppointmentController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService)
         {
             this.userManager = userManager;
             this.dbContext = dbContext;
             this.manipulationService = manipulationService;
-
         }
 
         public async Task<IActionResult> Index()
@@ -58,9 +53,12 @@ namespace DentistApp.Web.Controllers
         {
             IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
             AppointmentCreateViewModel createModel = new AppointmentCreateViewModel();
+            createModel.AppointmentDate = DateTime.Today;
+            createModel.AppointmentTime = DateTime.Now.TimeOfDay;
             await PopulateManipulationTypesAsync(createModel);
             return View(createModel);
         }
+
         [HttpPost]
         public async Task<IActionResult> Create(AppointmentCreateViewModel createModel)
         {
@@ -120,11 +118,11 @@ namespace DentistApp.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(Guid id)
         {
             Appointment? appointmentToEdit = await dbContext
                 .Appointments
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId.ToString().ToLower() == id.ToLower());
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == id);
 
             if (appointmentToEdit == null)
             {
@@ -189,12 +187,8 @@ namespace DentistApp.Web.Controllers
             appointmentToEdit.ManipulationTypeId = editViewModel.ManipulationTypeId;
             appointmentToEdit.Note = editViewModel.Note;
            
-
             await dbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-
-
-
         }
 
         private async Task PopulateManipulationTypesAsync(AppointmentCreateViewModel createViewModel)
@@ -206,9 +200,7 @@ namespace DentistApp.Web.Controllers
                 {
                     Value = mt.Id.ToString(),
                     Text = mt.Name
-                });
-                
+                }); 
         }
-
     }
 }

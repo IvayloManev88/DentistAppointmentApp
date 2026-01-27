@@ -1,7 +1,7 @@
 ﻿@model DentistApp.Web.ViewModels.ProcedureViewModels.ProcedureCreateViewModel
 
 @{
-    ViewData["Title"] = "Create Procedure";
+    ViewData["Title"] = "Edit Procedure";
 }
 
 <div class="container py-4">
@@ -9,7 +9,7 @@
         <div class="col-12 col-md-10 col-lg-7 col-xl-6">
 
             <div class="d-flex align-items-center justify-content-between mb-3">
-                <h2 class="mb-0">Create Procedure</h2>
+                <h2 class="mb-0">Edit Procedure</h2>
                 <a asp-action="Index" class="btn btn-outline-secondary">
                     Back
                 </a>
@@ -18,7 +18,10 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
 
-                    <form asp-action="Create" method="post" novalidate>
+                    <form asp-action="Edit" method="post" novalidate>
+                        @* Important: used in POST to find the record *@
+                        <input asp-for="ProcedureId" type="hidden" />
+
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
 
                         <div class="row g-3">
@@ -33,7 +36,7 @@
                                        max="@DateTime.Now.ToString("yyyy-MM-dd")" />
                                 <span asp-validation-for="ProcedureDate" class="text-danger"></span>
                                 <div class="form-text">
-                                    Set the date the procedure was performed (cannot be in the future).
+                                    Date cannot be in the future.
                                 </div>
                             </div>
 
@@ -84,7 +87,7 @@
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                Create Procedure
+                                Save changes
                             </button>
                             <a asp-action="Index" class="btn btn-secondary">
                                 Cancel

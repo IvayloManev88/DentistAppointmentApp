@@ -1,7 +1,7 @@
 using DentistApp.Data.Models;
 using DentistApp.Services.Core;
 using DentistApp.Services.Core.Contracts;
-using DentistAppointmentApp.Data;
+using DentistApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

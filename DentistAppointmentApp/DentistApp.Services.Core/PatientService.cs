@@ -1,6 +1,6 @@
 ﻿using DentistApp.Services.Core.Contracts;
 using DentistApp.Services.Core.Models;
-using DentistAppointmentApp.Data;
+using DentistApp.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DentistApp.Services.Core
@@ -20,7 +20,11 @@ namespace DentistApp.Services.Core
                 Where(u => u.IsDeleted == false)
                 .OrderBy(u => u.FirstName)
                 .ThenBy(u => u.LastName)
-                .Select(u => new LookupItem(Guid.Parse(u.Id), $"{u.FirstName} {u.LastName}"))
+                .Select(u => new LookupItem
+                {
+                    Id=Guid.Parse(u.Id), 
+                    Name=$"{u.FirstName} {u.LastName}"
+                })
                 .ToArrayAsync();
         }
 

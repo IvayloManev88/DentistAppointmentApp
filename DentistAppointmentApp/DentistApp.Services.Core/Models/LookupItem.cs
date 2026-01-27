@@ -1,7 +1,12 @@
 ﻿namespace DentistApp.Services.Core.Models
 {
 
-    public record LookupItem(Guid Id, string Name);
+   
+    public class LookupItem
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
 
+    }
    
 }

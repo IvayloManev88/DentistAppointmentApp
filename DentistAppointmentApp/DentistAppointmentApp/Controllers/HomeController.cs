@@ -2,7 +2,7 @@ using System.Diagnostics;
 using DentistApp.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DentistAppointmentApp.Controllers
+namespace DentistApp.Web.Controllers
 {
     public class HomeController : Controller
     {

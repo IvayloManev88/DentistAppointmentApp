@@ -4,7 +4,7 @@ namespace DentistApp.Services.Core
 {
     using DentistApp.Services.Core.Contracts;
     using DentistApp.Services.Core.Models;
-    using DentistAppointmentApp.Data;
+    using DentistApp.Data;
     using Microsoft.EntityFrameworkCore;
     
     public class ManipulationService : IManipulationService
@@ -20,7 +20,11 @@ namespace DentistApp.Services.Core
             return await dbContext.ManipulationTypes
                 .Where(mt => mt.IsDeleted == false)
                 .OrderBy(mt => mt.Name)
-                .Select(mt => new LookupItem(mt.ManipulationId, mt.Name))
+                .Select(mt => new LookupItem
+                { 
+                    Id =mt.ManipulationId,
+                    Name = mt.Name 
+                })
                 .ToArrayAsync();
         }
     }

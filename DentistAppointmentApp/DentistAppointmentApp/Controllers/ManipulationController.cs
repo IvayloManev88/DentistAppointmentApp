@@ -2,7 +2,7 @@
 {
     using DentistApp.Data.Models;
     using DentistApp.Web.ViewModels.ManipulationViewModels;
-    using DentistAppointmentApp.Data;
+    using DentistApp.Data;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;

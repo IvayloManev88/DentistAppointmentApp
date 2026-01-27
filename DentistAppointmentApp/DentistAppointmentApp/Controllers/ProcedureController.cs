@@ -6,7 +6,7 @@
     using DentistApp.Services.Core.Models;
     using DentistApp.Web.ViewModels.AppointmentViewModels;
     using DentistApp.Web.ViewModels.ProcedureViewModels;
-    using DentistAppointmentApp.Data;
+    using DentistApp.Data;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
@@ -63,138 +63,128 @@
         {
             IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
             ProcedureCreateViewModel createModel = new ProcedureCreateViewModel();
+            createModel.ProcedureDate = DateTime.Today;
             await PopulateManipulationTypesAsync(createModel);
             await PopulatePatientsAsync(createModel);
             return View(createModel);
         }
-        /*
+        
         [HttpPost]
-        public async Task<IActionResult> Create(AppointmentCreateViewModel createModel)
+        public async Task<IActionResult> Create(ProcedureCreateViewModel createModel)
         {
             if (!ModelState.IsValid)
             {
+                await PopulateManipulationTypesAsync(createModel);
+                await PopulatePatientsAsync(createModel);
                 return View(createModel);
             }
 
-            DateTime appointmentDate = createModel.AppointmentDate.Date + createModel.AppointmentTime;
-            if (await this.dbContext.Appointments.AsNoTracking().AnyAsync(a => a.Date == appointmentDate && a.IsDeleted == false))
+            DateTime procedureDate = createModel.ProcedureDate.Date;
+          
+
+            if (procedureDate > DateTime.Now)
             {
                 ModelState
-                    .AddModelError(nameof(createModel.AppointmentDate), "The selected combination Date/Time is not available. Please try different Date/Time");
-
+                   .AddModelError(nameof(createModel.ProcedureDate), "You should not set procedure that is done in the future");
                 await PopulateManipulationTypesAsync(createModel);
+                await PopulatePatientsAsync(createModel);
                 return View(createModel);
             }
-
-            if (appointmentDate < DateTime.Now)
+            Procedure currentProcedure = new Procedure
             {
-                ModelState
-                   .AddModelError(nameof(createModel.AppointmentDate), "You should not set an appintment in the past");
-                await PopulateManipulationTypesAsync(createModel);
-                return View(createModel);
-            }
-            Appointment currentAppointment = new Appointment
-            {
-                PatientId = userManager.GetUserId(User)!,
-                DentistId = DentistId,
-                Date = appointmentDate,
+                PatientId = createModel.PatientId,
+                DentistId = userManager.GetUserId(User)!,
+                Date = procedureDate,
                 PatientPhoneNumber = createModel.PatientPhoneNumber,
                 ManipulationTypeId = createModel.ManipulationTypeId,
-                Note = createModel.Note
+                Note = createModel.DentistNote
 
             };
 
-            await dbContext.Appointments.AddAsync(currentAppointment);
+            await dbContext.Procedures.AddAsync(currentProcedure);
             await dbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            Appointment? appointmentToDelete = await dbContext
-                .Appointments
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId.ToString().ToLower() == id.ToLower());
+            Procedure? procedureToDelete = await dbContext
+                .Procedures
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.ProcedureId== id);
 
-            if (appointmentToDelete == null)
+            if (procedureToDelete == null)
             {
                 return NotFound();
             }
-            appointmentToDelete.IsDeleted = true;
+            procedureToDelete.IsDeleted = true;
 
             await dbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            Appointment? appointmentToEdit = await dbContext
-                .Appointments
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId.ToString().ToLower() == id.ToLower());
+            Procedure? procedureToEdit = await dbContext
+                .Procedures
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.ProcedureId == id);
 
-            if (appointmentToEdit == null)
+            if (procedureToEdit == null)
             {
                 return NotFound();
             }
-            AppointmentCreateViewModel editViewModel = new AppointmentCreateViewModel
+            ProcedureCreateViewModel editViewModel = new ProcedureCreateViewModel
             {
-                AppointmentId = appointmentToEdit.AppointmentId.ToString(),
-                AppointmentDate = appointmentToEdit.Date.Date,
-                AppointmentTime = appointmentToEdit.Date.TimeOfDay,
-                PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber,
-                ManipulationTypeId = appointmentToEdit.ManipulationTypeId,
-                Note = appointmentToEdit.Note,
+                ProcedureId = procedureToEdit.ProcedureId.ToString(),
+                ProcedureDate = procedureToEdit.Date,
+                PatientId = procedureToEdit.PatientId,
+                PatientPhoneNumber = procedureToEdit.PatientPhoneNumber,
+                ManipulationTypeId = procedureToEdit.ManipulationTypeId,
+                DentistNote = procedureToEdit.Note,
 
 
             };
             await PopulateManipulationTypesAsync(editViewModel);
+            await PopulatePatientsAsync(editViewModel);
             return View(editViewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(AppointmentCreateViewModel editViewModel)
+        public async Task<IActionResult> Edit(ProcedureCreateViewModel editViewModel)
         {
             if (!ModelState.IsValid)
             {
+                await PopulateManipulationTypesAsync(editViewModel);
+                await PopulatePatientsAsync(editViewModel);
                 return View(editViewModel);
             }
-            DateTime appointmentDate = editViewModel.AppointmentDate.Date + editViewModel.AppointmentTime;
+                      
 
-            if (await this.dbContext.Appointments
-                .AsNoTracking()
-                .AnyAsync(a => a.Date == appointmentDate
-                && a.IsDeleted == false
-                && editViewModel.AppointmentId!.ToLower() != a.AppointmentId.ToString().ToLower()))
-
+            if (editViewModel.ProcedureDate > DateTime.Now)
             {
                 ModelState
-                    .AddModelError(nameof(editViewModel.AppointmentDate), "Duplicate applointment hour");
+                   .AddModelError(nameof(editViewModel.ProcedureDate), "You should not set procedure that is done in the future");
                 await PopulateManipulationTypesAsync(editViewModel);
+                await PopulatePatientsAsync(editViewModel);
                 return View(editViewModel);
             }
 
-            if (appointmentDate < DateTime.Now)
-            {
-                ModelState
-                   .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appintment in the past");
-                await PopulateManipulationTypesAsync(editViewModel);
-                return View(editViewModel);
-            }
+            Procedure? procedureToEdit = await dbContext
+                .Procedures
+                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.ProcedureId.ToString()== editViewModel.ProcedureId!);
 
-            Appointment? appointmentToEdit = await dbContext
-                .Appointments
-                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.AppointmentId.ToString().ToLower() == editViewModel.AppointmentId!.ToLower());
-
-            if (appointmentToEdit == null)
+            if (procedureToEdit == null)
             {
                 return NotFound();
             }
 
-            appointmentToEdit.Date = appointmentDate;
-            appointmentToEdit.PatientPhoneNumber = editViewModel.PatientPhoneNumber;
-            appointmentToEdit.ManipulationTypeId = editViewModel.ManipulationTypeId;
-            appointmentToEdit.Note = editViewModel.Note;
+            procedureToEdit.Date = editViewModel.ProcedureDate;
+            procedureToEdit.PatientPhoneNumber = editViewModel.PatientPhoneNumber;
+            procedureToEdit.ManipulationTypeId = editViewModel.ManipulationTypeId;
+            procedureToEdit.Note = editViewModel.DentistNote;
+            procedureToEdit.PatientId = editViewModel.PatientId;
+            procedureToEdit.DentistId = userManager.GetUserId(User)!;
 
 
             await dbContext.SaveChangesAsync();
@@ -203,7 +193,7 @@
 
 
         }
-        */
+        
         private async Task PopulateManipulationTypesAsync(ProcedureCreateViewModel createViewModel)
         {
             IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
