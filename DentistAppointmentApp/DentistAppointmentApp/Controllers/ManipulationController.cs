@@ -6,7 +6,10 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+    using Microsoft.AspNetCore.Authorization;
+    using static DentistApp.GCommon.Roles;
 
+    [Authorize]
     public class ManipulationController : Controller
     {
         private readonly DentistAppDbContext dbContext;
@@ -16,6 +19,7 @@
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             ManipulationViewAllViewModel[] manipulations = await dbContext
@@ -34,12 +38,14 @@
         }
 
         [HttpGet]
+        [Authorize(Roles= dentistRoleName)]
         public IActionResult Create()
         {
             return View(new ManipulationCreateViewModel());
         }
 
         [HttpPost]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Create(ManipulationCreateViewModel inputViewModel)
         {
             if (!ModelState.IsValid)
@@ -65,6 +71,7 @@
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Delete(string id)
         {
             ManipulationType? manipulationToDelete = await dbContext
@@ -82,6 +89,7 @@
         }
 
         [HttpGet]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Edit(string id)
         {
             ManipulationType? manipulationToEdit = await dbContext
@@ -102,6 +110,7 @@
         }
 
         [HttpPost]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Edit(ManipulationEditViewModel editViewModel)
         {
             if (!ModelState.IsValid)

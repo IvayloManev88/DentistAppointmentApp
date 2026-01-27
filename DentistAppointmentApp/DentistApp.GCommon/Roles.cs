@@ -6,6 +6,6 @@ namespace DentistApp.GCommon
 {
     public class Roles
     {
-       public const string roleName = "Dentist";
+       public const string dentistRoleName = "Dentist";
     }
 }

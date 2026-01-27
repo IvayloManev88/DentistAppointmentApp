@@ -14,6 +14,10 @@
     using System.Collections.Generic;
 
     using static GCommon.ProcedureConstants;
+    using Microsoft.AspNetCore.Authorization;
+    using static DentistApp.GCommon.Roles;
+
+    [Authorize]
     public class ProcedureController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
@@ -30,7 +34,8 @@
             this.patientService = patientService;
 
         }
-        
+        [HttpGet]
+
         public async Task<IActionResult> Index()
         {
             string currentUserId = userManager.GetUserId(User)!;
@@ -59,6 +64,7 @@
         }
 
         [HttpGet]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Create()
         {
             IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
@@ -70,6 +76,7 @@
         }
         
         [HttpPost]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Create(ProcedureCreateViewModel createModel)
         {
             if (!ModelState.IsValid)
@@ -107,6 +114,7 @@
         }
 
         [HttpPost]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Delete(Guid id)
         {
             Procedure? procedureToDelete = await dbContext
@@ -124,6 +132,7 @@
         }
 
         [HttpGet]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Edit(Guid id)
         {
             Procedure? procedureToEdit = await dbContext
@@ -151,6 +160,7 @@
         }
 
         [HttpPost]
+        [Authorize(Roles = dentistRoleName)]
         public async Task<IActionResult> Edit(ProcedureCreateViewModel editViewModel)
         {
             if (!ModelState.IsValid)

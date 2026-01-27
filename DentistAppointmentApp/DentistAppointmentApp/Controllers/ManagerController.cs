@@ -21,20 +21,21 @@
             this.roleManager = roleManager;
 
         }
+        [HttpGet]
         public async Task<IActionResult> AssignDentist()
         {
-            if (!await roleManager.RoleExistsAsync(roleName))
+            if (!await roleManager.RoleExistsAsync(dentistRoleName))
             {
-                await roleManager.CreateAsync(new IdentityRole(roleName));
+                await roleManager.CreateAsync(new IdentityRole(dentistRoleName));
             }
             ApplicationUser? currentUser = await userManager.GetUserAsync(User);
             if (currentUser == null)
             {
                 return NotFound();
             }
-            if (!await userManager.IsInRoleAsync(currentUser,roleName))
+            if (!await userManager.IsInRoleAsync(currentUser,dentistRoleName))
             {
-                await userManager.AddToRoleAsync(currentUser,roleName)  ;
+                await userManager.AddToRoleAsync(currentUser,dentistRoleName)  ;
             }
 
             return Ok("You are a Dentist");
