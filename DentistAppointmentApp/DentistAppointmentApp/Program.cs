@@ -29,6 +29,7 @@ builder.Services
         options.Password.RequiredLength = 6;
         options.Password.RequireNonAlphanumeric = false;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DentistAppDbContext>()
     .AddDefaultTokenProviders();
 
