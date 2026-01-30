@@ -1,12 +1,13 @@
 ﻿namespace DentistApp.Web.Controllers
 {
+    using DentistApp.Data;
     using DentistApp.Data.Models;
     using DentistApp.Web.ViewModels.ManipulationViewModels;
-    using DentistApp.Data;
+
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-    using Microsoft.AspNetCore.Authorization;
+
     using static DentistApp.GCommon.Roles;
 
     [Authorize]
@@ -38,14 +39,14 @@
         }
 
         [HttpGet]
-        [Authorize(Roles= dentistRoleName)]
+        [Authorize(Roles= DentistRoleName)]
         public IActionResult Create()
         {
             return View(new ManipulationCreateViewModel());
         }
 
         [HttpPost]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create(ManipulationCreateViewModel inputViewModel)
         {
             if (!ModelState.IsValid)
@@ -70,8 +71,9 @@
 
             return RedirectToAction(nameof(Index));
         }
+
         [HttpPost]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Delete(string id)
         {
             ManipulationType? manipulationToDelete = await dbContext
@@ -89,7 +91,7 @@
         }
 
         [HttpGet]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Edit(string id)
         {
             ManipulationType? manipulationToEdit = await dbContext
@@ -110,7 +112,7 @@
         }
 
         [HttpPost]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Edit(ManipulationEditViewModel editViewModel)
         {
             if (!ModelState.IsValid)
@@ -140,9 +142,6 @@
 
             await dbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-
-
-
         }
     }
 }

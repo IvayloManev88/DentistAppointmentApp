@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DentistApp.GCommon
+﻿namespace DentistApp.GCommon
 {
     public static class AppointmentConstants
     {

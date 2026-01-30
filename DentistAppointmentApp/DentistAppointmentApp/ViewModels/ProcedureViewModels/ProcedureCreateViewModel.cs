@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
-using static DentistApp.GCommon.ProcedureConstants;
-
-namespace DentistApp.Web.ViewModels.ProcedureViewModels
+﻿namespace DentistApp.Web.ViewModels.ProcedureViewModels
 {
+    using Microsoft.AspNetCore.Mvc.Rendering;
+
+    using System.ComponentModel.DataAnnotations;
+
+    using static DentistApp.GCommon.ProcedureConstants;
+
     public class ProcedureCreateViewModel
     {
         public string? ProcedureId { get; set; }

@@ -5,13 +5,17 @@
     using DentistApp.Services.Core.Contracts;
     using DentistApp.Services.Core.Models;
     using DentistApp.Web.ViewModels.AppointmentViewModels;
+
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.EntityFrameworkCore;
+
     using System.Collections.Generic;
+
     using static GCommon.AppointmentConstants;
+    using static GCommon.GlobalCommon;
     
     [Authorize]
     public class AppointmentController : Controller
@@ -19,12 +23,14 @@
         private readonly UserManager<ApplicationUser> userManager;
         private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
+        private readonly IPatientService patientService;
         
-        public AppointmentController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService)
+        public AppointmentController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService)
         {
             this.userManager = userManager;
             this.dbContext = dbContext;
             this.manipulationService = manipulationService;
+            this.patientService = patientService;
         }
 
         public async Task<IActionResult> Index()
@@ -38,13 +44,12 @@
                     AppointmentId = a.AppointmentId.ToString(),
                     PatientAppointmentName = $"{a.Patient.FirstName} {a.Patient.LastName}",
                     DentistAppointmentName = $"{a.Dentist.FirstName} {a.Dentist.LastName}",
-                    AppointmentDate = a.Date.ToString("hh:mm dd.MM.yyyy"),
+                    AppointmentDate = a.Date.ToString(DateTimeFormat),
                     PatientAppointmentPhoneNumber = a.PatientPhoneNumber,
                     ManipulationName = a.ManipulationType.Name,
                     AppointmentNote = a.Note
 
                 }).ToArrayAsync();
-
             return View(appointments);
         }
 
@@ -75,14 +80,8 @@
                     .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
                 await PopulateManipulationTypesAsync(createModel);
                 return View(createModel);
-            }
-            if (appointmentDate<DateTime.Now)
-            {
-                ModelState
-                    .AddModelError(nameof(createModel.AppointmentDate), "The selected date must be in the future");
-                await PopulateManipulationTypesAsync(createModel);
-                return View(createModel);
-            }
+            }          
+
             if (await this.dbContext.Appointments.AsNoTracking().AnyAsync(a => a.Date == appointmentDate && a.IsDeleted == false))
             {
                 ModelState
@@ -93,17 +92,24 @@
                 return View(createModel);
             }
 
-            if (appointmentDate < DateTime.Now)
+            if (appointmentDate < DateTime.Today)
             {
                 ModelState
                    .AddModelError(nameof(createModel.AppointmentDate), "You should not set an appintment in the past");
                 await PopulateManipulationTypesAsync(createModel);
                 return View(createModel);
             }
+            string? dentistId = await patientService.GetDentistIdAsync();
+
+            if (dentistId == null)
+            {
+                return BadRequest("Dentist user is not configured.");
+            }
+
             Appointment currentAppointment = new Appointment
             {
                 PatientId = userManager.GetUserId(User)!,
-                DentistId = DentistId,
+                DentistId = dentistId,
                 Date = appointmentDate,
                 PatientPhoneNumber = createModel.PatientPhoneNumber,
                 ManipulationTypeId = createModel.ManipulationTypeId,
@@ -140,12 +146,11 @@
                 .Appointments
                 .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == id);
 
-
-
             if (appointmentToEdit == null)
             {
                 return NotFound();
             }
+
             AppointmentCreateViewModel editViewModel = new AppointmentCreateViewModel
             {
                 AppointmentId = appointmentToEdit.AppointmentId.ToString(),
@@ -157,6 +162,7 @@
 
 
             };
+
             await PopulateManipulationTypesAsync(editViewModel);
             return View(editViewModel);
         }
@@ -233,7 +239,6 @@
             bool isManipulationValid = dbContext.ManipulationTypes
                 .Any(m=>m.ManipulationId == currentManipulation);
             return isManipulationValid;
-        }
-       
+        }              
     }
 }

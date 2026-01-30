@@ -1,7 +1,9 @@
 ﻿namespace DentistApp.Web.ViewModels.AppointmentViewModels
 {
     using Microsoft.AspNetCore.Mvc.Rendering;
+
     using System.ComponentModel.DataAnnotations;
+
     using static DentistApp.GCommon.AppointmentConstants;
     public class AppointmentCreateViewModel
     {
@@ -29,6 +31,5 @@
         [StringLength(NoteMaxLength,
             ErrorMessage = "Note length cannot exceed 450 characters")]
         public string? Note { get; set; }
-
     }
 }

@@ -1,16 +1,15 @@
-﻿
-
-namespace DentistApp.Services.Core
+﻿namespace DentistApp.Services.Core
 {
+    using DentistApp.Data;
+
     using DentistApp.Services.Core.Contracts;
     using DentistApp.Services.Core.Models;
-    using DentistApp.Data;
+
     using Microsoft.EntityFrameworkCore;
     
     public class ManipulationService : IManipulationService
     {
-       
-        private readonly DentistAppDbContext dbContext;
+               private readonly DentistAppDbContext dbContext;
         public ManipulationService(DentistAppDbContext dbContext)
         {
             this.dbContext = dbContext;

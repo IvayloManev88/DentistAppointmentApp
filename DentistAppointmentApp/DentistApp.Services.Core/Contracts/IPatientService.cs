@@ -6,5 +6,7 @@ namespace DentistApp.Services.Core.Contracts
     public interface IPatientService
     {
         Task<IEnumerable<LookupItem>> GetPatientsAsync();
+
+        Task<string?> GetDentistIdAsync();
     }
 }

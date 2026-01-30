@@ -1,17 +1,23 @@
-﻿using DentistApp.Services.Core.Contracts;
-using DentistApp.Services.Core.Models;
-using DentistApp.Data;
-using Microsoft.EntityFrameworkCore;
-
-namespace DentistApp.Services.Core
+﻿namespace DentistApp.Services.Core
 {
+    using DentistApp.Data;
+
+    using DentistApp.Services.Core.Contracts;
+    using DentistApp.Services.Core.Models;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+
+    using DentistApp.Data.Models;
+    using static DentistApp.GCommon.Roles;
+
     public class PatientService : IPatientService
     {
-        
         private readonly DentistAppDbContext dbContext;
-        public PatientService(DentistAppDbContext dbContext)
+        private readonly UserManager<ApplicationUser> userManager;
+        public PatientService(DentistAppDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             this.dbContext = dbContext;
+            this.userManager = userManager;
         }
         public async Task<IEnumerable<LookupItem>> GetPatientsAsync()
         {
@@ -27,7 +33,11 @@ namespace DentistApp.Services.Core
                 })
                 .ToArrayAsync();
         }
-
+        public async Task<string?> GetDentistIdAsync()
+        {
+            IEnumerable<ApplicationUser> dentists = await userManager.GetUsersInRoleAsync(DentistRoleName);
+            return dentists.FirstOrDefault()?.Id.ToString();
+        }
        
     }
 }

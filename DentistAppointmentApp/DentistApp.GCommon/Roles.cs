@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DentistApp.GCommon
+﻿namespace DentistApp.GCommon
 {
     public class Roles
     {
-       public const string dentistRoleName = "Dentist";
+       public const string DentistRoleName = "Dentist";
     }
 }

@@ -2,10 +2,11 @@
 {
     using DentistApp.Data;
     using DentistApp.Data.Models;
-    using DentistApp.Services.Core.Contracts;
+
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
+
     using static DentistApp.GCommon.Roles;
 
     [Authorize]
@@ -19,23 +20,26 @@
             this.userManager = userManager;
             this.dbContext = dbContext;
             this.roleManager = roleManager;
-
         }
+
         [HttpGet]
         public async Task<IActionResult> AssignDentist()
         {
-            if (!await roleManager.RoleExistsAsync(dentistRoleName))
+            if (!await roleManager.RoleExistsAsync(DentistRoleName))
             {
-                await roleManager.CreateAsync(new IdentityRole(dentistRoleName));
+                await roleManager.CreateAsync(new IdentityRole(DentistRoleName));
             }
+
             ApplicationUser? currentUser = await userManager.GetUserAsync(User);
+
             if (currentUser == null)
             {
                 return NotFound();
             }
-            if (!await userManager.IsInRoleAsync(currentUser,dentistRoleName))
+
+            if (!await userManager.IsInRoleAsync(currentUser,DentistRoleName))
             {
-                await userManager.AddToRoleAsync(currentUser,dentistRoleName)  ;
+                await userManager.AddToRoleAsync(currentUser,DentistRoleName)  ;
             }
 
             return Ok("You are a Dentist");

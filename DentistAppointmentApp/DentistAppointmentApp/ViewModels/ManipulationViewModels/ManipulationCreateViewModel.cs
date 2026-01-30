@@ -1,6 +1,7 @@
 ﻿namespace DentistApp.Web.ViewModels.ManipulationViewModels
 {
     using System.ComponentModel.DataAnnotations;
+
     using static DentistApp.Data.EntityConstants.EntityConstants.Manipulation;
     public class ManipulationCreateViewModel
     {

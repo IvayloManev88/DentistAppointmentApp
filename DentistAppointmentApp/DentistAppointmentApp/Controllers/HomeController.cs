@@ -1,9 +1,12 @@
-using System.Diagnostics;
-using DentistApp.Web.ViewModels;
-using Microsoft.AspNetCore.Mvc;
-
 namespace DentistApp.Web.Controllers
 {
+    using DentistApp.Web.ViewModels;
+
+    using Microsoft.AspNetCore.Mvc;
+
+    using System.Diagnostics;
+    
+   
     public class HomeController : Controller
     {
         public IActionResult Index()

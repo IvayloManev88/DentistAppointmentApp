@@ -1,21 +1,24 @@
 ﻿namespace DentistApp.Web.Controllers
 {
 
+    using DentistApp.Data;
     using DentistApp.Data.Models;
+
     using DentistApp.Services.Core.Contracts;
     using DentistApp.Services.Core.Models;
-    using DentistApp.Web.ViewModels.AppointmentViewModels;
+
     using DentistApp.Web.ViewModels.ProcedureViewModels;
-    using DentistApp.Data;
+
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.EntityFrameworkCore;
+
     using System.Collections.Generic;
 
-    using static GCommon.ProcedureConstants;
-    using Microsoft.AspNetCore.Authorization;
     using static DentistApp.GCommon.Roles;
+    using static GCommon.GlobalCommon;
 
     [Authorize]
     public class ProcedureController : Controller
@@ -25,17 +28,15 @@
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
 
-
         public ProcedureController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService)
         {
             this.userManager = userManager;
             this.dbContext = dbContext;
             this.manipulationService = manipulationService;
             this.patientService = patientService;
-
         }
-        [HttpGet]
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             string currentUserId = userManager.GetUserId(User)!;
@@ -53,18 +54,17 @@
                     ProcedureId = p.ProcedureId.ToString(),
                     PatientProcedureName = $"{p.Patient.FirstName} {p.Patient.LastName}",
                     DentistProcedureName = $"{p.Dentist.FirstName} {p.Dentist.LastName}",
-                    ProcedureDate = p.Date.ToString("dd.MM.yyyy"),
+                    ProcedureDate = p.Date.ToString(DateFormat),
                     PatientProcedurePhoneNumber = p.PatientPhoneNumber,
                     ManipulationName = p.ManipulationType.Name,
                     ProcedureDentistNote = p.Note
-
                 }).ToArrayAsync();
 
             return View(procedures);
         }
 
         [HttpGet]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create()
         {
             IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
@@ -76,7 +76,7 @@
         }
         
         [HttpPost]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create(ProcedureCreateViewModel createModel)
         {
             if (!ModelState.IsValid)
@@ -119,7 +119,6 @@
                 PatientPhoneNumber = createModel.PatientPhoneNumber,
                 ManipulationTypeId = createModel.ManipulationTypeId,
                 Note = createModel.DentistNote
-
             };
 
             await dbContext.Procedures.AddAsync(currentProcedure);
@@ -128,7 +127,7 @@
         }
 
         [HttpPost]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Delete(Guid id)
         {
             Procedure? procedureToDelete = await dbContext
@@ -139,6 +138,7 @@
             {
                 return NotFound();
             }
+
             procedureToDelete.IsDeleted = true;
 
             await dbContext.SaveChangesAsync();
@@ -146,7 +146,7 @@
         }
 
         [HttpGet]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Edit(Guid id)
         {
             Procedure? procedureToEdit = await dbContext
@@ -157,6 +157,7 @@
             {
                 return NotFound();
             }
+
             ProcedureCreateViewModel editViewModel = new ProcedureCreateViewModel
             {
                 ProcedureId = procedureToEdit.ProcedureId.ToString(),
@@ -168,13 +169,14 @@
 
 
             };
+
             await PopulateManipulationTypesAsync(editViewModel);
             await PopulatePatientsAsync(editViewModel);
             return View(editViewModel);
         }
 
         [HttpPost]
-        [Authorize(Roles = dentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Edit(ProcedureCreateViewModel editViewModel)
         {
             if (!ModelState.IsValid)
@@ -199,6 +201,7 @@
                 await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
+
             if (editViewModel.ProcedureDate > DateTime.Now)
             {
                 ModelState
@@ -224,12 +227,8 @@
             procedureToEdit.PatientId = editViewModel.PatientId;
             procedureToEdit.DentistId = userManager.GetUserId(User)!;
 
-
             await dbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-
-
-
         }
         
         private async Task PopulateManipulationTypesAsync(ProcedureCreateViewModel createViewModel)
@@ -242,7 +241,6 @@
                     Value = mt.Id.ToString(),
                     Text = mt.Name
                 });
-
         }
 
         private async Task PopulatePatientsAsync(ProcedureCreateViewModel createViewModel)
@@ -262,6 +260,7 @@
         {
             bool isManipulationValid = dbContext.ManipulationTypes
                 .Any(m => m.ManipulationId == currentProcedureManipulationId);
+
             return isManipulationValid;
         }
 
@@ -269,6 +268,7 @@
         {
             bool isPatientValid = dbContext.Users
                 .Any(u=>u.Id == currentProcedurePatientId.ToString());
+
             return isPatientValid;
         }
 
