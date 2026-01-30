@@ -87,7 +87,21 @@
             }
 
             DateTime procedureDate = createModel.ProcedureDate.Date;
-          
+            if (!ValidateManipulationId(dbContext, createModel.ManipulationTypeId))
+            {
+                ModelState
+                    .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
+                await PopulateManipulationTypesAsync(createModel);
+                return View(createModel);
+            }
+
+            if (!ValidatePatientId(dbContext, createModel.PatientId))
+            {
+                ModelState
+                    .AddModelError(nameof(createModel.PatientId), "The selected patient is incorrect");
+                await PopulateManipulationTypesAsync(createModel);
+                return View(createModel);
+            }
 
             if (procedureDate > DateTime.Now)
             {
@@ -99,7 +113,7 @@
             }
             Procedure currentProcedure = new Procedure
             {
-                PatientId = createModel.PatientId,
+                PatientId = createModel.PatientId.ToString(),
                 DentistId = userManager.GetUserId(User)!,
                 Date = procedureDate,
                 PatientPhoneNumber = createModel.PatientPhoneNumber,
@@ -169,8 +183,22 @@
                 await PopulatePatientsAsync(editViewModel);
                 return View(editViewModel);
             }
-                      
 
+            if (!ValidateManipulationId(dbContext, editViewModel.ManipulationTypeId))
+            {
+                ModelState
+                    .AddModelError(nameof(editViewModel.ManipulationTypeId), "The selected manipulation is incorrect");
+                await PopulateManipulationTypesAsync(editViewModel);
+                return View(editViewModel);
+            }
+
+            if (!ValidatePatientId(dbContext, editViewModel.PatientId))
+            {
+                ModelState
+                    .AddModelError(nameof(editViewModel.PatientId), "The selected patient is incorrect");
+                await PopulateManipulationTypesAsync(editViewModel);
+                return View(editViewModel);
+            }
             if (editViewModel.ProcedureDate > DateTime.Now)
             {
                 ModelState
@@ -229,6 +257,20 @@
                 });
 
         }
-        
+
+        private bool ValidateManipulationId(DentistAppDbContext dbContext, Guid currentProcedureManipulationId)
+        {
+            bool isManipulationValid = dbContext.ManipulationTypes
+                .Any(m => m.ManipulationId == currentProcedureManipulationId);
+            return isManipulationValid;
+        }
+
+        private bool ValidatePatientId(DentistAppDbContext dbContext, string currentProcedurePatientId)
+        {
+            bool isPatientValid = dbContext.Users
+                .Any(u=>u.Id == currentProcedurePatientId.ToString());
+            return isPatientValid;
+        }
+
     }
 }
