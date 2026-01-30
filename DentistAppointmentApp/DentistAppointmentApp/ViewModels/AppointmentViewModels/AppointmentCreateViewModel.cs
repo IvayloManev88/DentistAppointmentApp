@@ -20,11 +20,14 @@
         public IEnumerable<SelectListItem> ManipulationTypes { get; set; } = Enumerable.Empty<SelectListItem>();   
 
         [Required]
-        [RegularExpression(PhoneRegexValidation)]
-        [StringLength(PhoneNumberMaxLength)]
+        [RegularExpression(PhoneRegexValidation,
+                ErrorMessage = "Please enter a value that starts with +359 or 0 and is followed by 9 digits.")]
+        [StringLength(PhoneNumberMaxLength, 
+            ErrorMessage = "Please enter a valid phone number")]
         public string PatientPhoneNumber { get; set; } = null!;
 
-        [StringLength(NoteMaxLength)]
+        [StringLength(NoteMaxLength,
+            ErrorMessage = "Note length cannot exceed 450 characters")]
         public string? Note { get; set; }
 
     }

@@ -36,6 +36,7 @@
         public Guid ManipulationTypeId { get; set; }
              
         [Comment("Note left by the patient for the dentist while making Appointment")]
+        [MaxLength(NoteMaxLength)]
         public string? Note { get; set; }
 
         public bool IsConfirmed { get; set; } = true;

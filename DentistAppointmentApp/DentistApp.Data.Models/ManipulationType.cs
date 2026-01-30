@@ -13,11 +13,11 @@
         public Guid ManipulationId { get; set; }
 
         [Comment("Name of the manipulation")]
-        [StringLength(ManipulationNameMaxLength)]
+        [MaxLength(ManipulationNameMaxLength)]
         [Required]
         public string Name { get; set; } = null!;
 
-        [StringLength(ExpectedPriceMaxLenght)]
+        [MaxLength(ExpectedPriceMaxLenght)]
         [Comment("Defined expected price range. The type string is defined because the expected values are 50-100 and should be informative for the customer/patient")]
         [Required]
         public string PriceRange { get; set; } = null!;

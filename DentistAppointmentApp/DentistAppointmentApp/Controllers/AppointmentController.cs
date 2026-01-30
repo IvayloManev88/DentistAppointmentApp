@@ -68,10 +68,26 @@
             }
 
             DateTime appointmentDate = createModel.AppointmentDate.Date + createModel.AppointmentTime;
+
+            if (!ValidateManipulationId(dbContext,createModel.ManipulationTypeId))
+            {
+                ModelState
+                    .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
+                await PopulateManipulationTypesAsync(createModel);
+                return View(createModel);
+            }
+            if (appointmentDate<DateTime.Now)
+            {
+                ModelState
+                    .AddModelError(nameof(createModel.AppointmentDate), "The selected date must be in the future");
+                await PopulateManipulationTypesAsync(createModel);
+                return View(createModel);
+            }
             if (await this.dbContext.Appointments.AsNoTracking().AnyAsync(a => a.Date == appointmentDate && a.IsDeleted == false))
             {
                 ModelState
-                    .AddModelError(nameof(createModel.AppointmentDate), "The selected combination Date/Time is not available. Please try different Date/Time");
+                    .AddModelError(nameof(createModel.AppointmentDate), "The selected combination Date/Time is already taken. Please try different Date/Time");
+                
 
                 await PopulateManipulationTypesAsync(createModel);
                 return View(createModel);
@@ -124,6 +140,8 @@
                 .Appointments
                 .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == id);
 
+
+
             if (appointmentToEdit == null)
             {
                 return NotFound();
@@ -165,6 +183,14 @@
                 return View(editViewModel);
             }
 
+            if (!ValidateManipulationId(dbContext, editViewModel.ManipulationTypeId))
+            {
+                ModelState
+                    .AddModelError(nameof(editViewModel.ManipulationTypeId), "The selected manipulation is incorrect");
+                await PopulateManipulationTypesAsync(editViewModel);
+                return View(editViewModel);
+            }
+
             if (appointmentDate < DateTime.Now)
             {
                 ModelState
@@ -202,5 +228,12 @@
                     Text = mt.Name
                 }); 
         }
+        private bool ValidateManipulationId(DentistAppDbContext dbContext, Guid currentManipulation)
+        {
+            bool isManipulationValid = dbContext.ManipulationTypes
+                .Any(m=>m.ManipulationId == currentManipulation);
+            return isManipulationValid;
+        }
+       
     }
 }

@@ -25,6 +25,8 @@
             /// </summary>
             public const int ApplicationUserLastNameMinLength = 2;
 
+            
+
            
 
         }
@@ -57,8 +59,17 @@
         }
         public static class Appointment
         {
+            /// <summary>
+            /// Phone number length should not exceed 16 symbols
+            /// </summary>
             public const int PhoneNumberMaxLenght = 16;
+            /// <summary>
+            /// Note length should not exceed 450 symbols
+            /// </summary>
+
+            public const int NoteMaxLength = 450;
         }
+
 
     }
 }

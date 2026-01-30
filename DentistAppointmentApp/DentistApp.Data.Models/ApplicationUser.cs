@@ -11,12 +11,12 @@
 
         [Comment("User's first name")]
         [Required]
-        [StringLength(ApplicationUserFirstNameMaxLength)]
+        [MaxLength(ApplicationUserFirstNameMaxLength)]
         public string FirstName { get; set; } = null!;
 
         [Comment("User's last name")]
         [Required]
-        [StringLength(ApplicationUserLastNameMaxLength)]
+        [MaxLength(ApplicationUserLastNameMaxLength)]
         public string LastName { get; set; } = null!;
 
         [Comment("User's Appointments collection")]
