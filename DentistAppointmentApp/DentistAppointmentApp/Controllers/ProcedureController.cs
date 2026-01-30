@@ -103,7 +103,7 @@
                 return View(createModel);
             }
 
-            if (procedureDate > DateTime.Now)
+            if (procedureDate > DateTime.Today)
             {
                 ModelState
                    .AddModelError(nameof(createModel.ProcedureDate), "You should not set procedure that is done in the future");
