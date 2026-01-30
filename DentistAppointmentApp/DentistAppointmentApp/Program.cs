@@ -33,6 +33,12 @@ builder.Services
     .AddEntityFrameworkStores<DentistAppDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IManipulationService, ManipulationService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
