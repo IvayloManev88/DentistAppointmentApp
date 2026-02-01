@@ -1,4 +1,4 @@
-# \#DentistApointmentApp
+##DentistApointmentApp
 
 ---
 
@@ -10,7 +10,7 @@ The aim of this document is to describe the way the application was meant to be 
 
 ---
 
-\## Starting and initialization of the application
+## Starting and initialization of the application
 
 
 
@@ -22,13 +22,13 @@ The database configuration is located in `appsettings.json` under
 
 
 
-```md
 ```json
 {
   "ConnectionStrings": {
     "DefaultConnection": "Server=.;Database=DentistDb;Trusted_Connection=True;Encrypt=False;MultipleActiveResultSets=true"
   }
 }
+
 
 Added packages are the following:
 
@@ -60,13 +60,13 @@ Identity was created using default Scaffold and adding the ApplicationUser to ex
 
 
 
-\## Overview of the application
+## Overview of the application
 
 ---
 
 
 
-\### Appointments
+### Appointments
 
 
 
@@ -84,7 +84,7 @@ Another future development for appointments will be the option to add files for 
 
 ---
 
-\### Manipulations
+### Manipulations
 
 
 
@@ -96,7 +96,7 @@ Future developments here will be implementing the ManipulationDuration.
 
 ---
 
-\### Procedures
+### Procedures
 
 
 
@@ -110,7 +110,7 @@ The Dentist user can Create, Edit, Delete procedures and can View all Procedures
 
 ---
 
-\### Creating "Dentist"
+### Creating "Dentist"
 
 
 
@@ -124,7 +124,7 @@ This controller will not be active when the application goes live. However, at l
 
 ---
 
-\### Future developments
+### Future developments
 
 * A scheduled daily job that automatically converts completed Appointments into Procedures. This will dramatically improve client file management as the Dentist should only edit manipulations(if needed) and mark some of the Procedures as "No show" for example - could be managed by using separate button for ease of use.
 * Significant UI improvements
