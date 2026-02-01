@@ -22,9 +22,13 @@ The database configuration is located in `appsettings.json` under
 
 
 
+```md
 ```json
-
-"DefaultConnection": "Server=.;Database=DentistDb;Trusted\_Connection=True;Encrypt=False;MultipleActiveResultSets=true"
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=.;Database=DentistDb;Trusted_Connection=True;Encrypt=False;MultipleActiveResultSets=true"
+  }
+}
 
 Added packages are the following:
 
