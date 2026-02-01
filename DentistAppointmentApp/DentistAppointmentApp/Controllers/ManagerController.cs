@@ -21,7 +21,7 @@
             this.dbContext = dbContext;
             this.roleManager = roleManager;
         }
-
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> AssignDentist()
         {
