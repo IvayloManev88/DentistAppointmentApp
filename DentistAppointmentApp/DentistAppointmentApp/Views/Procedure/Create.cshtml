@@ -1,4 +1,4 @@
-﻿@model DentistApp.Web.ViewModels.ProcedureViewModels.ProcedureCreateViewModel
+﻿@model DentistApp.ViewModels.ProcedureViewModels.ProcedureCreateViewModel
 
 @{
     ViewData["Title"] = "Create Procedure";
@@ -41,7 +41,11 @@
                             <div class="col-12 col-md-6">
                                 <label asp-for="PatientId" class="form-label">Patient</label>
                                 <select asp-for="PatientId"
-                                        asp-items="Model.PatientsNames"
+                                        asp-items="Model.PatientsNames.Select(x => new SelectListItem
+                                        {
+                                            Value = x.Id.ToString(),
+                                            Text = x.Name
+                                        })"
                                         class="form-select">
                                     <option value="">-- Select patient --</option>
                                 </select>
@@ -52,7 +56,11 @@
                             <div class="col-12">
                                 <label asp-for="ManipulationTypeId" class="form-label"></label>
                                 <select asp-for="ManipulationTypeId"
-                                        asp-items="Model.ManipulationTypes"
+                                        asp-items="Model.ManipulationTypes.Select(x => new SelectListItem
+                                        {
+                                            Value = x.Id.ToString(),
+                                            Text = x.Name
+                                        })"
                                         class="form-select">
                                     <option value="">-- Select manipulation --</option>
                                 </select>

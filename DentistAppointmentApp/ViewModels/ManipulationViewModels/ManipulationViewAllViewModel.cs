@@ -1,4 +1,4 @@
-﻿namespace DentistApp.Web.ViewModels.ManipulationViewModels
+﻿namespace DentistApp.ViewModels.ManipulationViewModels
 {
     public class ManipulationViewAllViewModel
     {

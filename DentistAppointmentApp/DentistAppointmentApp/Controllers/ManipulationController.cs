@@ -2,7 +2,7 @@
 {
     using DentistApp.Data;
     using DentistApp.Data.Models;
-    using DentistApp.Web.ViewModels.ManipulationViewModels;
+    using DentistApp.ViewModels.ManipulationViewModels;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -25,21 +25,21 @@
         {
             ManipulationViewAllViewModel[] manipulations = await dbContext
                 .ManipulationTypes
-                .AsNoTracking()
-                .Where(m => m.IsDeleted == false)
-                .OrderBy(m => m.Name)
-                .Select(m => new ManipulationViewAllViewModel
-                {
-                    ManipulationId = m.ManipulationId.ToString(),
-                    Name = m.Name,
-                    PriceRange = m.PriceRange
-                }).ToArrayAsync();
+                    .AsNoTracking()
+                    .Where(m => m.IsDeleted == false)
+                    .OrderBy(m => m.Name)
+                    .Select(m => new ManipulationViewAllViewModel
+                    {
+                        ManipulationId = m.ManipulationId.ToString(),
+                        Name = m.Name,
+                        PriceRange = m.PriceRange
+                    }).ToArrayAsync();
 
             return View(manipulations);
         }
 
         [HttpGet]
-        [Authorize(Roles= DentistRoleName)]
+        [Authorize(Roles = DentistRoleName)]
         public IActionResult Create()
         {
             return View(new ManipulationCreateViewModel());

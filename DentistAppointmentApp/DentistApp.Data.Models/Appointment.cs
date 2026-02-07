@@ -3,7 +3,7 @@
     using Microsoft.EntityFrameworkCore;
     using System;
     using System.ComponentModel.DataAnnotations;
-    using static DentistApp.Data.EntityConstants.EntityConstants.Appointment;
+    using static DentistApp.GCommon.EntityConstants.Appointment;
 
     [Comment("Table defining the Appointments made")]
     //Side note - was considering making abstract class for matching properties between Appointment and Procedure entities but it is better to have them separate as "Note" for example does something different

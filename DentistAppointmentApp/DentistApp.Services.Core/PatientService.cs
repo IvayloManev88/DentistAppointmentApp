@@ -3,7 +3,7 @@
     using DentistApp.Data;
 
     using DentistApp.Services.Core.Contracts;
-    using DentistApp.Services.Core.Models;
+    using DentistApp.ViewModels;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
 
@@ -19,14 +19,14 @@
             this.dbContext = dbContext;
             this.userManager = userManager;
         }
-        public async Task<IEnumerable<LookupItem>> GetPatientsAsync()
+        public async Task<IEnumerable<DropDown>> GetPatientsAsync()
         {
             return await dbContext.Users.
                 AsNoTracking().
                 Where(u => u.IsDeleted == false)
                 .OrderBy(u => u.FirstName)
                 .ThenBy(u => u.LastName)
-                .Select(u => new LookupItem
+                .Select(u => new DropDown
                 {
                     Id=Guid.Parse(u.Id), 
                     Name=$"{u.FirstName} {u.LastName}"

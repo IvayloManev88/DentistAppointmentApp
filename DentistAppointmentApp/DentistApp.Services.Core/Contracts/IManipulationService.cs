@@ -1,11 +1,9 @@
-﻿using DentistApp.Services.Core.Models;
-
-namespace DentistApp.Services.Core.Contracts
+﻿namespace DentistApp.Services.Core.Contracts
 {
-   
+    using DentistApp.ViewModels;
     public interface IManipulationService
     {
         
-        Task<IEnumerable<LookupItem>> GetManipulationTypesAsync();
+        Task<IEnumerable<DropDown>> GetManipulationTypesAsync();
     }
 }

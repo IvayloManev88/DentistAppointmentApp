@@ -1,6 +1,5 @@
 <Solution>
   <Folder Name="/Data/">
-    <Project Path="DentistApp.Data.EntityConstants/DentistApp.Data.EntityConstants.csproj" Id="fadbf470-8279-4821-b34e-8d6ab95fc17f" />
     <Project Path="DentistApp.Data.Models/DentistApp.Data.Models.csproj" Id="91df297f-cc33-46ad-92aa-d33be7b5d09d" />
     <Project Path="DentistApp.Data/DentistApp.Data.csproj" Id="36fa14cb-8849-4e74-a8c2-032a5749b24e" />
   </Folder>
@@ -9,6 +8,9 @@
   </Folder>
   <Folder Name="/Services/">
     <Project Path="DentistApp.Services.Core/DentistApp.Services.Core.csproj" Id="21ee123c-353c-43ae-b89b-1741081a9acf" />
+  </Folder>
+  <Folder Name="/ViewModels/">
+    <Project Path="ViewModels/DentistApp.ViewModels.csproj" Id="9c93c9b5-a566-4fd5-bae3-4c2cc4cfd2fc" />
   </Folder>
   <Folder Name="/Web/">
     <Project Path="DentistAppointmentApp/DentistApp.Web.csproj" />

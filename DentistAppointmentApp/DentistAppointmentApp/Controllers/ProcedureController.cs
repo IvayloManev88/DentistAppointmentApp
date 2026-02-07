@@ -5,9 +5,8 @@
     using DentistApp.Data.Models;
 
     using DentistApp.Services.Core.Contracts;
-    using DentistApp.Services.Core.Models;
-
-    using DentistApp.Web.ViewModels.ProcedureViewModels;
+    using DentistApp.ViewModels;
+    using DentistApp.ViewModels.ProcedureViewModels;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
@@ -67,7 +66,7 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create()
         {
-            IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
+            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
             ProcedureCreateViewModel createModel = new ProcedureCreateViewModel();
             createModel.ProcedureDate = DateTime.Today;
             await PopulateManipulationTypesAsync(createModel);
@@ -233,25 +232,25 @@
         
         private async Task PopulateManipulationTypesAsync(ProcedureCreateViewModel createViewModel)
         {
-            IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
+            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
 
             createViewModel.ManipulationTypes = manipulationTypes
-                .Select(mt => new SelectListItem
+                .Select(mt => new DropDown
                 {
-                    Value = mt.Id.ToString(),
-                    Text = mt.Name
+                    Id = mt.Id,
+                    Name = mt.Name
                 });
         }
 
         private async Task PopulatePatientsAsync(ProcedureCreateViewModel createViewModel)
         {
-            IEnumerable<LookupItem> patientNames = await patientService.GetPatientsAsync();
+            IEnumerable<DropDown> patientNames = await patientService.GetPatientsAsync();
 
             createViewModel.PatientsNames = patientNames
-                .Select(p => new SelectListItem
+                .Select(p => new DropDown
                 {
-                    Value = p.Id.ToString(),
-                    Text = p.Name
+                    Id = p.Id,
+                    Name = p.Name
                 });
 
         }

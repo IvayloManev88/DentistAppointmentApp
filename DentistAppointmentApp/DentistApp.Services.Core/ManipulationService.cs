@@ -3,7 +3,7 @@
     using DentistApp.Data;
 
     using DentistApp.Services.Core.Contracts;
-    using DentistApp.Services.Core.Models;
+    using DentistApp.ViewModels;
 
     using Microsoft.EntityFrameworkCore;
     
@@ -14,12 +14,12 @@
         {
             this.dbContext = dbContext;
         }
-        public async Task<IEnumerable<LookupItem>> GetManipulationTypesAsync()
+        public async Task<IEnumerable<DropDown>> GetManipulationTypesAsync()
         {
             return await dbContext.ManipulationTypes
                 .Where(mt => mt.IsDeleted == false)
                 .OrderBy(mt => mt.Name)
-                .Select(mt => new LookupItem
+                .Select(mt => new DropDown
                 { 
                     Id =mt.ManipulationId,
                     Name = mt.Name 

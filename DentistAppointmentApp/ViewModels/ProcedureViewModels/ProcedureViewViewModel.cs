@@ -1,4 +1,4 @@
-﻿namespace DentistApp.Web.ViewModels.ProcedureViewModels
+﻿namespace DentistApp.ViewModels.ProcedureViewModels
 {
     public class ProcedureViewViewModel
     {

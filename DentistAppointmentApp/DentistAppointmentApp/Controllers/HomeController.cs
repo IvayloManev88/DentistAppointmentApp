@@ -1,6 +1,6 @@
 namespace DentistApp.Web.Controllers
 {
-    using DentistApp.Web.ViewModels;
+    using DentistApp.ViewModels;
 
     using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,4 @@
-﻿namespace DentistApp.Web.ViewModels.AppointmentViewModels
+﻿namespace DentistApp.ViewModels.AppointmentViewModels
 {
     public class AppointmentViewAppointmentViewModel
     {

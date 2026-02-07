@@ -1,4 +1,4 @@
-﻿@model DentistApp.Web.ViewModels.AppointmentViewModels.AppointmentCreateViewModel
+﻿@model DentistApp.ViewModels.AppointmentViewModels.AppointmentCreateViewModel
 
 @{
     ViewData["Title"] = "Create Appointment";
@@ -38,7 +38,11 @@
     <div class="mb-3">
         <label asp-for="ManipulationTypeId" class="form-label"></label>
         <select asp-for="ManipulationTypeId"
-                asp-items="Model.ManipulationTypes"
+                asp-items="Model.ManipulationTypes.Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.Name
+                })"
                 class="form-select">
             <option value="">-- Select manipulation --</option>
         </select>

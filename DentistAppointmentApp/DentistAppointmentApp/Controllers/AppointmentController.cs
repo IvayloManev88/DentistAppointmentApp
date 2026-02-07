@@ -3,8 +3,8 @@
     using DentistApp.Data;
     using DentistApp.Data.Models;
     using DentistApp.Services.Core.Contracts;
-    using DentistApp.Services.Core.Models;
-    using DentistApp.Web.ViewModels.AppointmentViewModels;
+    using DentistApp.ViewModels;
+    using DentistApp.ViewModels.AppointmentViewModels;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
@@ -56,7 +56,7 @@
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
+            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
             AppointmentCreateViewModel createModel = new AppointmentCreateViewModel();
             createModel.AppointmentDate = DateTime.Today;
             createModel.AppointmentTime = DateTime.Now.TimeOfDay;
@@ -142,8 +142,10 @@
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
+            string currentUserId = userManager.GetUserId(User)!;
             Appointment? appointmentToEdit = await dbContext
                 .Appointments
+                .Where(a=>a.PatientId== currentUserId || a.DentistId== currentUserId)
                 .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == id);
 
             if (appointmentToEdit == null)
@@ -173,6 +175,16 @@
             if (!ModelState.IsValid)
             {
                 return View(editViewModel);
+            }
+            string currentUserId = userManager.GetUserId(User)!;
+            Appointment? appointmentToEdit = await dbContext
+                .Appointments
+                .Where(a => a.PatientId == currentUserId || a.DentistId == currentUserId)
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId.ToString() == editViewModel.AppointmentId);
+
+            if (appointmentToEdit == null)
+            {
+                return NotFound();
             }
             DateTime appointmentDate = editViewModel.AppointmentDate.Date + editViewModel.AppointmentTime;
 
@@ -204,11 +216,7 @@
                 await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
-
-            Appointment? appointmentToEdit = await dbContext
-                .Appointments
-                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.AppointmentId.ToString().ToLower() == editViewModel.AppointmentId!.ToLower());
-
+                   
             if (appointmentToEdit == null)
             {
                 return NotFound();
@@ -225,13 +233,13 @@
 
         private async Task PopulateManipulationTypesAsync(AppointmentCreateViewModel createViewModel)
         {
-            IEnumerable<LookupItem> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
+            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
 
             createViewModel.ManipulationTypes = manipulationTypes
-                .Select(mt => new SelectListItem
+                .Select(mt => new DropDown
                 {
-                    Value = mt.Id.ToString(),
-                    Text = mt.Name
+                    Id = mt.Id,
+                    Name = mt.Name
                 }); 
         }
         private bool ValidateManipulationId(DentistAppDbContext dbContext, Guid currentManipulation)
@@ -239,6 +247,8 @@
             bool isManipulationValid = dbContext.ManipulationTypes
                 .Any(m=>m.ManipulationId == currentManipulation);
             return isManipulationValid;
-        }              
+        }
+
+       
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace DentistApp.Services.Core.Models
+﻿namespace DentistApp.ViewModels
 {
-
-   
-    public class LookupItem
+     
+    public class DropDown
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;

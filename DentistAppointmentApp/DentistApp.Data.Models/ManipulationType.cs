@@ -2,7 +2,7 @@
 {
     using Microsoft.EntityFrameworkCore;
     using System.ComponentModel.DataAnnotations;
-    using static DentistApp.Data.EntityConstants.EntityConstants.Manipulation;
+    using static DentistApp.GCommon.EntityConstants.Manipulation;
 
     [Comment("Table defining the manipulation types")]
     public class ManipulationType

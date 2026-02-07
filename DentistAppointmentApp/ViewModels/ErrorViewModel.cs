@@ -1,4 +1,4 @@
-namespace DentistApp.Web.ViewModels
+namespace DentistApp.ViewModels
 {
     public class ErrorViewModel
     {

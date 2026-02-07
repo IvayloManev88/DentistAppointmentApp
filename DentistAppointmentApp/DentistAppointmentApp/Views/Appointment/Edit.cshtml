@@ -1,4 +1,4 @@
-﻿@using DentistApp.Web.ViewModels.AppointmentViewModels
+﻿@using DentistApp.ViewModels.AppointmentViewModels
 @model AppointmentCreateViewModel
 
 <h2>Edit appointment</h2>
@@ -31,7 +31,12 @@
 
     <div class="mb-3">
         <label asp-for="ManipulationTypeId" class="form-label"></label>
-        <select asp-for="ManipulationTypeId" asp-items="Model.ManipulationTypes" class="form-select">
+        <select asp-for="ManipulationTypeId" 
+                asp-items="Model.ManipulationTypes.Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.Name
+                })" class="form-select">
             <option value="">-- select manipulation --</option>
         </select>
         <span asp-validation-for="ManipulationTypeId" class="text-danger"></span>

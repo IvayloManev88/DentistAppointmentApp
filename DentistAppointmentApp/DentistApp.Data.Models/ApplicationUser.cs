@@ -3,7 +3,7 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using System.ComponentModel.DataAnnotations;
-    using static DentistApp.Data.EntityConstants.EntityConstants.ApplicationUser;
+    using static DentistApp.GCommon.EntityConstants.ApplicationUser;
 
     [Comment("Dentist User Entity in the system")]
     public class ApplicationUser : IdentityUser

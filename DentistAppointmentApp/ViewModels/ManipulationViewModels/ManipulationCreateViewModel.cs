@@ -1,8 +1,8 @@
-﻿namespace DentistApp.Web.ViewModels.ManipulationViewModels
+﻿namespace DentistApp.ViewModels.ManipulationViewModels
 {
     using System.ComponentModel.DataAnnotations;
 
-    using static DentistApp.Data.EntityConstants.EntityConstants.Manipulation;
+    using static DentistApp.GCommon.EntityConstants.Manipulation;
     public class ManipulationCreateViewModel
     {
         [Required(ErrorMessage = "Name is required.")]

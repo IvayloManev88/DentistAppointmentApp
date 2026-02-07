@@ -1,7 +1,5 @@
-﻿namespace DentistApp.Web.ViewModels.ProcedureViewModels
+﻿namespace DentistApp.ViewModels.ProcedureViewModels
 {
-    using Microsoft.AspNetCore.Mvc.Rendering;
-
     using System.ComponentModel.DataAnnotations;
 
     using static DentistApp.GCommon.ProcedureConstants;
@@ -12,14 +10,14 @@
         [Required]
         [DataType(DataType.Date)]
         public DateTime ProcedureDate { get; set; }
-        public IEnumerable<SelectListItem> PatientsNames { get; set; } = Enumerable.Empty<SelectListItem>();
+        public IEnumerable<DropDown> PatientsNames { get; set; } = Enumerable.Empty<DropDown>();
         [Required]
         public string PatientId { get; set; } = null!;
 
         [Required]
         public Guid ManipulationTypeId { get; set; }
 
-        public IEnumerable<SelectListItem> ManipulationTypes { get; set; } = Enumerable.Empty<SelectListItem>();
+        public IEnumerable<DropDown> ManipulationTypes { get; set; } = Enumerable.Empty<DropDown>();
 
         [Required]
         [RegularExpression(PhoneRegexValidation,

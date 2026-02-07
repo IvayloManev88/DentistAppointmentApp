@@ -1,7 +1,5 @@
-﻿namespace DentistApp.Web.ViewModels.AppointmentViewModels
+﻿namespace DentistApp.ViewModels.AppointmentViewModels
 {
-    using Microsoft.AspNetCore.Mvc.Rendering;
-
     using System.ComponentModel.DataAnnotations;
 
     using static DentistApp.GCommon.AppointmentConstants;
@@ -19,7 +17,7 @@
         [Required]
         public Guid ManipulationTypeId { get; set; }
 
-        public IEnumerable<SelectListItem> ManipulationTypes { get; set; } = Enumerable.Empty<SelectListItem>();   
+        public IEnumerable<DropDown> ManipulationTypes { get; set; } = Enumerable.Empty<DropDown>();   
 
         [Required]
         [RegularExpression(PhoneRegexValidation,
