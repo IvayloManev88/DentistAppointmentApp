@@ -13,12 +13,10 @@
     public class ManagerController: Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly DentistAppDbContext dbContext;
         private readonly RoleManager<IdentityRole> roleManager;
-        public ManagerController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, RoleManager<IdentityRole> roleManager)
+        public ManagerController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             this.userManager = userManager;
-            this.dbContext = dbContext;
             this.roleManager = roleManager;
         }
         [Authorize]

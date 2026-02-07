@@ -2,6 +2,7 @@
 {
     using DentistApp.Data;
     using DentistApp.Data.Models;
+    using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.ManipulationViewModels;
 
     using Microsoft.AspNetCore.Authorization;
@@ -13,35 +14,26 @@
     [Authorize]
     public class ManipulationController : Controller
     {
-        private readonly DentistAppDbContext dbContext;
-        public ManipulationController(DentistAppDbContext dbContext)
+        private readonly IManipulationService manipulationService;
+        public ManipulationController(IManipulationService manipulationService)
         {
-            this.dbContext = dbContext;
+            this.manipulationService = manipulationService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            ManipulationViewAllViewModel[] manipulations = await dbContext
-                .ManipulationTypes
-                    .AsNoTracking()
-                    .Where(m => m.IsDeleted == false)
-                    .OrderBy(m => m.Name)
-                    .Select(m => new ManipulationViewAllViewModel
-                    {
-                        ManipulationId = m.ManipulationId.ToString(),
-                        Name = m.Name,
-                        PriceRange = m.PriceRange
-                    }).ToArrayAsync();
+            IEnumerable<ManipulationViewAllViewModel> manipulations= await manipulationService.GetAllManipulationTypesAsync();
 
             return View(manipulations);
         }
 
         [HttpGet]
         [Authorize(Roles = DentistRoleName)]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+
             return View(new ManipulationCreateViewModel());
         }
 
@@ -54,60 +46,57 @@
                 return View(inputViewModel);
             }
 
-            if (await this.dbContext.ManipulationTypes.AsNoTracking().AnyAsync(m => m.Name == inputViewModel.Name && m.IsDeleted == false))
+            if (await manipulationService.IsManipulationNameDuplicatedAsync(inputViewModel.Name))
             {
                 ModelState
                     .AddModelError(nameof(inputViewModel.Name), "Duplicate manipulation name");
                 return View(inputViewModel);
             }
-            ManipulationType currentManipulation = new ManipulationType
+            try
             {
-                Name = inputViewModel.Name.TrimEnd(),
-                PriceRange = inputViewModel.PriceRange
-
-            };
-            await dbContext.ManipulationTypes.AddAsync(currentManipulation);
-            await dbContext.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+                await manipulationService.CreateManipulationAsync(inputViewModel);
+                return RedirectToAction(nameof(Index));
+            }
+            catch 
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while creating Manipulation.Please try again!");
+                return View(inputViewModel);
+            }                    
         }
 
         [HttpPost]
         [Authorize(Roles = DentistRoleName)]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            ManipulationType? manipulationToDelete = await dbContext
-                .ManipulationTypes
-                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.ManipulationId.ToString().ToLower() == id.ToLower());
+            ManipulationType? manipulationToDelete =await manipulationService.GetManipulationByIdAsync(id);
 
             if (manipulationToDelete == null)
             {
                 return NotFound();
             }
-            manipulationToDelete.IsDeleted = true;
 
-            await dbContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await manipulationService.DeleteManipulationAsync(manipulationToDelete);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpGet]
         [Authorize(Roles = DentistRoleName)]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            ManipulationType? manipulationToEdit = await dbContext
-                .ManipulationTypes
-                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.ManipulationId.ToString().ToLower() == id.ToLower());
+            ManipulationType? manipulationToEdit = await manipulationService.GetManipulationByIdAsync(id);
 
             if (manipulationToEdit == null)
             {
                 return NotFound();
             }
-            ManipulationEditViewModel editViewModel = new ManipulationEditViewModel
-            {
-                ManipulationId = manipulationToEdit.ManipulationId.ToString(),
-                Name = manipulationToEdit.Name,
-                PriceRange = manipulationToEdit.PriceRange
-            };
+            ManipulationEditViewModel editViewModel = await manipulationService.GetManipulationEditViewModelAsync(manipulationToEdit);
             return View(editViewModel);
         }
 
@@ -120,28 +109,33 @@
                 return View(editViewModel);
             }
 
-            if (await this.dbContext.ManipulationTypes
-                .AsNoTracking()
-                .AnyAsync(m => m.Name == editViewModel.Name && m.IsDeleted == false && editViewModel.ManipulationId.ToLower() != m.ManipulationId.ToString().ToLower()))
+            if (await manipulationService.IsManipulationNameDuplicatedAsync(editViewModel.Name,editViewModel.ManipulationId))
             {
                 ModelState
                     .AddModelError(nameof(editViewModel.Name), "Duplicate manipulation name");
                 return View(editViewModel);
             }
-
-            ManipulationType? manipulationToEdit = await dbContext
-                .ManipulationTypes
-                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.ManipulationId.ToString().ToLower() == editViewModel.ManipulationId.ToLower());
-
+            if (!editViewModel.ManipulationId.HasValue)
+            {
+                return BadRequest();
+            }
+            ManipulationType? manipulationToEdit = await manipulationService.GetManipulationByIdAsync(editViewModel.ManipulationId.Value);               
+                   
             if (manipulationToEdit == null)
             {
                 return NotFound();
             }
-            manipulationToEdit.Name = editViewModel.Name;
-            manipulationToEdit.PriceRange = editViewModel.PriceRange;
 
-            await dbContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await manipulationService.EditManipulationAsync(editViewModel, manipulationToEdit);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while editing Manipulation.Please try again!");
+                return View(editViewModel);
+            }
         }
     }
 }

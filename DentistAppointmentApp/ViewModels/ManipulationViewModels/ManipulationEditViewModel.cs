@@ -5,7 +5,7 @@
     using static DentistApp.GCommon.EntityConstants.Manipulation;
     public class ManipulationEditViewModel
     {
-        public string ManipulationId { get; set; } = null!;
+        public Guid? ManipulationId { get; set; }
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(ManipulationNameMaxLength,
             MinimumLength = ManipulationNameMinLength,
