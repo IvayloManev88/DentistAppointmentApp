@@ -103,50 +103,49 @@
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            Appointment? appointmentToDelete = await dbContext
-                .Appointments
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId.ToString().ToLower() == id.ToLower());
+            Appointment? appointmentToDelete = await appointmentService.GetAppointmentByIdAsync(id);
 
             if (appointmentToDelete == null)
             {
                 return NotFound();
             }
-            appointmentToDelete.IsDeleted = true;
-
-            await dbContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await appointmentService.DeleteAppointmentByIdAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while deleting Appointment. Please try again!");
+                return RedirectToAction(nameof(Index));
+            }
+            
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
+            /*An appointment should be edited only by the user created the appointment or the dentist*/
             string currentUserId = userManager.GetUserId(User)!;
-            Appointment? appointmentToEdit = await dbContext
-                .Appointments
-                .Where(a=>a.PatientId== currentUserId || a.DentistId== currentUserId)
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == id);
+            Appointment? appointmentToEdit = await appointmentService.GetAppointmentToEditByUserIdAsync(id, currentUserId);
 
             if (appointmentToEdit == null)
             {
                 return NotFound();
             }
-
-            AppointmentCreateViewModel editViewModel = new AppointmentCreateViewModel
+            try
             {
-                AppointmentId = appointmentToEdit.AppointmentId.ToString(),
-                AppointmentDate = appointmentToEdit.Date.Date,
-                AppointmentTime = appointmentToEdit.Date.TimeOfDay,
-                PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber,
-                ManipulationTypeId = appointmentToEdit.ManipulationTypeId,
-                Note = appointmentToEdit.Note,
-
-
-            };
-
-        //    await PopulateManipulationTypesAsync(editViewModel);
-            return View(editViewModel);
+                AppointmentCreateViewModel editViewModel = await appointmentService.LoadEditViewModelByIdAsync(id);
+                return View(editViewModel);
+            }   
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while editing Appointment. Please try again!");
+                return RedirectToAction(nameof(Index));
+            }
+ 
         }
 
         [HttpPost]
@@ -160,7 +159,7 @@
             Appointment? appointmentToEdit = await dbContext
                 .Appointments
                 .Where(a => a.PatientId == currentUserId || a.DentistId == currentUserId)
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId.ToString() == editViewModel.AppointmentId);
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == editViewModel.AppointmentId);
 
             if (appointmentToEdit == null)
             {
@@ -172,7 +171,7 @@
                 .AsNoTracking()
                 .AnyAsync(a => a.Date == appointmentDate 
                 && a.IsDeleted == false 
-                && editViewModel.AppointmentId!.ToLower() != a.AppointmentId.ToString().ToLower()))
+                && editViewModel.AppointmentId != a.AppointmentId))
                 
             {
                 ModelState

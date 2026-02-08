@@ -5,7 +5,7 @@
     using static DentistApp.GCommon.AppointmentConstants;
     public class AppointmentCreateViewModel
     {
-        public string? AppointmentId { get; set; }
+        public Guid? AppointmentId { get; set; }
         [Required]
         [DataType(DataType.Date)]
         public DateTime AppointmentDate { get; set; }

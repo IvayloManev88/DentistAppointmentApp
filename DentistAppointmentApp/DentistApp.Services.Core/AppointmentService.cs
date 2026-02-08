@@ -15,13 +15,11 @@ namespace DentistApp.Services.Core
         private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
-        private readonly UserManager<ApplicationUser> userManager;
-        public AppointmentService(UserManager<ApplicationUser> userManager,DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService)
+        public AppointmentService(DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService)
         {
             this.dbContext = dbContext;
             this.manipulationService = manipulationService;
             this.patientService = patientService;
-            this.userManager = userManager;
         }
 
         public async Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime)
@@ -76,6 +74,14 @@ namespace DentistApp.Services.Core
 
         }
 
+        public async Task<Appointment?> GetAppointmentByIdAsync(Guid id)
+        {
+            return await dbContext
+                .Appointments
+                .SingleOrDefaultAsync(a => a.IsDeleted == false 
+                && a.AppointmentId == id);
+        }
+
         public async Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync()
         {
             IEnumerable<AppointmentViewAppointmentViewModel> appointments = await dbContext
@@ -95,5 +101,46 @@ namespace DentistApp.Services.Core
             return appointments;
         }
 
+        public async Task DeleteAppointmentByIdAsync(Guid id)
+        {
+            Appointment? appointmentToDelete =await this.GetAppointmentByIdAsync(id);
+            if (appointmentToDelete == null)
+            {
+                throw new Exception("Appointment to Delete not found");
+            }
+
+            appointmentToDelete.IsDeleted = true;
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<Appointment?> GetAppointmentToEditByUserIdAsync(Guid id, string userId)
+        {
+            Appointment? appointmentToEdit = await dbContext
+                .Appointments
+                .Where(a => a.PatientId == userId || a.DentistId == userId)
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == id);
+            return appointmentToEdit;
+        }
+
+        public async Task<AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id)
+        {
+            Appointment? appointmentToEdit =await this.GetAppointmentByIdAsync(id);
+            if (appointmentToEdit == null)
+            {
+                throw new Exception("Appointment to Edit not found");
+            }
+
+            AppointmentCreateViewModel editViewModel = new AppointmentCreateViewModel
+            {
+                AppointmentId = appointmentToEdit.AppointmentId,
+                AppointmentDate = appointmentToEdit.Date.Date,
+                AppointmentTime = appointmentToEdit.Date.TimeOfDay,
+                PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber,
+                ManipulationTypeId = appointmentToEdit.ManipulationTypeId,
+                Note = appointmentToEdit.Note,
+                ManipulationTypes = await manipulationService.GetManipulationTypesAsync()
+            };
+            return editViewModel;
+        }
     }
 }
