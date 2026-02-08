@@ -17,6 +17,10 @@
 
         public async Task CreateManipulationAsync(ManipulationCreateViewModel manipulationToCreate)
         {
+            if (await IsManipulationNameDuplicatedAsync(manipulationToCreate.Name))
+            {
+                throw new Exception("Duplicated manipulation name");
+            }
             ManipulationType currentManipulation = new ManipulationType
             {
                 Name = manipulationToCreate.Name.TrimEnd(),
@@ -35,6 +39,10 @@
 
         public async Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit, ManipulationType editedManipulation)
         {
+            if (await IsManipulationNameDuplicatedAsync(manipulationToEdit.Name,manipulationToEdit.ManipulationId))
+            {
+                throw new Exception("Duplicated manipulation name");
+            }
             editedManipulation.Name=manipulationToEdit.Name;
             editedManipulation.PriceRange=manipulationToEdit.PriceRange;
             await dbContext.SaveChangesAsync();
@@ -97,5 +105,10 @@
                 && (id == null || m.ManipulationId != id));
         }
 
+        public async Task<bool> ValidateManipulationTypesAsync(Guid currentManipulation)
+        {
+            return dbContext.ManipulationTypes
+                .Any(m => m.ManipulationId == currentManipulation);
+        }
     }
 }

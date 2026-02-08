@@ -33,7 +33,6 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create()
         {
-
             return View(new ManipulationCreateViewModel());
         }
 

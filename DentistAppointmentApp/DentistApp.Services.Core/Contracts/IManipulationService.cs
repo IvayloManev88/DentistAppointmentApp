@@ -22,5 +22,7 @@
         Task<ManipulationEditViewModel> GetManipulationEditViewModelAsync(ManipulationType manipulationToEdit);
 
         Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit, ManipulationType editedManipulation);
+
+        Task<bool> ValidateManipulationTypesAsync(Guid currentManipulation);
     }
 }

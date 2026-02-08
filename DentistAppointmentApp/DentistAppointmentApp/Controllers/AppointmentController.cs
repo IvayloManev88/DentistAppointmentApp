@@ -2,6 +2,7 @@
 {
     using DentistApp.Data;
     using DentistApp.Data.Models;
+    using DentistApp.Services.Core;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels;
     using DentistApp.ViewModels.AppointmentViewModels;
@@ -24,79 +25,62 @@
         private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
+        private readonly IAppointmentService appointmentService;
         
-        public AppointmentController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService)
+        public AppointmentController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService, IAppointmentService appointmentService)
         {
             this.userManager = userManager;
             this.dbContext = dbContext;
             this.manipulationService = manipulationService;
             this.patientService = patientService;
+            this.appointmentService = appointmentService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            AppointmentViewAppointmentViewModel[] appointments = await dbContext
-                .Appointments
-                .AsNoTracking()
-                .OrderBy(a => a.Date)
-                .Select(a => new AppointmentViewAppointmentViewModel
-                {
-                    AppointmentId = a.AppointmentId.ToString(),
-                    PatientAppointmentName = $"{a.Patient.FirstName} {a.Patient.LastName}",
-                    DentistAppointmentName = $"{a.Dentist.FirstName} {a.Dentist.LastName}",
-                    AppointmentDate = a.Date.ToString(DateTimeFormat),
-                    PatientAppointmentPhoneNumber = a.PatientPhoneNumber,
-                    ManipulationName = a.ManipulationType.Name,
-                    AppointmentNote = a.Note
-
-                }).ToArrayAsync();
+            IEnumerable<AppointmentViewAppointmentViewModel> appointments =await appointmentService.GetAllAppotinmentsViewModelsAsync();
             return View(appointments);
         }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
-            AppointmentCreateViewModel createModel = new AppointmentCreateViewModel();
-            createModel.AppointmentDate = DateTime.Today;
-            createModel.AppointmentTime = DateTime.Now.TimeOfDay;
-            await PopulateManipulationTypesAsync(createModel);
+            AppointmentCreateViewModel createModel = await appointmentService.CreateViewModelAsync();
             return View(createModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(AppointmentCreateViewModel createModel)
         {
+            createModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
             if (!ModelState.IsValid)
             {
                 return View(createModel);
             }
 
-            DateTime appointmentDate = createModel.AppointmentDate.Date + createModel.AppointmentTime;
-
-            if (!ValidateManipulationId(dbContext,createModel.ManipulationTypeId))
+            DateTime appointmentDateTime = createModel.AppointmentDate.Date + createModel.AppointmentTime;
+            
+            if (!await manipulationService.ValidateManipulationTypesAsync(createModel.ManipulationTypeId))
             {
                 ModelState
                     .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
-                await PopulateManipulationTypesAsync(createModel);
+                
                 return View(createModel);
             }          
 
-            if (await this.dbContext.Appointments.AsNoTracking().AnyAsync(a => a.Date == appointmentDate && a.IsDeleted == false))
+            if (await appointmentService.AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
             {
                 ModelState
                     .AddModelError(nameof(createModel.AppointmentDate), "The selected combination Date/Time is already taken. Please try different Date/Time");
                 
-
-                await PopulateManipulationTypesAsync(createModel);
                 return View(createModel);
             }
 
-            if (appointmentDate < DateTime.Today)
+            if (appointmentDateTime < DateTime.Today)
             {
                 ModelState
                    .AddModelError(nameof(createModel.AppointmentDate), "You should not set an appintment in the past");
-                await PopulateManipulationTypesAsync(createModel);
                 return View(createModel);
             }
             string? dentistId = await patientService.GetDentistIdAsync();
@@ -105,21 +89,17 @@
             {
                 return BadRequest("Dentist user is not configured.");
             }
-
-            Appointment currentAppointment = new Appointment
+            string patientId = userManager.GetUserId(User)!;
+            try
             {
-                PatientId = userManager.GetUserId(User)!,
-                DentistId = dentistId,
-                Date = appointmentDate,
-                PatientPhoneNumber = createModel.PatientPhoneNumber,
-                ManipulationTypeId = createModel.ManipulationTypeId,
-                Note = createModel.Note
-
-            };
-
-            await dbContext.Appointments.AddAsync(currentAppointment);
-            await dbContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                await appointmentService.CreateAppointmentAsync(createModel, appointmentDateTime, patientId);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while creating Appointment.Please try again!");
+                return View(createModel);
+            }
         }
 
         [HttpPost]
@@ -165,7 +145,7 @@
 
             };
 
-            await PopulateManipulationTypesAsync(editViewModel);
+        //    await PopulateManipulationTypesAsync(editViewModel);
             return View(editViewModel);
         }
 
@@ -197,15 +177,15 @@
             {
                 ModelState
                     .AddModelError(nameof(editViewModel.AppointmentDate), "Duplicate applointment hour");
-                await PopulateManipulationTypesAsync(editViewModel);
+                //await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
 
-            if (!ValidateManipulationId(dbContext, editViewModel.ManipulationTypeId))
+           // if (!ValidateManipulationId(dbContext, editViewModel.ManipulationTypeId))
             {
                 ModelState
                     .AddModelError(nameof(editViewModel.ManipulationTypeId), "The selected manipulation is incorrect");
-                await PopulateManipulationTypesAsync(editViewModel);
+             //   await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
 
@@ -213,7 +193,7 @@
             {
                 ModelState
                    .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appintment in the past");
-                await PopulateManipulationTypesAsync(editViewModel);
+               // await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
                    
@@ -231,23 +211,8 @@
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task PopulateManipulationTypesAsync(AppointmentCreateViewModel createViewModel)
-        {
-            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
-
-            createViewModel.ManipulationTypes = manipulationTypes
-                .Select(mt => new DropDown
-                {
-                    Id = mt.Id,
-                    Name = mt.Name
-                }); 
-        }
-        private bool ValidateManipulationId(DentistAppDbContext dbContext, Guid currentManipulation)
-        {
-            bool isManipulationValid = dbContext.ManipulationTypes
-                .Any(m=>m.ManipulationId == currentManipulation);
-            return isManipulationValid;
-        }
+       
+        
 
        
     }
