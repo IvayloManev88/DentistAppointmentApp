@@ -1,8 +1,8 @@
 ﻿namespace DentistApp.ViewModels.ProcedureViewModels
 {
-    using System.ComponentModel.DataAnnotations;
-
     using static DentistApp.GCommon.ProcedureConstants;
+
+    using System.ComponentModel.DataAnnotations;
 
     public class ProcedureCreateViewModel
     {

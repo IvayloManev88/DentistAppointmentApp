@@ -1,16 +1,13 @@
 ﻿namespace DentistApp.Web.Controllers
 {
-    using DentistApp.Data;
     using DentistApp.Data.Models;
+    using static DentistApp.GCommon.Roles;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.ManipulationViewModels;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
-
-    using static DentistApp.GCommon.Roles;
-
+   
     [Authorize]
     public class ManipulationController : Controller
     {

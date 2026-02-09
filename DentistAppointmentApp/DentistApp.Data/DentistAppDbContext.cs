@@ -2,9 +2,9 @@
 {
     using DentistApp.Data.Configuration;
     using DentistApp.Data.Models;
+
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
-    using System.Reflection;
 
     public class DentistAppDbContext : IdentityDbContext<ApplicationUser>
     {

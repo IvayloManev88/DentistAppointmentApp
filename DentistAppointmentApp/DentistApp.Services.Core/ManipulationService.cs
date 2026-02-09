@@ -5,6 +5,7 @@
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels;
     using DentistApp.ViewModels.ManipulationViewModels;
+
     using Microsoft.EntityFrameworkCore;
     
     public class ManipulationService : IManipulationService

@@ -1,17 +1,15 @@
-﻿
-namespace DentistApp.Services.Core
+﻿namespace DentistApp.Services.Core
 {
-    using Microsoft.EntityFrameworkCore;
     using DentistApp.Data;
     using DentistApp.Data.Models;
-
+    using static DentistApp.GCommon.GlobalCommon;
     using DentistApp.Services.Core.Contracts;
-
     using DentistApp.ViewModels.AppointmentViewModels;
+
+    using Microsoft.EntityFrameworkCore;
 
     using System.Globalization;
 
-    using static DentistApp.GCommon.GlobalCommon;
     public class AppointmentService : IAppointmentService
     {
         private readonly DentistAppDbContext dbContext;
@@ -101,7 +99,8 @@ namespace DentistApp.Services.Core
                     AppointmentDate = a.Date.ToString(ApplicationDateTimeFormat, CultureInfo.InvariantCulture),
                     PatientAppointmentPhoneNumber = a.PatientPhoneNumber,
                     ManipulationName = a.ManipulationType.Name,
-                    AppointmentNote = a.Note
+                    AppointmentNote = a.Note,
+                    AppointmentUserCreated = a.PatientId.ToString()
                 }).ToArrayAsync();
             return appointments;
         }

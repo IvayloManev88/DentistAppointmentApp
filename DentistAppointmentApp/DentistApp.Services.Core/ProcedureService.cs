@@ -2,14 +2,14 @@
 {
     using DentistApp.Data;
     using DentistApp.Data.Models;
+    using static DentistApp.GCommon.GlobalCommon;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels;
-    using DentistApp.ViewModels.AppointmentViewModels;
     using DentistApp.ViewModels.ProcedureViewModels;
 
     using Microsoft.EntityFrameworkCore;
     using System.Globalization;
-    using static DentistApp.GCommon.GlobalCommon;
+    
     public class ProcedureService:IProcedureService
     {
         private readonly DentistAppDbContext dbContext;
@@ -131,7 +131,7 @@
             return editViewModel;
         }
 
-        public async Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, Procedure editProcedure)
+        public async Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, Procedure editProcedure, string dentistId)
         {
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(procedureToEdit.ManipulationTypeId);
 
@@ -144,12 +144,10 @@
             {
                 throw new Exception("Procedure's Date cannot be in the future");
             }
-
-            string? dentistId = await patientService.GetDentistIdAsync();
-
-            if (dentistId == null)
+                        
+            if (!await patientService.IsUserInDbByIdAsync(dentistId))
             {
-                throw new Exception("Error while creating Procedure. At least one dentist user should be configured");
+                throw new Exception("Error while creating Procedure. The dentistId is not in the Databse");
             }
 
             if (!await patientService.IsUserInDbByIdAsync(procedureToEdit.PatientId))

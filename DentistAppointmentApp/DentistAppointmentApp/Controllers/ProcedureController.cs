@@ -1,9 +1,7 @@
 ﻿namespace DentistApp.Web.Controllers
 {
-
-    using DentistApp.Data;
     using DentistApp.Data.Models;
-
+    using static DentistApp.GCommon.Roles;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.ProcedureViewModels;
 
@@ -12,8 +10,6 @@
     using Microsoft.AspNetCore.Mvc;
 
     using System.Collections.Generic;
-
-    using static DentistApp.GCommon.Roles;
 
     [Authorize]
     public class ProcedureController : Controller
@@ -193,7 +189,7 @@
 
             try
             {
-                await procedureService.EditProcedureAsync(editViewModel, procedureToEdit);
+                await procedureService.EditProcedureAsync(editViewModel, procedureToEdit, dentistId);
                 return RedirectToAction(nameof(Index));
             }
             catch

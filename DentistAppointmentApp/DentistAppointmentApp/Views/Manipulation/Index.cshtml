@@ -3,41 +3,47 @@
 
 <h2>Manipulations</h2>
 
-<p>
-    <a asp-action="Create">Create new</a>
-</p>
-
+@if (User.IsInRole("Dentist"))
+{
+	<p>
+		<a asp-action="Create">Create new</a>
+	</p>
+}
 <table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Price Range</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var m in Model)
-        {
-            <tr>
-                <td>@m.Name</td>
-                <td>@m.PriceRange</td>
-                <td>
-                    <a asp-action="Edit"
-                       asp-route-id="@m.ManipulationId">
-                        Edit
-                    </a>
-
-                    <form asp-action="Delete"
-                          asp-route-id="@m.ManipulationId"
-                          method="post"
-                          style="display:inline;">
-                        <button type="submit"
-                                onclick="return confirm('Delete this manipulation?');">
-                            Delete
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Price Range</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var m in Model)
+		{
+			<tr>
+				<td>@m.Name</td>
+				<td>@m.PriceRange</td>
+				<td>
+					@if (User.IsInRole("Dentist"))
+					{
+						<a asp-action="Edit"
+						   asp-route-id="@m.ManipulationId">
+							Edit
+						</a>
+					}
+					@if (User.IsInRole("Dentist"))
+					{
+						<form asp-action="Delete"
+							  asp-route-id="@m.ManipulationId"
+							  method="post"
+							  style="display:inline;">
+							<button type="submit"
+									onclick="return confirm('Delete this manipulation?');">
+								Delete
+							</button>
+						</form>
+					}
+				</td>
+			</tr>
+		}
+	</tbody>
 </table>

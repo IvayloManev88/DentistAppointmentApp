@@ -1,22 +1,14 @@
 ﻿namespace DentistApp.Web.Controllers
 {
-    using DentistApp.Data;
     using DentistApp.Data.Models;
-    using DentistApp.Services.Core;
     using DentistApp.Services.Core.Contracts;
-    using DentistApp.ViewModels;
     using DentistApp.ViewModels.AppointmentViewModels;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Rendering;
-    using Microsoft.EntityFrameworkCore;
 
     using System.Collections.Generic;
-
-    using static GCommon.AppointmentConstants;
-    using static GCommon.GlobalCommon;
 
     [Authorize]
     public class AppointmentController : Controller

@@ -24,11 +24,6 @@
             /// Last Name should be a text with lenght at least 2
             /// </summary>
             public const int ApplicationUserLastNameMinLength = 2;
-
-            
-
-           
-
         }
 
         public static class Manipulation
@@ -53,9 +48,6 @@
             /// Expexted price should be a text with with lenght at least 1 symbol long
             /// </summary>
             public const int ApplicationUserLastNameMinLength = 1;
-
-
-
         }
         public static class Appointment
         {
@@ -66,10 +58,7 @@
             /// <summary>
             /// Note length should not exceed 450 symbols
             /// </summary>
-
             public const int NoteMaxLength = 450;
         }
-
-
     }
 }

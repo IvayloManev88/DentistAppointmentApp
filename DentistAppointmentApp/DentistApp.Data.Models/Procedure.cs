@@ -1,11 +1,12 @@
 ﻿
 namespace DentistApp.Data.Models
 {
-    using Microsoft.EntityFrameworkCore;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
     using static DentistApp.GCommon.EntityConstants.Appointment;
 
+    using Microsoft.EntityFrameworkCore;
+
+    using System.ComponentModel.DataAnnotations;
+    
     [Comment("Table defining the Procedures done.")]
     //Side note - was considering making abstract class for matching properties between Appointment and Procedure entities but it is better to have them separate as "Note" for example does something different
     public class Procedure

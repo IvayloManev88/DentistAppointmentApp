@@ -1,8 +1,10 @@
 ﻿namespace DentistApp.Data.Models
 {
-    using Microsoft.EntityFrameworkCore;
-    using System.ComponentModel.DataAnnotations;
     using static DentistApp.GCommon.EntityConstants.Manipulation;
+
+    using Microsoft.EntityFrameworkCore;
+
+    using System.ComponentModel.DataAnnotations;
 
     [Comment("Table defining the manipulation types")]
     public class ManipulationType

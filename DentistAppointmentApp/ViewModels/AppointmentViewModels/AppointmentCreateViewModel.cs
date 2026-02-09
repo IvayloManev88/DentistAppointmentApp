@@ -1,8 +1,9 @@
 ﻿namespace DentistApp.ViewModels.AppointmentViewModels
 {
+    using static DentistApp.GCommon.AppointmentConstants;
+
     using System.ComponentModel.DataAnnotations;
 
-    using static DentistApp.GCommon.AppointmentConstants;
     public class AppointmentCreateViewModel
     {
         public Guid? AppointmentId { get; set; }

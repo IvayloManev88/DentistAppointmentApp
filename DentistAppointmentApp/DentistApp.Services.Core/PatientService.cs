@@ -1,14 +1,13 @@
 ﻿namespace DentistApp.Services.Core
 {
     using DentistApp.Data;
-
-    using DentistApp.Services.Core.Contracts;
-    using DentistApp.ViewModels;
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.EntityFrameworkCore;
-
     using DentistApp.Data.Models;
     using static DentistApp.GCommon.Roles;
+    using DentistApp.Services.Core.Contracts;
+    using DentistApp.ViewModels;
+
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;    
 
     public class PatientService : IPatientService
     {

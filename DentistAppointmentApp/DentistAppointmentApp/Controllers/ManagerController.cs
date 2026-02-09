@@ -1,13 +1,11 @@
 ﻿namespace DentistApp.Web.Controllers
 {
-    using DentistApp.Data;
     using DentistApp.Data.Models;
+    using static DentistApp.GCommon.Roles;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-
-    using static DentistApp.GCommon.Roles;
 
     [Authorize]
     public class ManagerController: Controller

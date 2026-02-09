@@ -1,8 +1,9 @@
 ﻿namespace DentistApp.ViewModels.ManipulationViewModels
 {
+    using static DentistApp.GCommon.EntityConstants.Manipulation;
+
     using System.ComponentModel.DataAnnotations;
 
-    using static DentistApp.GCommon.EntityConstants.Manipulation;
     public class ManipulationEditViewModel
     {
         public Guid? ManipulationId { get; set; }

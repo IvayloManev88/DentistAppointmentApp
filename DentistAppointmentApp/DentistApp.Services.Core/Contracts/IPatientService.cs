@@ -1,6 +1,5 @@
 ﻿namespace DentistApp.Services.Core.Contracts
 {
-    using DentistApp.Data.Models;
     using DentistApp.ViewModels;
     public interface IPatientService
     {

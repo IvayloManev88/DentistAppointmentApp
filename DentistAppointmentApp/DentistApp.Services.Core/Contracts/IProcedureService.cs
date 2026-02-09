@@ -1,7 +1,6 @@
 ﻿namespace DentistApp.Services.Core.Contracts
 {
     using DentistApp.Data.Models;
-    using DentistApp.ViewModels.AppointmentViewModels;
     using DentistApp.ViewModels.ProcedureViewModels;
     public interface IProcedureService
     {
@@ -17,6 +16,6 @@
 
         Task <ProcedureCreateViewModel> LoadProcedureEditViewModelByIdAsync(Guid procedureId);
 
-        Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, Procedure editProcedure);
+        Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, Procedure editProcedure, string dentistId);
     }
 }

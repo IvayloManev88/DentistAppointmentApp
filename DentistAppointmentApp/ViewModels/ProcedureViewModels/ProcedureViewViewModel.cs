@@ -2,7 +2,6 @@
 {
     public class ProcedureViewViewModel
     {
-
         public string ProcedureId = null!;
         public string PatientProcedureName = null!;
         public string DentistProcedureName = null!;
