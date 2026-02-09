@@ -3,11 +3,9 @@
     using DentistApp.ViewModels;
     public interface IPatientService
     {
-        Task<IEnumerable<DropDown>> GetPatientsAsync();
-
-        Task<string?> GetDentistIdAsync();
-
-        Task<bool> IsUserInDbByIdAsync(string userId);
-        Task<bool> IsUserDentistByIdAsync(string userId);
+        Task <IEnumerable<DropDown>> GetPatientsAsync();
+        Task <string?> GetDentistIdAsync();
+        Task <bool> IsUserInDbByIdAsync(string userId);
+        Task <bool> IsUserDentistByIdAsync(string userId);
     }
 }

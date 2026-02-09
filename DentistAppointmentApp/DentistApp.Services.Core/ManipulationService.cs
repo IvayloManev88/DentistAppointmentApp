@@ -61,7 +61,7 @@
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ManipulationViewAllViewModel>> GetAllManipulationTypesAsync()
+        public async Task <IEnumerable<ManipulationViewAllViewModel>> GetAllManipulationTypesAsync()
         {
             return await dbContext
                 .ManipulationTypes
@@ -76,7 +76,7 @@
                     }).ToArrayAsync();
         }
 
-        public async Task<ManipulationType?> GetManipulationByIdAsync(Guid id)
+        public async Task <ManipulationType?> GetManipulationByIdAsync(Guid id)
         {
             return await dbContext
                 .ManipulationTypes
@@ -84,7 +84,7 @@
                 && m.ManipulationId == id);
         }
 
-        public async Task<ManipulationEditViewModel> GetManipulationEditViewModelAsync(Guid id)
+        public async Task <ManipulationEditViewModel> GetManipulationEditViewModelAsync(Guid id)
         {
             ManipulationType? manipulationToEdit = await this.GetManipulationByIdAsync(id);
             if (manipulationToEdit == null)
@@ -100,7 +100,7 @@
             return editViewModel;
         }
 
-        public async Task<IEnumerable<DropDown>> GetManipulationTypesAsync()
+        public async Task <IEnumerable<DropDown>> GetManipulationTypesAsync()
         {
             return await dbContext.ManipulationTypes
                 .Where(mt => mt.IsDeleted == false)
@@ -113,7 +113,7 @@
                 .ToArrayAsync();
         }
 
-        public async Task<bool> IsManipulationNameDuplicatedAsync(string name, Guid? id=null)
+        public async Task <bool> IsManipulationNameDuplicatedAsync(string name, Guid? id=null)
         {
             return await this.dbContext
                 .ManipulationTypes
@@ -123,7 +123,7 @@
                 && (id == null || m.ManipulationId != id));
         }
 
-        public async Task<bool> ValidateManipulationTypesAsync(Guid currentManipulation)
+        public async Task <bool> ValidateManipulationTypesAsync(Guid currentManipulation)
         {
             return dbContext.ManipulationTypes
                 .Any(m => m.ManipulationId == currentManipulation);

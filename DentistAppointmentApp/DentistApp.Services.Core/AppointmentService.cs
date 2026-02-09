@@ -22,7 +22,7 @@
             this.patientService = patientService;
         }
 
-        public async Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime, Guid? appointmentId=null)
+        public async Task <bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime, Guid? appointmentId=null)
         {
             return await dbContext.Appointments
                 .AsNoTracking()
@@ -67,7 +67,7 @@
 
         }
 
-        public async Task<AppointmentCreateViewModel> CreateViewModelAsync()
+        public async Task <AppointmentCreateViewModel> CreateViewModelAsync()
         {
             AppointmentCreateViewModel createModel = new AppointmentCreateViewModel();
             createModel.AppointmentDate = DateTime.Today;
@@ -77,7 +77,7 @@
 
         }
 
-        public async Task<Appointment?> GetAppointmentByIdAsync(Guid id)
+        public async Task <Appointment?> GetAppointmentByIdAsync(Guid id)
         {
             return await dbContext
                 .Appointments
@@ -85,7 +85,7 @@
                 && a.AppointmentId == id);
         }
 
-        public async Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync()
+        public async Task <IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync()
         {
             IEnumerable<AppointmentViewAppointmentViewModel> appointments = await dbContext
                 .Appointments
@@ -117,7 +117,7 @@
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<Appointment?> GetAppointmentToManipulateByUserIdAsync(Guid id, string userId)
+        public async Task <Appointment?> GetAppointmentToManipulateByUserIdAsync(Guid id, string userId)
         {
             Appointment? appointmentToEdit = await dbContext
                 .Appointments
@@ -126,7 +126,7 @@
             return appointmentToEdit;
         }
 
-        public async Task<AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id)
+        public async Task <AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id)
         {
             Appointment? appointmentToEdit = await this.GetAppointmentByIdAsync(id);
             if (appointmentToEdit == null)
@@ -159,7 +159,7 @@
                 throw new Exception("Duplicated Appointment Date/Time");
             }
             
-            if (this.AppointmentInFuture(appointmentDateTime))
+            if (await this.AppointmentInFuture(appointmentDateTime))
             {
                 throw new Exception("Appointment's Date and Time combination cannot be in the past");
             }
@@ -176,17 +176,17 @@
             await dbContext.SaveChangesAsync();
         }
 
-        public bool AppointmentInFuture(DateTime appointmentDateTime)
+        public async Task <bool> AppointmentInFuture(DateTime appointmentDateTime)
         {
             return appointmentDateTime < DateTime.Today;
         }
 
-        public bool CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId)
+        public async Task <bool> CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId)
         {
-            return dbContext
+            return await dbContext
                 .Appointments
                 .Where(a => a.PatientId == userId || a.DentistId == userId)
-                .Any(a => a.IsDeleted == false && a.AppointmentId == id);
+                .AnyAsync(a => a.IsDeleted == false && a.AppointmentId == id);
         }
     }
 }

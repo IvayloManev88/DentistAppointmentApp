@@ -4,9 +4,9 @@
     using DentistApp.ViewModels.ProcedureViewModels;
     public interface IProcedureService
     {
-        Task<IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId);
+        Task <IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId);
 
-        Task<ProcedureCreateViewModel> GetCreateViewModelAsync();
+        Task <ProcedureCreateViewModel> GetCreateViewModelAsync();
 
         Task CreateProcedureAsync(ProcedureCreateViewModel procedureToCreate, string dentistId);
 
@@ -16,6 +16,10 @@
 
         Task <ProcedureCreateViewModel> LoadProcedureEditViewModelByIdAsync(Guid procedureId);
 
-        Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, Procedure editProcedure, string dentistId);
+        Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, string dentistId);
+
+        Task <bool> IsProcedureDateInTheFuture(DateTime procedureDate);
+
+        Task <bool> IsProcedureValid(Guid procedureId);
     }
 }

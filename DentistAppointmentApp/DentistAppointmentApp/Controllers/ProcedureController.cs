@@ -58,8 +58,6 @@
                 return View(createModel);
             }
 
-            DateTime procedureDate = createModel.ProcedureDate.Date;
-            ManipulationType? currentManipulation = await manipulationService.GetManipulationByIdAsync(createModel.ManipulationTypeId);
             if (!await manipulationService
                 .ValidateManipulationTypesAsync(createModel.ManipulationTypeId))
             {
@@ -75,13 +73,18 @@
                 return View(createModel);
             }
 
-            if (procedureDate > DateTime.Today)
+            if (await procedureService.IsProcedureDateInTheFuture(createModel.ProcedureDate.Date))
             {
                 ModelState
                    .AddModelError(nameof(createModel.ProcedureDate), "You should not set procedure that is done in the future");
                 return View(createModel);
             }
             string dentistId = userManager.GetUserId(User)!;
+            if (!await patientService.IsUserInDbByIdAsync(dentistId))
+            {
+                ModelState
+                   .AddModelError(string.Empty, "Current User is not in the Database");
+            }
             try
             {
                 await procedureService
@@ -99,10 +102,7 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            Procedure? procedureToDelete = await procedureService
-                .GetProcedureByIdAsync(id);
-
-            if (procedureToDelete == null)
+            if (!await procedureService.IsProcedureValid(id))
             {
                 return NotFound();
             }
@@ -122,10 +122,7 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Edit(Guid id)
         {
-            Procedure? procedureToEdit = await procedureService
-                .GetProcedureByIdAsync(id);
-
-            if (procedureToEdit == null)
+            if (!await procedureService.IsProcedureValid(id))
             {
                 return NotFound();
             }
@@ -169,7 +166,7 @@
                 return View(editViewModel);
             }
 
-            if (editViewModel.ProcedureDate > DateTime.Now)
+            if (await procedureService.IsProcedureDateInTheFuture(editViewModel.ProcedureDate))
             {
                 ModelState
                    .AddModelError(nameof(editViewModel.ProcedureDate), "You should not set procedure that is done in the future");
@@ -179,17 +176,21 @@
             {
                 return NotFound();
             }
-            Procedure? procedureToEdit = await procedureService.GetProcedureByIdAsync(editViewModel.ProcedureId.Value);
-            
-            if (procedureToEdit == null)
+                        
+            if (!await procedureService.IsProcedureValid(editViewModel.ProcedureId.Value))
             {
                 return NotFound();
             }
             string dentistId = userManager.GetUserId(User)!;
+            if (!await patientService.IsUserInDbByIdAsync(dentistId))
+            {
+                ModelState
+                   .AddModelError(string.Empty, "Current User is not in the Database");
+            }
 
             try
             {
-                await procedureService.EditProcedureAsync(editViewModel, procedureToEdit, dentistId);
+                await procedureService.EditProcedureAsync(editViewModel, dentistId);
                 return RedirectToAction(nameof(Index));
             }
             catch

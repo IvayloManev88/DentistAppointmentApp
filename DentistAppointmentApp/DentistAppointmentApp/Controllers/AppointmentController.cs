@@ -67,7 +67,7 @@
                 return View(createModel);
             }
 
-            if (appointmentService.AppointmentInFuture(appointmentDateTime))
+            if (await appointmentService.AppointmentInFuture(appointmentDateTime))
             {
                 ModelState
                    .AddModelError(nameof(createModel.AppointmentDate), "You should not set an appintment in the past");
@@ -96,7 +96,7 @@
         {
             string currentUserId = userManager.GetUserId(User)!;
            
-            if (!appointmentService.CanAppointmentBeManipulatedByUserIdAsync(id, currentUserId))
+            if (!await appointmentService.CanAppointmentBeManipulatedByUserIdAsync(id, currentUserId))
             {
                 return NotFound();
             }
@@ -118,7 +118,7 @@
             /*An appointment should be edited only by the user created the appointment or the dentist*/
             string currentUserId = userManager.GetUserId(User)!;
             
-            if (!appointmentService.CanAppointmentBeManipulatedByUserIdAsync(id, currentUserId))
+            if (!await appointmentService.CanAppointmentBeManipulatedByUserIdAsync(id, currentUserId))
             {
                 return NotFound();
             }
@@ -148,7 +148,7 @@
                 return NotFound();
             }
             
-            if (!appointmentService.CanAppointmentBeManipulatedByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId))
+            if (!await appointmentService.CanAppointmentBeManipulatedByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId))
             {
                 return NotFound();
             }
@@ -169,7 +169,7 @@
                 return View(editViewModel);
             }
 
-            if (appointmentService.AppointmentInFuture(appointmentDate))
+            if (await appointmentService.AppointmentInFuture(appointmentDate))
             {
                 ModelState
                    .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appointment in the past");

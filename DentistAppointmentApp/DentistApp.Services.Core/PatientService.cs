@@ -18,7 +18,7 @@
             this.dbContext = dbContext;
             this.userManager = userManager;
         }
-        public async Task<IEnumerable<DropDown>> GetPatientsAsync()
+        public async Task <IEnumerable<DropDown>> GetPatientsAsync()
         {
             return await dbContext.Users.
                 AsNoTracking().
@@ -32,7 +32,7 @@
                 })
                 .ToArrayAsync();
         }
-        public async Task<string?> GetDentistIdAsync()
+        public async Task <string?> GetDentistIdAsync()
         {
             IEnumerable<ApplicationUser> dentists = await userManager
                 .GetUsersInRoleAsync(DentistRoleName);
@@ -41,7 +41,7 @@
                 .FirstOrDefault()?.Id.ToString();
         }
 
-        public async Task<bool> IsUserDentistByIdAsync(string userId)
+        public async Task <bool> IsUserDentistByIdAsync(string userId)
         {
             ApplicationUser? user = await userManager.FindByIdAsync(userId);
 
@@ -53,7 +53,7 @@
             return await userManager.IsInRoleAsync(user, DentistRoleName);
         }
 
-        public async Task<bool> IsUserInDbByIdAsync(string userId)
+        public async Task <bool> IsUserInDbByIdAsync(string userId)
         {
             return dbContext.Users
                 .Any(u => u.Id == userId);

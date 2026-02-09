@@ -7,11 +7,11 @@
     public interface IManipulationService
     {
         
-        Task<IEnumerable<DropDown>> GetManipulationTypesAsync();
+        Task <IEnumerable<DropDown>> GetManipulationTypesAsync();
 
-        Task<IEnumerable<ManipulationViewAllViewModel>> GetAllManipulationTypesAsync();
+        Task <IEnumerable<ManipulationViewAllViewModel>> GetAllManipulationTypesAsync();
 
-        Task<bool> IsManipulationNameDuplicatedAsync(string name, Guid? id=null);
+        Task <bool> IsManipulationNameDuplicatedAsync(string name, Guid? id=null);
 
         Task CreateManipulationAsync(ManipulationCreateViewModel manipulationToCreate);
 
@@ -19,10 +19,10 @@
 
         Task DeleteManipulationAsync(Guid id);
 
-        Task<ManipulationEditViewModel> GetManipulationEditViewModelAsync(Guid id);
+        Task <ManipulationEditViewModel> GetManipulationEditViewModelAsync(Guid id);
 
         Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit);
 
-        Task<bool> ValidateManipulationTypesAsync(Guid currentManipulation);
+        Task <bool> ValidateManipulationTypesAsync(Guid currentManipulation);
     }
 }

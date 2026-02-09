@@ -69,7 +69,7 @@
             await dbContext.SaveChangesAsync();
         }     
 
-        public async Task<IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId)
+        public async Task <IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId)
         {
             IEnumerable<ProcedureViewViewModel> procedures = await dbContext
                .Procedures
@@ -92,7 +92,7 @@
             return procedures;
         }
 
-        public async Task<ProcedureCreateViewModel> GetCreateViewModelAsync()
+        public async Task <ProcedureCreateViewModel> GetCreateViewModelAsync()
         {
             IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
             ProcedureCreateViewModel createModel = new ProcedureCreateViewModel();
@@ -102,14 +102,14 @@
             return createModel;
         }
 
-        public async Task<Procedure?> GetProcedureByIdAsync(Guid procedureId)
+        public async Task <Procedure?> GetProcedureByIdAsync(Guid procedureId)
         {
             return await dbContext
                 .Procedures
                 .SingleOrDefaultAsync(a => a.IsDeleted == false && a.ProcedureId == procedureId);
         }
 
-        public async Task<ProcedureCreateViewModel> LoadProcedureEditViewModelByIdAsync(Guid procedureId)
+        public async Task <ProcedureCreateViewModel> LoadProcedureEditViewModelByIdAsync(Guid procedureId)
         {
             Procedure? procedureToEdit = await this.GetProcedureByIdAsync(procedureId);
             if (procedureToEdit == null)
@@ -131,7 +131,7 @@
             return editViewModel;
         }
 
-        public async Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, Procedure editProcedure, string dentistId)
+        public async Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, string dentistId)
         {
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(procedureToEdit.ManipulationTypeId);
 
@@ -159,6 +159,11 @@
             {
                 throw new Exception("Error while creating Procedure. The user is not a dentist");
             }
+            Procedure? editProcedure =await this.GetProcedureByIdAsync(procedureToEdit.ProcedureId!.Value);
+            if (editProcedure == null)
+            {
+                throw new Exception("Procedure not found");
+            }
 
             editProcedure.Date = procedureToEdit.ProcedureDate;
             editProcedure.PatientPhoneNumber = procedureToEdit.PatientPhoneNumber;
@@ -168,6 +173,19 @@
             editProcedure.DentistId = dentistId;
 
             await dbContext.SaveChangesAsync();
+        }
+
+        public async Task <bool> IsProcedureDateInTheFuture(DateTime procedureDate)
+        {
+            return procedureDate > DateTime.Today;
+        }
+
+        public async Task<bool> IsProcedureValid(Guid procedureId)
+        {
+            return await dbContext
+                .Procedures
+                .AnyAsync(a => a.IsDeleted == false && 
+                a.ProcedureId == procedureId);
         }
     }
 }
