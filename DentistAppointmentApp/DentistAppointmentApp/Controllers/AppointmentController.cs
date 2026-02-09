@@ -67,15 +67,14 @@
                 return View(createModel);
             }
 
-            if (appointmentDateTime < DateTime.Today)
+            if (appointmentService.AppointmentInFuture(appointmentDateTime))
             {
                 ModelState
                    .AddModelError(nameof(createModel.AppointmentDate), "You should not set an appintment in the past");
                 return View(createModel);
             }
-            string? dentistId = await patientService.GetDentistIdAsync();
-
-            if (dentistId == null)
+            
+            if (await patientService.GetDentistIdAsync()==null)
             {
                 return BadRequest("Dentist user is not configured.");
             }
@@ -96,9 +95,8 @@
         public async Task<IActionResult> Delete(Guid id)
         {
             string currentUserId = userManager.GetUserId(User)!;
-            Appointment? appointmentToDelete = await appointmentService.GetAppointmentToManipulateByUserIdAsync(id, currentUserId);
-
-            if (appointmentToDelete == null)
+           
+            if (!appointmentService.CanAppointmentBeManipulatedByUserIdAsync(id, currentUserId))
             {
                 return NotFound();
             }
@@ -119,9 +117,8 @@
         {
             /*An appointment should be edited only by the user created the appointment or the dentist*/
             string currentUserId = userManager.GetUserId(User)!;
-            Appointment? appointmentToEdit = await appointmentService.GetAppointmentToManipulateByUserIdAsync(id, currentUserId);
-
-            if (appointmentToEdit == null)
+            
+            if (!appointmentService.CanAppointmentBeManipulatedByUserIdAsync(id, currentUserId))
             {
                 return NotFound();
             }
@@ -150,9 +147,8 @@
             {
                 return NotFound();
             }
-            Appointment? appointmentToEdit = await appointmentService.GetAppointmentToManipulateByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId);
-
-            if (appointmentToEdit == null)
+            
+            if (!appointmentService.CanAppointmentBeManipulatedByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId))
             {
                 return NotFound();
             }
@@ -173,7 +169,7 @@
                 return View(editViewModel);
             }
 
-            if (appointmentDate < DateTime.Now)
+            if (appointmentService.AppointmentInFuture(appointmentDate))
             {
                 ModelState
                    .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appointment in the past");
@@ -182,7 +178,7 @@
 
             try
             {
-                await appointmentService.EditAppointmentAsync(editViewModel, appointmentToEdit);
+                await appointmentService.EditAppointmentAsync(editViewModel);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -190,7 +186,6 @@
                 ModelState.AddModelError(string.Empty, "An error occurred while editing an Appointment.Please try again!");
                 return View(editViewModel);
             }
-
         }
     }
 }

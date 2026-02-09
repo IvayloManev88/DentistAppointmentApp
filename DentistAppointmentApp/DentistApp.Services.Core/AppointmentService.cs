@@ -146,7 +146,7 @@
             };
             return editViewModel;
         }
-        public async Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit, Appointment editedAppointment)
+        public async Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit)
         {
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(appointmentToEdit.ManipulationTypeId);
             if (!isManipulationCorrect)
@@ -159,9 +159,14 @@
                 throw new Exception("Duplicated Appointment Date/Time");
             }
             
-            if (appointmentDateTime < DateTime.Today)
+            if (this.AppointmentInFuture(appointmentDateTime))
             {
                 throw new Exception("Appointment's Date and Time combination cannot be in the past");
+            }
+            Appointment? editedAppointment = await this.GetAppointmentByIdAsync(appointmentToEdit.AppointmentId!.Value);
+            if (editedAppointment == null)
+            {
+                throw new Exception("Appointment not found");
             }
             editedAppointment.Date = appointmentDateTime;
             editedAppointment.PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber;
@@ -169,6 +174,19 @@
             editedAppointment.Note = appointmentToEdit.Note;
             
             await dbContext.SaveChangesAsync();
+        }
+
+        public bool AppointmentInFuture(DateTime appointmentDateTime)
+        {
+            return appointmentDateTime < DateTime.Today;
+        }
+
+        public bool CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId)
+        {
+            return dbContext
+                .Appointments
+                .Where(a => a.PatientId == userId || a.DentistId == userId)
+                .Any(a => a.IsDeleted == false && a.AppointmentId == id);
         }
     }
 }
