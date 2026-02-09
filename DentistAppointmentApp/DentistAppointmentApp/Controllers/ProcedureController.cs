@@ -26,39 +26,22 @@
         private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
+        private readonly IProcedureService procedureService;
 
-        public ProcedureController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService)
+        public ProcedureController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService, IProcedureService procedureService)
         {
             this.userManager = userManager;
             this.dbContext = dbContext;
             this.manipulationService = manipulationService;
             this.patientService = patientService;
+            this.procedureService = procedureService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             string currentUserId = userManager.GetUserId(User)!;
-            ProcedureViewViewModel[] procedures = await dbContext
-                .Procedures
-                .AsNoTracking()
-                .Include(p => p.ManipulationType)
-                .Include(p=>p.Dentist)
-                .Include(p=>p.Patient)
-                .Where(p=>p.DentistId== currentUserId ||
-                p.PatientId == currentUserId)
-                .OrderBy(p => p.Date)
-                .Select(p => new ProcedureViewViewModel
-                {
-                    ProcedureId = p.ProcedureId.ToString(),
-                    PatientProcedureName = $"{p.Patient.FirstName} {p.Patient.LastName}",
-                    DentistProcedureName = $"{p.Dentist.FirstName} {p.Dentist.LastName}",
-                    ProcedureDate = p.Date.ToString(DateFormat),
-                    PatientProcedurePhoneNumber = p.PatientPhoneNumber,
-                    ManipulationName = p.ManipulationType.Name,
-                    ProcedureDentistNote = p.Note
-                }).ToArrayAsync();
-
+            IEnumerable<ProcedureViewViewModel> procedures = await procedureService.GetAllProceduresViewModelsAsync(currentUserId);
             return View(procedures);
         }
 
