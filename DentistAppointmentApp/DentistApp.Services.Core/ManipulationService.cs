@@ -32,20 +32,32 @@
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task DeleteManipulationAsync(ManipulationType manipulationToDelete)
+        public async Task DeleteManipulationAsync(Guid id)
         {
+            ManipulationType? manipulationToDelete = await this.GetManipulationByIdAsync(id);
+
+            if (manipulationToDelete==null)
+            {
+                throw new Exception("Manipulation not found");
+            }
+
             manipulationToDelete.IsDeleted = true;
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit, ManipulationType editedManipulation)
+        public async Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit)
         {
             if (await IsManipulationNameDuplicatedAsync(manipulationToEdit.Name,manipulationToEdit.ManipulationId))
             {
                 throw new Exception("Duplicated manipulation name");
             }
-            editedManipulation.Name=manipulationToEdit.Name;
-            editedManipulation.PriceRange=manipulationToEdit.PriceRange;
+            ManipulationType? editManipulation = await this.GetManipulationByIdAsync(manipulationToEdit.ManipulationId!.Value);
+            if (editManipulation == null)
+            {
+                throw new Exception("Manipulation not found");
+            }
+            editManipulation.Name=manipulationToEdit.Name;
+            editManipulation.PriceRange=manipulationToEdit.PriceRange;
             await dbContext.SaveChangesAsync();
         }
 
@@ -72,8 +84,13 @@
                 && m.ManipulationId == id);
         }
 
-        public async Task<ManipulationEditViewModel> GetManipulationEditViewModelAsync(ManipulationType manipulationToEdit)
+        public async Task<ManipulationEditViewModel> GetManipulationEditViewModelAsync(Guid id)
         {
+            ManipulationType? manipulationToEdit = await this.GetManipulationByIdAsync(id);
+            if (manipulationToEdit == null)
+            {
+                throw new Exception("Manipulation not found");
+            }
             ManipulationEditViewModel editViewModel = new ManipulationEditViewModel
             {
                 ManipulationId = manipulationToEdit.ManipulationId,

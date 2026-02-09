@@ -1,13 +1,11 @@
 ﻿namespace DentistApp.Web.Controllers
 {
-    using DentistApp.Data.Models;
-    using static DentistApp.GCommon.Roles;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.ManipulationViewModels;
-
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-   
+    using static DentistApp.GCommon.Roles;
+
     [Authorize]
     public class ManipulationController : Controller
     {
@@ -64,16 +62,14 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            ManipulationType? manipulationToDelete =await manipulationService.GetManipulationByIdAsync(id);
-
-            if (manipulationToDelete == null)
+            if (!await manipulationService.ValidateManipulationTypesAsync(id))
             {
                 return NotFound();
             }
 
             try
             {
-                await manipulationService.DeleteManipulationAsync(manipulationToDelete);
+                await manipulationService.DeleteManipulationAsync(id);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -86,14 +82,19 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Edit(Guid id)
         {
-            ManipulationType? manipulationToEdit = await manipulationService.GetManipulationByIdAsync(id);
-
-            if (manipulationToEdit == null)
+            if (!await manipulationService.ValidateManipulationTypesAsync(id))
             {
                 return NotFound();
             }
-            ManipulationEditViewModel editViewModel = await manipulationService.GetManipulationEditViewModelAsync(manipulationToEdit);
-            return View(editViewModel);
+            try
+            {
+                ManipulationEditViewModel editViewModel = await manipulationService.GetManipulationEditViewModelAsync(id);
+                return View(editViewModel);
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpPost]
@@ -114,17 +115,16 @@
             if (!editViewModel.ManipulationId.HasValue)
             {
                 return BadRequest();
-            }
-            ManipulationType? manipulationToEdit = await manipulationService.GetManipulationByIdAsync(editViewModel.ManipulationId.Value);               
+            }          
                    
-            if (manipulationToEdit == null)
+            if (!await manipulationService.ValidateManipulationTypesAsync(editViewModel.ManipulationId.Value))
             {
                 return NotFound();
             }
 
             try
             {
-                await manipulationService.EditManipulationAsync(editViewModel, manipulationToEdit);
+                await manipulationService.EditManipulationAsync(editViewModel);
                 return RedirectToAction(nameof(Index));
             }
             catch

@@ -17,11 +17,11 @@
 
         Task <ManipulationType?> GetManipulationByIdAsync(Guid id);
 
-        Task DeleteManipulationAsync(ManipulationType manipulationToDelete);
+        Task DeleteManipulationAsync(Guid id);
 
-        Task<ManipulationEditViewModel> GetManipulationEditViewModelAsync(ManipulationType manipulationToEdit);
+        Task<ManipulationEditViewModel> GetManipulationEditViewModelAsync(Guid id);
 
-        Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit, ManipulationType editedManipulation);
+        Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit);
 
         Task<bool> ValidateManipulationTypesAsync(Guid currentManipulation);
     }
