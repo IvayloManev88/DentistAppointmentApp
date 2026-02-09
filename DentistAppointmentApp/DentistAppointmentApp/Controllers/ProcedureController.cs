@@ -5,13 +5,11 @@
     using DentistApp.Data.Models;
 
     using DentistApp.Services.Core.Contracts;
-    using DentistApp.ViewModels;
     using DentistApp.ViewModels.ProcedureViewModels;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
 
     using System.Collections.Generic;
 
@@ -21,15 +19,13 @@
     public class ProcedureController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
         private readonly IProcedureService procedureService;
 
-        public ProcedureController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService, IProcedureService procedureService)
+        public ProcedureController(UserManager<ApplicationUser> userManager, IManipulationService manipulationService, IPatientService patientService, IProcedureService procedureService)
         {
             this.userManager = userManager;
-            this.dbContext = dbContext;
             this.manipulationService = manipulationService;
             this.patientService = patientService;
             this.procedureService = procedureService;
@@ -39,7 +35,8 @@
         public async Task<IActionResult> Index()
         {
             string currentUserId = userManager.GetUserId(User)!;
-            IEnumerable<ProcedureViewViewModel> procedures = await procedureService.GetAllProceduresViewModelsAsync(currentUserId);
+            IEnumerable<ProcedureViewViewModel> procedures = await procedureService
+                .GetAllProceduresViewModelsAsync(currentUserId);
             return View(procedures);
         }
 
@@ -47,7 +44,8 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create()
         {
-            ProcedureCreateViewModel createModel =await procedureService.GetCreateViewModelAsync();
+            ProcedureCreateViewModel createModel =await procedureService
+                .GetCreateViewModelAsync();
             return View(createModel);
         }
         
@@ -55,8 +53,10 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create(ProcedureCreateViewModel createModel)
         {
-            createModel.ManipulationTypes =await manipulationService.GetManipulationTypesAsync();
-            createModel.PatientsNames = await patientService.GetPatientsAsync();
+            createModel.ManipulationTypes =await manipulationService
+                .GetManipulationTypesAsync();
+            createModel.PatientsNames = await patientService
+                .GetPatientsAsync();
             if (!ModelState.IsValid)
             {
                 return View(createModel);
@@ -64,7 +64,8 @@
 
             DateTime procedureDate = createModel.ProcedureDate.Date;
             ManipulationType? currentManipulation = await manipulationService.GetManipulationByIdAsync(createModel.ManipulationTypeId);
-            if (!await manipulationService.ValidateManipulationTypesAsync(createModel.ManipulationTypeId))
+            if (!await manipulationService
+                .ValidateManipulationTypesAsync(createModel.ManipulationTypeId))
             {
                 ModelState
                     .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
@@ -84,9 +85,11 @@
                    .AddModelError(nameof(createModel.ProcedureDate), "You should not set procedure that is done in the future");
                 return View(createModel);
             }
+            string dentistId = userManager.GetUserId(User)!;
             try
             {
-                await procedureService.CreateProcedureAsync(createModel, procedureDate);
+                await procedureService
+                    .CreateProcedureAsync(createModel, dentistId);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -100,75 +103,73 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            Procedure? procedureToDelete = await dbContext
-                .Procedures
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.ProcedureId== id);
+            Procedure? procedureToDelete = await procedureService
+                .GetProcedureByIdAsync(id);
 
             if (procedureToDelete == null)
             {
                 return NotFound();
             }
 
-            procedureToDelete.IsDeleted = true;
-
-            await dbContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await procedureService.DeleteProcedureByIdAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
+            }  
         }
 
         [HttpGet]
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Edit(Guid id)
         {
-            Procedure? procedureToEdit = await dbContext
-                .Procedures
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.ProcedureId == id);
+            Procedure? procedureToEdit = await procedureService
+                .GetProcedureByIdAsync(id);
 
             if (procedureToEdit == null)
             {
                 return NotFound();
             }
 
-            ProcedureCreateViewModel editViewModel = new ProcedureCreateViewModel
+            try
             {
-                ProcedureId = procedureToEdit.ProcedureId.ToString(),
-                ProcedureDate = procedureToEdit.Date,
-                PatientId = procedureToEdit.PatientId,
-                PatientPhoneNumber = procedureToEdit.PatientPhoneNumber,
-                ManipulationTypeId = procedureToEdit.ManipulationTypeId,
-                DentistNote = procedureToEdit.Note,
-
-
-            };
-
-            await PopulateManipulationTypesAsync(editViewModel);
-            await PopulatePatientsAsync(editViewModel);
-            return View(editViewModel);
+                ProcedureCreateViewModel editViewModel = await procedureService.LoadProcedureEditViewModelByIdAsync(id);
+                return View(editViewModel);
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost]
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Edit(ProcedureCreateViewModel editViewModel)
         {
+            editViewModel.ManipulationTypes = await manipulationService
+                .GetManipulationTypesAsync();
+            editViewModel.PatientsNames = await patientService
+                .GetPatientsAsync();
             if (!ModelState.IsValid)
             {
-                await PopulateManipulationTypesAsync(editViewModel);
-                await PopulatePatientsAsync(editViewModel);
                 return View(editViewModel);
             }
 
-            if (!ValidateManipulationId(dbContext, editViewModel.ManipulationTypeId))
+            if (!await manipulationService
+                .ValidateManipulationTypesAsync(editViewModel.ManipulationTypeId))
             {
                 ModelState
                     .AddModelError(nameof(editViewModel.ManipulationTypeId), "The selected manipulation is incorrect");
-                await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
 
-            if (!ValidatePatientId(dbContext, editViewModel.PatientId))
+            if (!await patientService.IsUserInDbByIdAsync(editViewModel.PatientId))
             {
                 ModelState
                     .AddModelError(nameof(editViewModel.PatientId), "The selected patient is incorrect");
-                await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
 
@@ -176,71 +177,30 @@
             {
                 ModelState
                    .AddModelError(nameof(editViewModel.ProcedureDate), "You should not set procedure that is done in the future");
-                await PopulateManipulationTypesAsync(editViewModel);
-                await PopulatePatientsAsync(editViewModel);
                 return View(editViewModel);
             }
-
-            Procedure? procedureToEdit = await dbContext
-                .Procedures
-                .SingleOrDefaultAsync(m => m.IsDeleted == false && m.ProcedureId.ToString()== editViewModel.ProcedureId!);
-
+            if (!editViewModel.ProcedureId.HasValue)
+            {
+                return NotFound();
+            }
+            Procedure? procedureToEdit = await procedureService.GetProcedureByIdAsync(editViewModel.ProcedureId.Value);
+            
             if (procedureToEdit == null)
             {
                 return NotFound();
             }
+            string dentistId = userManager.GetUserId(User)!;
 
-            procedureToEdit.Date = editViewModel.ProcedureDate;
-            procedureToEdit.PatientPhoneNumber = editViewModel.PatientPhoneNumber;
-            procedureToEdit.ManipulationTypeId = editViewModel.ManipulationTypeId;
-            procedureToEdit.Note = editViewModel.DentistNote;
-            procedureToEdit.PatientId = editViewModel.PatientId;
-            procedureToEdit.DentistId = userManager.GetUserId(User)!;
-
-            await dbContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        
-        private async Task PopulateManipulationTypesAsync(ProcedureCreateViewModel createViewModel)
-        {
-            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
-
-            createViewModel.ManipulationTypes = manipulationTypes
-                .Select(mt => new DropDown
-                {
-                    Id = mt.Id,
-                    Name = mt.Name
-                });
-        }
-
-        private async Task PopulatePatientsAsync(ProcedureCreateViewModel createViewModel)
-        {
-            IEnumerable<DropDown> patientNames = await patientService.GetPatientsAsync();
-
-            createViewModel.PatientsNames = patientNames
-                .Select(p => new DropDown
-                {
-                    Id = p.Id,
-                    Name = p.Name
-                });
-
-        }
-
-        private bool ValidateManipulationId(DentistAppDbContext dbContext, Guid currentProcedureManipulationId)
-        {
-            bool isManipulationValid = dbContext.ManipulationTypes
-                .Any(m => m.ManipulationId == currentProcedureManipulationId);
-
-            return isManipulationValid;
-        }
-
-        private bool ValidatePatientId(DentistAppDbContext dbContext, string currentProcedurePatientId)
-        {
-            bool isPatientValid = dbContext.Users
-                .Any(u=>u.Id == currentProcedurePatientId.ToString());
-
-            return isPatientValid;
-        }
-
+            try
+            {
+                await procedureService.EditProcedureAsync(editViewModel, procedureToEdit);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while editing a Procedure.Please try again!");
+                return View(editViewModel);
+            }
+        }   
     }
 }

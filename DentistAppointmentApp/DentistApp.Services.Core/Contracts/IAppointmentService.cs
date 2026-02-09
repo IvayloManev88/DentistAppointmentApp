@@ -2,7 +2,6 @@
 {
     using DentistApp.Data.Models;
     using DentistApp.ViewModels.AppointmentViewModels;
-    using DentistApp.ViewModels.ManipulationViewModels;
 
     public interface IAppointmentService
     {
@@ -10,7 +9,7 @@
 
         Task<AppointmentCreateViewModel> CreateViewModelAsync();
 
-        Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime);
+        Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime,Guid? appointmentId= null);
 
         Task CreateAppointmentAsync(AppointmentCreateViewModel appointmentToCreate, DateTime appointmentDateTime, string userId);
 

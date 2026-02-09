@@ -116,7 +116,6 @@
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while deleting Appointment. Please try again!");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -156,9 +155,7 @@
             string currentUserId = userManager.GetUserId(User)!;
             if (!editViewModel.AppointmentId.HasValue)
             {
-                ModelState
-                   .AddModelError(string.Empty, "Invalid Appointment. Plase try again using by selecting appointment from the list");
-                return View(editViewModel);
+                return NotFound();
             }
             Appointment? appointmentToEdit = await appointmentService.GetAppointmentToEditByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId);
 
@@ -168,7 +165,7 @@
             }
             DateTime appointmentDate = editViewModel.AppointmentDate.Date + editViewModel.AppointmentTime;
 
-            if (await appointmentService.AppointmentDuplicateDateAndTimeAsync(appointmentDate))
+            if (await appointmentService.AppointmentDuplicateDateAndTimeAsync(appointmentDate, editViewModel.AppointmentId))
 
             {
                 ModelState
@@ -186,7 +183,7 @@
             if (appointmentDate < DateTime.Now)
             {
                 ModelState
-                   .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appintment in the past");
+                   .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appointment in the past");
                 return View(editViewModel);
             }
 
@@ -197,7 +194,7 @@
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while creating Appointment.Please try again!");
+                ModelState.AddModelError(string.Empty, "An error occurred while editing an Appointment.Please try again!");
                 return View(editViewModel);
             }
 

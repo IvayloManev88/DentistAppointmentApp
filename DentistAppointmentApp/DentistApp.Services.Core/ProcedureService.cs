@@ -4,6 +4,7 @@
     using DentistApp.Data.Models;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels;
+    using DentistApp.ViewModels.AppointmentViewModels;
     using DentistApp.ViewModels.ProcedureViewModels;
 
     using Microsoft.EntityFrameworkCore;
@@ -21,21 +22,21 @@
             this.patientService = patientService;
         }
 
-        public async Task CreateProcedureAsync(ProcedureCreateViewModel procedureToCreate, DateTime procedureDate)
-        {
+        public async Task CreateProcedureAsync(ProcedureCreateViewModel procedureToCreate, string dentistId)
+        { 
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(procedureToCreate.ManipulationTypeId);
             if (!isManipulationCorrect)
             {
                 throw new Exception("Manipulation Service is not correct");
             }
-            if (procedureDate > DateTime.Today)
+            if (procedureToCreate.ProcedureDate > DateTime.Today)
             {
                 throw new Exception("Procedure's Date cannot be in the future");
             }
-            string? dentistId = await patientService.GetDentistIdAsync();
-            if (dentistId == null)
+            
+            if (!await patientService.IsUserDentistByIdAsync(dentistId))
             {
-                throw new Exception("Error while creating Procedure. At least one dentist user should be configured");
+                throw new Exception("Error while creating Procedure. The user is not a dentist");
             }
             if (!await patientService.IsUserInDbByIdAsync(procedureToCreate.PatientId))
             {
@@ -46,7 +47,7 @@
             {
                 PatientId = procedureToCreate.PatientId.ToString(),
                 DentistId = dentistId,
-                Date = procedureDate,
+                Date = procedureToCreate.ProcedureDate,
                 PatientPhoneNumber = procedureToCreate.PatientPhoneNumber,
                 ManipulationTypeId = procedureToCreate.ManipulationTypeId,
                 Note = procedureToCreate.DentistNote
@@ -56,6 +57,18 @@
             await dbContext.SaveChangesAsync();
         }
 
+        public async Task DeleteProcedureByIdAsync(Guid procedureId)
+        {
+            Procedure? procedureToDelete = await this.GetProcedureByIdAsync(procedureId);
+            if (procedureToDelete == null)
+            {
+                throw new Exception("Procedure to Delete not found");
+            }
+
+            procedureToDelete.IsDeleted = true;
+            await dbContext.SaveChangesAsync();
+        }     
+
         public async Task<IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId)
         {
             IEnumerable<ProcedureViewViewModel> procedures = await dbContext
@@ -64,8 +77,7 @@
                .Include(p => p.ManipulationType)
                .Include(p => p.Dentist)
                .Include(p => p.Patient)
-               .Where(p => p.DentistId == userId ||
-               p.PatientId == userId)
+               .Where(p => p.DentistId == userId || p.PatientId == userId)
                .OrderBy(p => p.Date)
                .Select(p => new ProcedureViewViewModel
                {
@@ -88,6 +100,76 @@
             createModel.ManipulationTypes =await manipulationService.GetManipulationTypesAsync();
             createModel.PatientsNames = await patientService.GetPatientsAsync();
             return createModel;
+        }
+
+        public async Task<Procedure?> GetProcedureByIdAsync(Guid procedureId)
+        {
+            return await dbContext
+                .Procedures
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.ProcedureId == procedureId);
+        }
+
+        public async Task<ProcedureCreateViewModel> LoadProcedureEditViewModelByIdAsync(Guid procedureId)
+        {
+            Procedure? procedureToEdit = await this.GetProcedureByIdAsync(procedureId);
+            if (procedureToEdit == null)
+            {
+                throw new Exception("Procedure to Edit not found");
+            }
+
+            ProcedureCreateViewModel editViewModel = new ProcedureCreateViewModel
+            {
+                ProcedureId = procedureToEdit.ProcedureId,
+                ProcedureDate = procedureToEdit.Date,
+                PatientId = procedureToEdit.PatientId,
+                PatientPhoneNumber = procedureToEdit.PatientPhoneNumber,
+                ManipulationTypes = await manipulationService.GetManipulationTypesAsync(),
+                PatientsNames = await patientService.GetPatientsAsync(),
+                ManipulationTypeId = procedureToEdit.ManipulationTypeId,
+                DentistNote = procedureToEdit.Note,
+            };
+            return editViewModel;
+        }
+
+        public async Task EditProcedureAsync(ProcedureCreateViewModel procedureToEdit, Procedure editProcedure)
+        {
+            bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(procedureToEdit.ManipulationTypeId);
+
+            if (!isManipulationCorrect)
+            {
+                throw new Exception("Manipulation Service is not correct");
+            }
+
+            if (procedureToEdit.ProcedureDate > DateTime.Today)
+            {
+                throw new Exception("Procedure's Date cannot be in the future");
+            }
+
+            string? dentistId = await patientService.GetDentistIdAsync();
+
+            if (dentistId == null)
+            {
+                throw new Exception("Error while creating Procedure. At least one dentist user should be configured");
+            }
+
+            if (!await patientService.IsUserInDbByIdAsync(procedureToEdit.PatientId))
+            {
+                throw new Exception("Error while creating Procedure. The user is not in the DataBase");
+            }
+
+            if (!await patientService.IsUserDentistByIdAsync(dentistId))
+            {
+                throw new Exception("Error while creating Procedure. The user is not a dentist");
+            }
+
+            editProcedure.Date = procedureToEdit.ProcedureDate;
+            editProcedure.PatientPhoneNumber = procedureToEdit.PatientPhoneNumber;
+            editProcedure.ManipulationTypeId = procedureToEdit.ManipulationTypeId;
+            editProcedure.Note = procedureToEdit.DentistNote;
+            editProcedure.PatientId = procedureToEdit.PatientId;
+            editProcedure.DentistId = dentistId;
+
+            await dbContext.SaveChangesAsync();
         }
     }
 }

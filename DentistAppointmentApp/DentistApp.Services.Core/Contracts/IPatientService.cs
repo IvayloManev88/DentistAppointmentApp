@@ -9,5 +9,6 @@
         Task<string?> GetDentistIdAsync();
 
         Task<bool> IsUserInDbByIdAsync(string userId);
+        Task<bool> IsUserDentistByIdAsync(string userId);
     }
 }

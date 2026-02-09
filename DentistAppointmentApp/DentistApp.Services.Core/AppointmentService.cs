@@ -1,11 +1,13 @@
-﻿using DentistApp.Data;
-using DentistApp.Services.Core.Contracts;
-using DentistApp.ViewModels.AppointmentViewModels;
+﻿
 namespace DentistApp.Services.Core
 {
-    using DentistApp.Data.Models;
-    using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
+    using DentistApp.Data;
+    using DentistApp.Data.Models;
+
+    using DentistApp.Services.Core.Contracts;
+
+    using DentistApp.ViewModels.AppointmentViewModels;
 
     using System.Globalization;
 
@@ -22,9 +24,11 @@ namespace DentistApp.Services.Core
             this.patientService = patientService;
         }
 
-        public async Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime)
+        public async Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime, Guid? appointmentId=null)
         {
-            return await this.dbContext.Appointments.AsNoTracking().AnyAsync(a => a.Date == appointmentDateTime && a.IsDeleted == false);
+            return await dbContext.Appointments
+                .AsNoTracking()
+                .AnyAsync(a => a.Date == appointmentDateTime &&! a.IsDeleted && (!appointmentId.HasValue || a.AppointmentId != appointmentId.Value));
         }
 
         public async Task CreateAppointmentAsync(AppointmentCreateViewModel appointmentToCreate, DateTime appointmentDateTime, string userId)
@@ -147,9 +151,9 @@ namespace DentistApp.Services.Core
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(appointmentToEdit.ManipulationTypeId);
             if (!isManipulationCorrect)
             {
-                throw new Exception("Manipulation Service is not correct");
+                throw new Exception("Manipulation Type is not correct");
             }
-            if (await AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
+            if (await AppointmentDuplicateDateAndTimeAsync(appointmentDateTime, appointmentToEdit.AppointmentId))
             {
                 throw new Exception("Duplicated Appointment Date/Time");
             }

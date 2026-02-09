@@ -35,8 +35,23 @@
         }
         public async Task<string?> GetDentistIdAsync()
         {
-            IEnumerable<ApplicationUser> dentists = await userManager.GetUsersInRoleAsync(DentistRoleName);
-            return dentists.FirstOrDefault()?.Id.ToString();
+            IEnumerable<ApplicationUser> dentists = await userManager
+                .GetUsersInRoleAsync(DentistRoleName);
+
+            return dentists
+                .FirstOrDefault()?.Id.ToString();
+        }
+
+        public async Task<bool> IsUserDentistByIdAsync(string userId)
+        {
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            return await userManager.IsInRoleAsync(user, DentistRoleName);
         }
 
         public async Task<bool> IsUserInDbByIdAsync(string userId)

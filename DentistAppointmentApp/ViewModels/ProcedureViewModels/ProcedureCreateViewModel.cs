@@ -6,7 +6,7 @@
 
     public class ProcedureCreateViewModel
     {
-        public string? ProcedureId { get; set; }
+        public Guid? ProcedureId { get; set; }
         [Required]
         [DataType(DataType.Date)]
         public DateTime ProcedureDate { get; set; }
