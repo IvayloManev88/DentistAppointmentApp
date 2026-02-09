@@ -78,7 +78,7 @@ namespace DentistApp.Services.Core
         {
             return await dbContext
                 .Appointments
-                .SingleOrDefaultAsync(a => a.IsDeleted == false 
+                .SingleOrDefaultAsync(a => a.IsDeleted == false
                 && a.AppointmentId == id);
         }
 
@@ -93,7 +93,7 @@ namespace DentistApp.Services.Core
                     AppointmentId = a.AppointmentId.ToString(),
                     PatientAppointmentName = $"{a.Patient.FirstName} {a.Patient.LastName}",
                     DentistAppointmentName = $"{a.Dentist.FirstName} {a.Dentist.LastName}",
-                    AppointmentDate = a.Date.ToString(ApplicationDateTimeFormat,CultureInfo.InvariantCulture),
+                    AppointmentDate = a.Date.ToString(ApplicationDateTimeFormat, CultureInfo.InvariantCulture),
                     PatientAppointmentPhoneNumber = a.PatientPhoneNumber,
                     ManipulationName = a.ManipulationType.Name,
                     AppointmentNote = a.Note
@@ -103,7 +103,7 @@ namespace DentistApp.Services.Core
 
         public async Task DeleteAppointmentByIdAsync(Guid id)
         {
-            Appointment? appointmentToDelete =await this.GetAppointmentByIdAsync(id);
+            Appointment? appointmentToDelete = await this.GetAppointmentByIdAsync(id);
             if (appointmentToDelete == null)
             {
                 throw new Exception("Appointment to Delete not found");
@@ -124,7 +124,7 @@ namespace DentistApp.Services.Core
 
         public async Task<AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id)
         {
-            Appointment? appointmentToEdit =await this.GetAppointmentByIdAsync(id);
+            Appointment? appointmentToEdit = await this.GetAppointmentByIdAsync(id);
             if (appointmentToEdit == null)
             {
                 throw new Exception("Appointment to Edit not found");
@@ -141,6 +141,28 @@ namespace DentistApp.Services.Core
                 ManipulationTypes = await manipulationService.GetManipulationTypesAsync()
             };
             return editViewModel;
+        }
+        public async Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit, Appointment editedAppointment, DateTime appointmentDateTime)
+        {
+            bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(appointmentToEdit.ManipulationTypeId);
+            if (!isManipulationCorrect)
+            {
+                throw new Exception("Manipulation Service is not correct");
+            }
+            if (await AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
+            {
+                throw new Exception("Duplicated Appointment Date/Time");
+            }
+            if (appointmentDateTime < DateTime.Today)
+            {
+                throw new Exception("Appointment's Date and Time combination cannot be in the past");
+            }
+            editedAppointment.Date = appointmentDateTime;
+            editedAppointment.PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber;
+            editedAppointment.ManipulationTypeId = appointmentToEdit.ManipulationTypeId;
+            editedAppointment.Note = appointmentToEdit.Note;
+            
+            await dbContext.SaveChangesAsync();
         }
     }
 }

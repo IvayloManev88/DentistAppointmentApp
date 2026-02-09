@@ -17,20 +17,18 @@
 
     using static GCommon.AppointmentConstants;
     using static GCommon.GlobalCommon;
-    
+
     [Authorize]
     public class AppointmentController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
         private readonly IAppointmentService appointmentService;
-        
-        public AppointmentController(UserManager<ApplicationUser> userManager, DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService, IAppointmentService appointmentService)
+
+        public AppointmentController(UserManager<ApplicationUser> userManager, IManipulationService manipulationService, IPatientService patientService, IAppointmentService appointmentService)
         {
             this.userManager = userManager;
-            this.dbContext = dbContext;
             this.manipulationService = manipulationService;
             this.patientService = patientService;
             this.appointmentService = appointmentService;
@@ -39,7 +37,7 @@
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            IEnumerable<AppointmentViewAppointmentViewModel> appointments =await appointmentService.GetAllAppotinmentsViewModelsAsync();
+            IEnumerable<AppointmentViewAppointmentViewModel> appointments = await appointmentService.GetAllAppotinmentsViewModelsAsync();
             return View(appointments);
         }
 
@@ -60,20 +58,20 @@
             }
 
             DateTime appointmentDateTime = createModel.AppointmentDate.Date + createModel.AppointmentTime;
-            
+
             if (!await manipulationService.ValidateManipulationTypesAsync(createModel.ManipulationTypeId))
             {
                 ModelState
                     .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
-                
+
                 return View(createModel);
-            }          
+            }
 
             if (await appointmentService.AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
             {
                 ModelState
                     .AddModelError(nameof(createModel.AppointmentDate), "The selected combination Date/Time is already taken. Please try different Date/Time");
-                
+
                 return View(createModel);
             }
 
@@ -121,7 +119,7 @@
                 ModelState.AddModelError(string.Empty, "An error occurred while deleting Appointment. Please try again!");
                 return RedirectToAction(nameof(Index));
             }
-            
+
         }
 
         [HttpGet]
@@ -139,27 +137,30 @@
             {
                 AppointmentCreateViewModel editViewModel = await appointmentService.LoadEditViewModelByIdAsync(id);
                 return View(editViewModel);
-            }   
+            }
             catch
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while editing Appointment. Please try again!");
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
- 
+
         }
 
         [HttpPost]
         public async Task<IActionResult> Edit(AppointmentCreateViewModel editViewModel)
         {
+            editViewModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
             if (!ModelState.IsValid)
             {
                 return View(editViewModel);
             }
             string currentUserId = userManager.GetUserId(User)!;
-            Appointment? appointmentToEdit = await dbContext
-                .Appointments
-                .Where(a => a.PatientId == currentUserId || a.DentistId == currentUserId)
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == editViewModel.AppointmentId);
+            if (!editViewModel.AppointmentId.HasValue)
+            {
+                ModelState
+                   .AddModelError(string.Empty, "Invalid Appointment. Plase try again using by selecting appointment from the list");
+                return View(editViewModel);
+            }
+            Appointment? appointmentToEdit = await appointmentService.GetAppointmentToEditByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId);
 
             if (appointmentToEdit == null)
             {
@@ -167,24 +168,18 @@
             }
             DateTime appointmentDate = editViewModel.AppointmentDate.Date + editViewModel.AppointmentTime;
 
-            if (await this.dbContext.Appointments
-                .AsNoTracking()
-                .AnyAsync(a => a.Date == appointmentDate 
-                && a.IsDeleted == false 
-                && editViewModel.AppointmentId != a.AppointmentId))
-                
+            if (await appointmentService.AppointmentDuplicateDateAndTimeAsync(appointmentDate))
+
             {
                 ModelState
-                    .AddModelError(nameof(editViewModel.AppointmentDate), "Duplicate applointment hour");
-                //await PopulateManipulationTypesAsync(editViewModel);
+                    .AddModelError(nameof(editViewModel.AppointmentDate), "Duplicate appointment hour");
                 return View(editViewModel);
             }
 
-           // if (!ValidateManipulationId(dbContext, editViewModel.ManipulationTypeId))
+            if (!await manipulationService.ValidateManipulationTypesAsync(editViewModel.ManipulationTypeId))
             {
                 ModelState
                     .AddModelError(nameof(editViewModel.ManipulationTypeId), "The selected manipulation is incorrect");
-             //   await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
 
@@ -192,27 +187,25 @@
             {
                 ModelState
                    .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appintment in the past");
-               // await PopulateManipulationTypesAsync(editViewModel);
                 return View(editViewModel);
             }
-                   
-            if (appointmentToEdit == null)
+
+            try
             {
-                return NotFound();
+                await appointmentService.EditAppointmentAsync(editViewModel, appointmentToEdit, appointmentDate);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while creating Appointment.Please try again!");
+                return View(editViewModel);
             }
 
-            appointmentToEdit.Date = appointmentDate;
-            appointmentToEdit.PatientPhoneNumber = editViewModel.PatientPhoneNumber;
-            appointmentToEdit.ManipulationTypeId = editViewModel.ManipulationTypeId;
-            appointmentToEdit.Note = editViewModel.Note;
-           
-            await dbContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
-       
-        
 
-       
+
+
+
     }
 }
