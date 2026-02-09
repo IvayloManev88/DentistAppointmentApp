@@ -38,6 +38,11 @@
             IEnumerable<ApplicationUser> dentists = await userManager.GetUsersInRoleAsync(DentistRoleName);
             return dentists.FirstOrDefault()?.Id.ToString();
         }
-       
+
+        public async Task<bool> IsUserInDbByIdAsync(string userId)
+        {
+            return dbContext.Users
+                .Any(u => u.Id == userId);
+        }
     }
 }

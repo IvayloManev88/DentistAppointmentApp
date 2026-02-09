@@ -9,5 +9,9 @@ namespace DentistApp.Services.Core.Contracts
     public interface IProcedureService
     {
         Task<IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId);
+
+        Task<ProcedureCreateViewModel> GetCreateViewModelAsync();
+
+        Task CreateProcedureAsync(ProcedureCreateViewModel procedureToCreate, DateTime procedureDate);
     }
 }

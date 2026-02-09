@@ -11,13 +11,11 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.EntityFrameworkCore;
 
     using System.Collections.Generic;
 
     using static DentistApp.GCommon.Roles;
-    using static GCommon.GlobalCommon;
 
     [Authorize]
     public class ProcedureController : Controller
@@ -49,11 +47,7 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create()
         {
-            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
-            ProcedureCreateViewModel createModel = new ProcedureCreateViewModel();
-            createModel.ProcedureDate = DateTime.Today;
-            await PopulateManipulationTypesAsync(createModel);
-            await PopulatePatientsAsync(createModel);
+            ProcedureCreateViewModel createModel =await procedureService.GetCreateViewModelAsync();
             return View(createModel);
         }
         
@@ -61,27 +55,26 @@
         [Authorize(Roles = DentistRoleName)]
         public async Task<IActionResult> Create(ProcedureCreateViewModel createModel)
         {
+            createModel.ManipulationTypes =await manipulationService.GetManipulationTypesAsync();
+            createModel.PatientsNames = await patientService.GetPatientsAsync();
             if (!ModelState.IsValid)
             {
-                await PopulateManipulationTypesAsync(createModel);
-                await PopulatePatientsAsync(createModel);
                 return View(createModel);
             }
 
             DateTime procedureDate = createModel.ProcedureDate.Date;
-            if (!ValidateManipulationId(dbContext, createModel.ManipulationTypeId))
+            ManipulationType? currentManipulation = await manipulationService.GetManipulationByIdAsync(createModel.ManipulationTypeId);
+            if (!await manipulationService.ValidateManipulationTypesAsync(createModel.ManipulationTypeId))
             {
                 ModelState
                     .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
-                await PopulateManipulationTypesAsync(createModel);
                 return View(createModel);
             }
 
-            if (!ValidatePatientId(dbContext, createModel.PatientId))
+            if (!await patientService.IsUserInDbByIdAsync(createModel.PatientId))
             {
                 ModelState
                     .AddModelError(nameof(createModel.PatientId), "The selected patient is incorrect");
-                await PopulateManipulationTypesAsync(createModel);
                 return View(createModel);
             }
 
@@ -89,23 +82,18 @@
             {
                 ModelState
                    .AddModelError(nameof(createModel.ProcedureDate), "You should not set procedure that is done in the future");
-                await PopulateManipulationTypesAsync(createModel);
-                await PopulatePatientsAsync(createModel);
                 return View(createModel);
             }
-            Procedure currentProcedure = new Procedure
+            try
             {
-                PatientId = createModel.PatientId.ToString(),
-                DentistId = userManager.GetUserId(User)!,
-                Date = procedureDate,
-                PatientPhoneNumber = createModel.PatientPhoneNumber,
-                ManipulationTypeId = createModel.ManipulationTypeId,
-                Note = createModel.DentistNote
-            };
-
-            await dbContext.Procedures.AddAsync(currentProcedure);
-            await dbContext.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                await procedureService.CreateProcedureAsync(createModel, procedureDate);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while creating Procedure.Please try again!");
+                return View(createModel);
+            }   
         }
 
         [HttpPost]
