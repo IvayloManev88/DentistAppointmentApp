@@ -90,7 +90,7 @@
             string patientId = userManager.GetUserId(User)!;
             try
             {
-                await appointmentService.CreateAppointmentAsync(createModel, appointmentDateTime, patientId);
+                await appointmentService.CreateAppointmentAsync(createModel, patientId);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -103,7 +103,8 @@
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
-            Appointment? appointmentToDelete = await appointmentService.GetAppointmentByIdAsync(id);
+            string currentUserId = userManager.GetUserId(User)!;
+            Appointment? appointmentToDelete = await appointmentService.GetAppointmentToManipulateByUserIdAsync(id, currentUserId);
 
             if (appointmentToDelete == null)
             {
@@ -126,7 +127,7 @@
         {
             /*An appointment should be edited only by the user created the appointment or the dentist*/
             string currentUserId = userManager.GetUserId(User)!;
-            Appointment? appointmentToEdit = await appointmentService.GetAppointmentToEditByUserIdAsync(id, currentUserId);
+            Appointment? appointmentToEdit = await appointmentService.GetAppointmentToManipulateByUserIdAsync(id, currentUserId);
 
             if (appointmentToEdit == null)
             {
@@ -157,7 +158,7 @@
             {
                 return NotFound();
             }
-            Appointment? appointmentToEdit = await appointmentService.GetAppointmentToEditByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId);
+            Appointment? appointmentToEdit = await appointmentService.GetAppointmentToManipulateByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId);
 
             if (appointmentToEdit == null)
             {
@@ -189,7 +190,7 @@
 
             try
             {
-                await appointmentService.EditAppointmentAsync(editViewModel, appointmentToEdit, appointmentDate);
+                await appointmentService.EditAppointmentAsync(editViewModel, appointmentToEdit);
                 return RedirectToAction(nameof(Index));
             }
             catch

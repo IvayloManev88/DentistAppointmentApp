@@ -31,13 +31,14 @@ namespace DentistApp.Services.Core
                 .AnyAsync(a => a.Date == appointmentDateTime &&! a.IsDeleted && (!appointmentId.HasValue || a.AppointmentId != appointmentId.Value));
         }
 
-        public async Task CreateAppointmentAsync(AppointmentCreateViewModel appointmentToCreate, DateTime appointmentDateTime, string userId)
+        public async Task CreateAppointmentAsync(AppointmentCreateViewModel appointmentToCreate, string userId)
         {
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(appointmentToCreate.ManipulationTypeId);
             if (!isManipulationCorrect)
             {
                 throw new Exception("Manipulation Service is not correct");
             }
+            DateTime appointmentDateTime = appointmentToCreate.AppointmentDate.Date + appointmentToCreate.AppointmentTime;
             if (await this.AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
             {
                 throw new Exception("Duplicated Appointment Date/Time");
@@ -117,7 +118,7 @@ namespace DentistApp.Services.Core
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<Appointment?> GetAppointmentToEditByUserIdAsync(Guid id, string userId)
+        public async Task<Appointment?> GetAppointmentToManipulateByUserIdAsync(Guid id, string userId)
         {
             Appointment? appointmentToEdit = await dbContext
                 .Appointments
@@ -146,17 +147,19 @@ namespace DentistApp.Services.Core
             };
             return editViewModel;
         }
-        public async Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit, Appointment editedAppointment, DateTime appointmentDateTime)
+        public async Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit, Appointment editedAppointment)
         {
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(appointmentToEdit.ManipulationTypeId);
             if (!isManipulationCorrect)
             {
                 throw new Exception("Manipulation Type is not correct");
             }
+            DateTime appointmentDateTime = appointmentToEdit.AppointmentDate.Date + appointmentToEdit.AppointmentTime;
             if (await AppointmentDuplicateDateAndTimeAsync(appointmentDateTime, appointmentToEdit.AppointmentId))
             {
                 throw new Exception("Duplicated Appointment Date/Time");
             }
+            
             if (appointmentDateTime < DateTime.Today)
             {
                 throw new Exception("Appointment's Date and Time combination cannot be in the past");
