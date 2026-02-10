@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Appointments";
+    ViewData["UsePaper"] = true;
     string currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!;
     bool isDentist = User.IsInRole("Dentist");
 }
@@ -23,68 +24,70 @@
 }
 else
 {
-    <table class="table table-bordered table-striped align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Patient</th>
-                <th>Phone</th>
-                <th>Dentist</th>
-                <th>Date & Time</th>
-                <th>Manipulation</th>
-                <th>Note</th>
-                <th class="text-end">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var appointment in Model)
-            {
-                bool canModify =
-                isDentist || appointment.AppointmentUserCreated == currentUserId;
-
+    <div class="paper-table-wrapper">
+        <table class="table table-bordered align-middle paper-table">
+            <thead>
                 <tr>
-                    <td>@appointment.PatientAppointmentName</td>
-                    <td>@appointment.PatientAppointmentPhoneNumber</td>
-                    <td>@appointment.DentistAppointmentName</td>
-                    <td>@appointment.AppointmentDate</td>
-                    <td>@appointment.ManipulationName</td>
-                    <td>
-                        @if (string.IsNullOrWhiteSpace(appointment.AppointmentNote))
-                        {
-                            <span class="text-muted">—</span>
-                        }
-                        else
-                        {
-                            @appointment.AppointmentNote
-                        }
-                    </td>
-
-                    <td class="text-end">
-                        @if (canModify)
-                        {
-                            <a class="btn btn-sm btn-outline-primary"
-                               asp-action="Edit"
-                               asp-route-id="@appointment.AppointmentId">
-                                Edit
-                            </a>
-
-                            <form asp-action="Delete"
-                                  asp-route-id="@appointment.AppointmentId"
-                                  method="post"
-                                  class="d-inline">
-                                <button type="submit"
-                                        class="btn btn-sm btn-outline-danger ms-2"
-                                        onclick="return confirm('Delete this appointment?');">
-                                    Delete
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span class="text-muted">—</span>
-                        }
-                    </td>
+                    <th>Patient</th>
+                    <th>Phone</th>
+                    <th>Dentist</th>
+                    <th>Date & Time</th>
+                    <th>Manipulation</th>
+                    <th>Note</th>
+                    <th class="text-end">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var appointment in Model)
+                {
+                    bool canModify =
+                    isDentist || appointment.AppointmentUserCreated == currentUserId;
+
+                    <tr>
+                        <td>@appointment.PatientAppointmentName</td>
+                        <td>@appointment.PatientAppointmentPhoneNumber</td>
+                        <td>@appointment.DentistAppointmentName</td>
+                        <td>@appointment.AppointmentDate</td>
+                        <td>@appointment.ManipulationName</td>
+                        <td>
+                            @if (string.IsNullOrWhiteSpace(appointment.AppointmentNote))
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                            else
+                            {
+                                @appointment.AppointmentNote
+                            }
+                        </td>
+
+                        <td class="text-end">
+                            @if (canModify)
+                            {
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="Edit"
+                                   asp-route-id="@appointment.AppointmentId">
+                                    Edit
+                                </a>
+
+                                <form asp-action="Delete"
+                                      asp-route-id="@appointment.AppointmentId"
+                                      method="post"
+                                      class="d-inline">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger ms-2"
+                                            onclick="return confirm('Delete this appointment?');">
+                                        Delete
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

@@ -1,6 +1,10 @@
 ﻿@using DentistApp.ViewModels.AppointmentViewModels
 @model AppointmentCreateViewModel
 
+@{
+    ViewData["UsePaper"] = true;
+}
+
 <h2>Edit appointment</h2>
 
 <form asp-action="Edit" method="post" class="mt-3">

@@ -1,6 +1,8 @@
 ﻿@using DentistApp.ViewModels.ManipulationViewModels
 @model ManipulationEditViewModel
-
+@{
+    ViewData["UsePaper"] = true;
+}
 <h2>Edit manipulation</h2>
 
 <form asp-action="Edit" method="post">
