@@ -2,6 +2,20 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-</div>
+<section class="hero-wrapper">
+    <div class="hero-image-container">
+        <img src="~/images/dentalApp_index.png"
+             alt="Dental appointment illustration"
+             class="hero-image" />
+    </div>
+
+    <div class="hero-actions">
+        <h1 class="mb-3">Healthy Smiles Start Here</h1>
+
+        <a asp-controller="Appointment"
+           asp-action="Create"
+           class="btn btn-primary btn-lg">
+            Book Appointment
+        </a>
+    </div>
+</section>
