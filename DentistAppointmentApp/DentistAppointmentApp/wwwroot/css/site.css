@@ -1,30 +1,60 @@
 .hero-wrapper {
-    height: calc(100vh - 56px); /* subtract navbar height */
-    display: flex;
-    flex-direction: column;
-}
-
-.hero-image-container {
-    flex: 1; /* takes all available space */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
+    width: 100vw;
+    margin-left: calc(50% - 50vw); 
     overflow: hidden;
 }
 
 .hero-image {
-    display: block; /* removes inline gap */
-    max-width: 100%;
-    width: auto;
+    width: 100%;
     height: auto;
-    object-fit: contain;
+    display: block;
 }
 
 .hero-actions {
-    padding: 1.5rem;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    background-color: #ffffff;
 }
+
+.Home-Index .hero-wrapper {
+    height: calc(100vh - 100px); 
+}
+
+.Home-Index .hero-image {
+    height: 100%;
+    object-fit: cover;
+}
+
+.Home-Index .hero-actions {
+    inset: auto; 
+    top: 5%; 
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; 
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    z-index: 2;
+    color: white;
+    text-align: center;
+}
+
+    .Home-Index .hero-actions h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .Home-Index .hero-actions .btn {
+        margin-top: 0.5rem;
+    }
 
 .paper-surface {
     background: #f6ead0;
@@ -32,13 +62,12 @@
     padding: 2rem;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     border: 1px solid rgba(0,0,0,0.08);
-    /* subtle “paper” texture without an image */
     background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(0,0,0,0.03));
     background-size: 6px 6px, 100% 100%;
 }
 
 .paper-table-wrapper {
-    background: rgba(255, 255, 255, 0.55); /* lets papyrus show through */
+    background: rgba(255, 255, 255, 0.55);
     border-radius: 12px;
     padding: 1rem;
     box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
@@ -54,11 +83,13 @@
         color: #3b2b14;
     }
 
-    .paper-table tbody tr {
-        background: transparent;
-    }
-
+    .paper-table tbody tr,
     .paper-table td,
     .paper-table th {
         background: transparent;
     }
+
+.Home-Index main.container {
+    max-width: 100% !important;
+    padding: 0 !important;
+}
