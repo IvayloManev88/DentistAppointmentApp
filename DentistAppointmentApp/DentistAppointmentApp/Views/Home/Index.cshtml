@@ -3,12 +3,18 @@
 }
 
 <section class="hero-wrapper">
+    
     <img src="~/images/dentalApp_index.png"
          alt="Dental appointment illustration"
          class="hero-image" />
 
     <div class="hero-actions">
-        <h1 class="mb-3 text-white">Healthy Smiles Start Here</h1>
+        <h1 id="heroTitle" class="mb-3 text-primary">Healthy Smiles Start Here</h1>
+        <style>
+            #heroTitle {
+                text-shadow: 0 2px 0 rgba(255, 120, 170, 0.85), 0 8px 16px rgba(255, 150, 190, 0.70) !important;
+            }
+        </style>
 
         <a asp-controller="Appointment"
            asp-action="Create"

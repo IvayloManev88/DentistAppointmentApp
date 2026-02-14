@@ -93,3 +93,10 @@
     max-width: 100% !important;
     padding: 0 !important;
 }
+
+.hero-actions h1 {
+    text-shadow: 0 1px 3px rgba(255, 190, 215, 0.35), 0 0 10px rgba(255, 190, 215, 0.25);
+}
+
+
+
