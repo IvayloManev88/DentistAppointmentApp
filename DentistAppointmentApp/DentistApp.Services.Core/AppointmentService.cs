@@ -3,6 +3,7 @@
     using DentistApp.Data;
     using DentistApp.Data.Models;
     using static DentistApp.GCommon.GlobalCommon;
+    using static DentistApp.GCommon.ValidationMessages;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.AppointmentViewModels;
 
@@ -34,21 +35,21 @@
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(appointmentToCreate.ManipulationTypeId);
             if (!isManipulationCorrect)
             {
-                throw new Exception("Manipulation Service is not correct");
+                throw new Exception(ManipulationNotCorrectValidationMessage);
             }
             DateTime appointmentDateTime = appointmentToCreate.AppointmentDate.Date + appointmentToCreate.AppointmentTime;
             if (await this.AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
             {
-                throw new Exception("Duplicated Appointment Date/Time");
+                throw new Exception(DuplicatedAppointmentTimeValidationMessage);
             }
             if (appointmentDateTime < DateTime.Today)
             {
-                throw new Exception("Appointment's Date and Time combination cannot be in the past");
+                throw new Exception(AppointmentCannotBeInThePastValidationMessage);
             }
             string? dentistId = await patientService.GetDentistIdAsync();
             if (dentistId == null)
             {
-                throw new Exception("Error while creating Appointment. At least one dentist user should be configured");
+                throw new Exception(AppointmentCannotBeCreatedWithoutDentistValidationMessage);
             }
 
             Appointment currentAppointment = new Appointment
@@ -110,7 +111,7 @@
             Appointment? appointmentToDelete = await this.GetAppointmentByIdAsync(id);
             if (appointmentToDelete == null)
             {
-                throw new Exception("Appointment to Delete not found");
+                throw new Exception(AppointmentCannotBeFoundValidationMessage);
             }
 
             appointmentToDelete.IsDeleted = true;
@@ -131,7 +132,7 @@
             Appointment? appointmentToEdit = await this.GetAppointmentByIdAsync(id);
             if (appointmentToEdit == null)
             {
-                throw new Exception("Appointment to Edit not found");
+                throw new Exception(AppointmentCannotBeFoundValidationMessage);
             }
 
             AppointmentCreateViewModel editViewModel = new AppointmentCreateViewModel
@@ -151,22 +152,22 @@
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(appointmentToEdit.ManipulationTypeId);
             if (!isManipulationCorrect)
             {
-                throw new Exception("Manipulation Type is not correct");
+                throw new Exception(ManipulationNotCorrectValidationMessage);
             }
             DateTime appointmentDateTime = appointmentToEdit.AppointmentDate.Date + appointmentToEdit.AppointmentTime;
             if (await AppointmentDuplicateDateAndTimeAsync(appointmentDateTime, appointmentToEdit.AppointmentId))
             {
-                throw new Exception("Duplicated Appointment Date/Time");
+                throw new Exception(DuplicatedAppointmentTimeValidationMessage);
             }
             
             if (await this.AppointmentInFuture(appointmentDateTime))
             {
-                throw new Exception("Appointment's Date and Time combination cannot be in the past");
+                throw new Exception(AppointmentCannotBeInThePastValidationMessage);
             }
             Appointment? editedAppointment = await this.GetAppointmentByIdAsync(appointmentToEdit.AppointmentId!.Value);
             if (editedAppointment == null)
             {
-                throw new Exception("Appointment not found");
+                throw new Exception(AppointmentCannotBeFoundValidationMessage);
             }
             editedAppointment.Date = appointmentDateTime;
             editedAppointment.PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber;

@@ -5,6 +5,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using static DentistApp.GCommon.Roles;
+    using static DentistApp.GCommon.ControllersOutputMessages;
 
     [Authorize]
     public class ManipulationController : Controller
@@ -43,7 +44,7 @@
             if (await manipulationService.IsManipulationNameDuplicatedAsync(inputViewModel.Name))
             {
                 ModelState
-                    .AddModelError(nameof(inputViewModel.Name), "Duplicate manipulation name");
+                    .AddModelError(nameof(inputViewModel.Name), ManipulationNameDuplication);
                 return View(inputViewModel);
             }
             try
@@ -53,7 +54,7 @@
             }
             catch 
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while creating Manipulation.Please try again!");
+                ModelState.AddModelError(string.Empty, ManipulationCreationError);
                 return View(inputViewModel);
             }                    
         }
@@ -109,7 +110,7 @@
             if (await manipulationService.IsManipulationNameDuplicatedAsync(editViewModel.Name,editViewModel.ManipulationId))
             {
                 ModelState
-                    .AddModelError(nameof(editViewModel.Name), "Duplicate manipulation name");
+                    .AddModelError(nameof(editViewModel.Name), ManipulationNameDuplication);
                 return View(editViewModel);
             }
             if (!editViewModel.ManipulationId.HasValue)
@@ -129,7 +130,7 @@
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while editing Manipulation.Please try again!");
+                ModelState.AddModelError(string.Empty, ManipulationCreationError);
                 return View(editViewModel);
             }
         }

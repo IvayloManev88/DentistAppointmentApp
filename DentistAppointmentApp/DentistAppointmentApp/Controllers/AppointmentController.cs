@@ -3,6 +3,7 @@
     using DentistApp.Data.Models;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.AppointmentViewModels;
+    using static DentistApp.GCommon.ControllersOutputMessages;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
@@ -54,7 +55,7 @@
             if (!await manipulationService.ValidateManipulationTypesAsync(createModel.ManipulationTypeId))
             {
                 ModelState
-                    .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
+                    .AddModelError(nameof(createModel.ManipulationTypeId), ManipulationIsIncorrect);
 
                 return View(createModel);
             }
@@ -62,7 +63,7 @@
             if (await appointmentService.AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
             {
                 ModelState
-                    .AddModelError(nameof(createModel.AppointmentDate), "The selected combination Date/Time is already taken. Please try different Date/Time");
+                    .AddModelError(nameof(createModel.AppointmentDate), AppointmentDateTimeTaken);
 
                 return View(createModel);
             }
@@ -70,13 +71,13 @@
             if (await appointmentService.AppointmentInFuture(appointmentDateTime))
             {
                 ModelState
-                   .AddModelError(nameof(createModel.AppointmentDate), "You should not set an appintment in the past");
+                   .AddModelError(nameof(createModel.AppointmentDate), AppointmentSetInThePast);
                 return View(createModel);
             }
             
             if (await patientService.GetDentistIdAsync()==null)
             {
-                return BadRequest("Dentist user is not configured.");
+                return BadRequest(DentistUserNotConfigured);
             }
             string patientId = userManager.GetUserId(User)!;
             try
@@ -86,7 +87,7 @@
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while creating Appointment.Please try again!");
+                ModelState.AddModelError(string.Empty, AppointmentCreationError);
                 return View(createModel);
             }
         }
@@ -158,21 +159,21 @@
 
             {
                 ModelState
-                    .AddModelError(nameof(editViewModel.AppointmentDate), "Duplicate appointment hour");
+                    .AddModelError(nameof(editViewModel.AppointmentDate), AppointmentDateTimeTaken);
                 return View(editViewModel);
             }
 
             if (!await manipulationService.ValidateManipulationTypesAsync(editViewModel.ManipulationTypeId))
             {
                 ModelState
-                    .AddModelError(nameof(editViewModel.ManipulationTypeId), "The selected manipulation is incorrect");
+                    .AddModelError(nameof(editViewModel.ManipulationTypeId), ManipulationIsIncorrect);
                 return View(editViewModel);
             }
 
             if (await appointmentService.AppointmentInFuture(appointmentDate))
             {
                 ModelState
-                   .AddModelError(nameof(editViewModel.AppointmentDate), "You should not set an appointment in the past");
+                   .AddModelError(nameof(editViewModel.AppointmentDate), AppointmentSetInThePast);
                 return View(editViewModel);
             }
 
@@ -183,7 +184,7 @@
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while editing an Appointment.Please try again!");
+                ModelState.AddModelError(string.Empty, AppointmentCreationError);
                 return View(editViewModel);
             }
         }

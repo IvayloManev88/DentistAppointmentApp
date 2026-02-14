@@ -3,6 +3,7 @@
     using DentistApp.Data;
     using DentistApp.Data.Models;
     using static DentistApp.GCommon.GlobalCommon;
+    using static DentistApp.GCommon.ValidationMessages;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels;
     using DentistApp.ViewModels.ProcedureViewModels;
@@ -27,20 +28,20 @@
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(procedureToCreate.ManipulationTypeId);
             if (!isManipulationCorrect)
             {
-                throw new Exception("Manipulation Service is not correct");
+                throw new Exception(ManipulationNotCorrectValidationMessage);
             }
             if (procedureToCreate.ProcedureDate > DateTime.Today)
             {
-                throw new Exception("Procedure's Date cannot be in the future");
+                throw new Exception(ProcedureCannotBeInTheFutureValidationMessage);
             }
             
             if (!await patientService.IsUserDentistByIdAsync(dentistId))
             {
-                throw new Exception("Error while creating Procedure. The user is not a dentist");
+                throw new Exception(ProcedureCreatorIsNotDentistValidationMessage);
             }
             if (!await patientService.IsUserInDbByIdAsync(procedureToCreate.PatientId))
             {
-                throw new Exception("Error while creating Procedure. The user is not in the DataBase");
+                throw new Exception(ProcedureCreatorNotInDatabaseValidationMessage);
             }
 
             Procedure currentProcedure = new Procedure
@@ -62,7 +63,7 @@
             Procedure? procedureToDelete = await this.GetProcedureByIdAsync(procedureId);
             if (procedureToDelete == null)
             {
-                throw new Exception("Procedure to Delete not found");
+                throw new Exception(ProcedureCannotBeFoundValidationMessage);
             }
 
             procedureToDelete.IsDeleted = true;
@@ -114,7 +115,7 @@
             Procedure? procedureToEdit = await this.GetProcedureByIdAsync(procedureId);
             if (procedureToEdit == null)
             {
-                throw new Exception("Procedure to Edit not found");
+                throw new Exception(ProcedureCannotBeFoundValidationMessage);
             }
 
             ProcedureCreateViewModel editViewModel = new ProcedureCreateViewModel
@@ -137,32 +138,32 @@
 
             if (!isManipulationCorrect)
             {
-                throw new Exception("Manipulation Service is not correct");
+                throw new Exception(ManipulationNotCorrectValidationMessage);
             }
 
             if (procedureToEdit.ProcedureDate > DateTime.Today)
             {
-                throw new Exception("Procedure's Date cannot be in the future");
+                throw new Exception(ProcedureCannotBeInTheFutureValidationMessage);
             }
                         
             if (!await patientService.IsUserInDbByIdAsync(dentistId))
             {
-                throw new Exception("Error while creating Procedure. The dentistId is not in the Databse");
+                throw new Exception(ProcedureDentistNotInDatabaseValidationMessage);
             }
 
             if (!await patientService.IsUserInDbByIdAsync(procedureToEdit.PatientId))
             {
-                throw new Exception("Error while creating Procedure. The user is not in the DataBase");
+                throw new Exception(ProcedureCreatorNotInDatabaseValidationMessage);
             }
 
             if (!await patientService.IsUserDentistByIdAsync(dentistId))
             {
-                throw new Exception("Error while creating Procedure. The user is not a dentist");
+                throw new Exception(ProcedureCreatorIsNotDentistValidationMessage);
             }
             Procedure? editProcedure =await this.GetProcedureByIdAsync(procedureToEdit.ProcedureId!.Value);
             if (editProcedure == null)
             {
-                throw new Exception("Procedure not found");
+                throw new Exception(ProcedureCannotBeFoundValidationMessage);
             }
 
             editProcedure.Date = procedureToEdit.ProcedureDate;

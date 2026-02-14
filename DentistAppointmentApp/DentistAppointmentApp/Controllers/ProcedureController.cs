@@ -2,6 +2,7 @@
 {
     using DentistApp.Data.Models;
     using static DentistApp.GCommon.Roles;
+    using static DentistApp.GCommon.ControllersOutputMessages;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.ProcedureViewModels;
 
@@ -62,28 +63,28 @@
                 .ValidateManipulationTypesAsync(createModel.ManipulationTypeId))
             {
                 ModelState
-                    .AddModelError(nameof(createModel.ManipulationTypeId), "The selected manipulation is incorrect");
+                    .AddModelError(nameof(createModel.ManipulationTypeId), ManipulationIsIncorrect);
                 return View(createModel);
             }
 
             if (!await patientService.IsUserInDbByIdAsync(createModel.PatientId))
             {
                 ModelState
-                    .AddModelError(nameof(createModel.PatientId), "The selected patient is incorrect");
+                    .AddModelError(nameof(createModel.PatientId), ProcedurePatientIsIncorrect);
                 return View(createModel);
             }
 
             if (await procedureService.IsProcedureDateInTheFuture(createModel.ProcedureDate.Date))
             {
                 ModelState
-                   .AddModelError(nameof(createModel.ProcedureDate), "You should not set procedure that is done in the future");
+                   .AddModelError(nameof(createModel.ProcedureDate), ProcedureSetInTheFuture);
                 return View(createModel);
             }
             string dentistId = userManager.GetUserId(User)!;
             if (!await patientService.IsUserInDbByIdAsync(dentistId))
             {
                 ModelState
-                   .AddModelError(string.Empty, "Current User is not in the Database");
+                   .AddModelError(string.Empty, ProcedureUserIsNotInDatabase);
             }
             try
             {
@@ -93,7 +94,7 @@
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while creating Procedure.Please try again!");
+                ModelState.AddModelError(string.Empty, ProcedureCreationError);
                 return View(createModel);
             }   
         }
@@ -155,21 +156,21 @@
                 .ValidateManipulationTypesAsync(editViewModel.ManipulationTypeId))
             {
                 ModelState
-                    .AddModelError(nameof(editViewModel.ManipulationTypeId), "The selected manipulation is incorrect");
+                    .AddModelError(nameof(editViewModel.ManipulationTypeId), ManipulationIsIncorrect);
                 return View(editViewModel);
             }
 
             if (!await patientService.IsUserInDbByIdAsync(editViewModel.PatientId))
             {
                 ModelState
-                    .AddModelError(nameof(editViewModel.PatientId), "The selected patient is incorrect");
+                    .AddModelError(nameof(editViewModel.PatientId), ProcedurePatientIsIncorrect);
                 return View(editViewModel);
             }
 
             if (await procedureService.IsProcedureDateInTheFuture(editViewModel.ProcedureDate))
             {
                 ModelState
-                   .AddModelError(nameof(editViewModel.ProcedureDate), "You should not set procedure that is done in the future");
+                   .AddModelError(nameof(editViewModel.ProcedureDate), ProcedureSetInTheFuture);
                 return View(editViewModel);
             }
             if (!editViewModel.ProcedureId.HasValue)
@@ -185,7 +186,7 @@
             if (!await patientService.IsUserInDbByIdAsync(dentistId))
             {
                 ModelState
-                   .AddModelError(string.Empty, "Current User is not in the Database");
+                   .AddModelError(string.Empty, ProcedureUserIsNotInDatabase);
             }
 
             try
@@ -195,7 +196,7 @@
             }
             catch
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while editing a Procedure.Please try again!");
+                ModelState.AddModelError(string.Empty, ProcedureCreationError);
                 return View(editViewModel);
             }
         }   

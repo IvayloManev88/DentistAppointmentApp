@@ -5,6 +5,7 @@
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels;
     using DentistApp.ViewModels.ManipulationViewModels;
+    using static DentistApp.GCommon.ValidationMessages;
 
     using Microsoft.EntityFrameworkCore;
     
@@ -20,7 +21,7 @@
         {
             if (await IsManipulationNameDuplicatedAsync(manipulationToCreate.Name))
             {
-                throw new Exception("Duplicated manipulation name");
+                throw new Exception(DuplicateManipulationNameValidationMessage);
             }
             ManipulationType currentManipulation = new ManipulationType
             {
@@ -38,7 +39,7 @@
 
             if (manipulationToDelete==null)
             {
-                throw new Exception("Manipulation not found");
+                throw new Exception(ManipulationCannotBeFoundValidationMessage);
             }
 
             manipulationToDelete.IsDeleted = true;
@@ -49,12 +50,12 @@
         {
             if (await IsManipulationNameDuplicatedAsync(manipulationToEdit.Name,manipulationToEdit.ManipulationId))
             {
-                throw new Exception("Duplicated manipulation name");
+                throw new Exception(DuplicateManipulationNameValidationMessage);
             }
             ManipulationType? editManipulation = await this.GetManipulationByIdAsync(manipulationToEdit.ManipulationId!.Value);
             if (editManipulation == null)
             {
-                throw new Exception("Manipulation not found");
+                throw new Exception(ManipulationCannotBeFoundValidationMessage);
             }
             editManipulation.Name=manipulationToEdit.Name;
             editManipulation.PriceRange=manipulationToEdit.PriceRange;
@@ -89,7 +90,7 @@
             ManipulationType? manipulationToEdit = await this.GetManipulationByIdAsync(id);
             if (manipulationToEdit == null)
             {
-                throw new Exception("Manipulation not found");
+                throw new Exception(ManipulationCannotBeFoundValidationMessage);
             }
             ManipulationEditViewModel editViewModel = new ManipulationEditViewModel
             {
