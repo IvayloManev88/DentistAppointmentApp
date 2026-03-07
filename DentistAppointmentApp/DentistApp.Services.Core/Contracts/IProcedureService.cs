@@ -21,5 +21,7 @@
         Task <bool> IsProcedureDateInTheFuture(DateTime procedureDate);
 
         Task <bool> IsProcedureValid(Guid procedureId);
+
+        Task<Guid?> GetLatestProcedureByUserIdAsync(string userId);
     }
 }

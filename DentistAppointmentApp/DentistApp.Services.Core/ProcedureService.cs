@@ -10,8 +10,8 @@
 
     using Microsoft.EntityFrameworkCore;
     using System.Globalization;
-    
-    public class ProcedureService:IProcedureService
+
+    public class ProcedureService : IProcedureService
     {
         private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
@@ -24,7 +24,7 @@
         }
 
         public async Task CreateProcedureAsync(ProcedureCreateViewModel procedureToCreate, string dentistId)
-        { 
+        {
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(procedureToCreate.ManipulationTypeId);
             if (!isManipulationCorrect)
             {
@@ -34,7 +34,7 @@
             {
                 throw new Exception(ProcedureCannotBeInTheFutureValidationMessage);
             }
-            
+
             if (!await patientService.IsUserDentistByIdAsync(dentistId))
             {
                 throw new Exception(ProcedureCreatorIsNotDentistValidationMessage);
@@ -68,9 +68,9 @@
 
             procedureToDelete.IsDeleted = true;
             await dbContext.SaveChangesAsync();
-        }     
+        }
 
-        public async Task <IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId)
+        public async Task<IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId)
         {
             IEnumerable<ProcedureViewViewModel> procedures = await dbContext
                .Procedures
@@ -93,24 +93,24 @@
             return procedures;
         }
 
-        public async Task <ProcedureCreateViewModel> GetCreateViewModelAsync()
+        public async Task<ProcedureCreateViewModel> GetCreateViewModelAsync()
         {
             IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
             ProcedureCreateViewModel createModel = new ProcedureCreateViewModel();
             createModel.ProcedureDate = DateTime.Today;
-            createModel.ManipulationTypes =await manipulationService.GetManipulationTypesAsync();
+            createModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
             createModel.PatientsNames = await patientService.GetPatientsAsync();
             return createModel;
         }
 
-        public async Task <Procedure?> GetProcedureByIdAsync(Guid procedureId)
+        public async Task<Procedure?> GetProcedureByIdAsync(Guid procedureId)
         {
             return await dbContext
                 .Procedures
                 .SingleOrDefaultAsync(a => a.IsDeleted == false && a.ProcedureId == procedureId);
         }
 
-        public async Task <ProcedureCreateViewModel> LoadProcedureEditViewModelByIdAsync(Guid procedureId)
+        public async Task<ProcedureCreateViewModel> LoadProcedureEditViewModelByIdAsync(Guid procedureId)
         {
             Procedure? procedureToEdit = await this.GetProcedureByIdAsync(procedureId);
             if (procedureToEdit == null)
@@ -145,7 +145,7 @@
             {
                 throw new Exception(ProcedureCannotBeInTheFutureValidationMessage);
             }
-                        
+
             if (!await patientService.IsUserInDbByIdAsync(dentistId))
             {
                 throw new Exception(ProcedureDentistNotInDatabaseValidationMessage);
@@ -160,7 +160,7 @@
             {
                 throw new Exception(ProcedureCreatorIsNotDentistValidationMessage);
             }
-            Procedure? editProcedure =await this.GetProcedureByIdAsync(procedureToEdit.ProcedureId!.Value);
+            Procedure? editProcedure = await this.GetProcedureByIdAsync(procedureToEdit.ProcedureId!.Value);
             if (editProcedure == null)
             {
                 throw new Exception(ProcedureCannotBeFoundValidationMessage);
@@ -176,7 +176,7 @@
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task <bool> IsProcedureDateInTheFuture(DateTime procedureDate)
+        public async Task<bool> IsProcedureDateInTheFuture(DateTime procedureDate)
         {
             return procedureDate > DateTime.Today;
         }
@@ -185,8 +185,19 @@
         {
             return await dbContext
                 .Procedures
-                .AnyAsync(a => a.IsDeleted == false && 
+                .AnyAsync(a => a.IsDeleted == false &&
                 a.ProcedureId == procedureId);
+        }
+
+        public async Task<Guid?> GetLatestProcedureByUserIdAsync(string userId)
+        {
+            Guid? latestProcedureId = await dbContext.Procedures
+            .AsNoTracking()
+            .Where(p => p.PatientId == userId)
+            .OrderByDescending(p => p.Date)
+            .Select(p => p.ProcedureId)
+            .FirstOrDefaultAsync();
+            return latestProcedureId;
         }
     }
 }
