@@ -25,6 +25,12 @@
         public async Task<IActionResult> Index()
         {
             IEnumerable<FeedbackViewViewModel> feedbacks = await feedbackService.GetAllFeedbacksViewModelsAsync();
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                string? userId = userManager.GetUserId(User);
+                ViewBag.CanCreateFeedback = await feedbackService.CanUserLeaveFeedbackAsync(userId!);
+            }
+
             return View(feedbacks);
         }
 
