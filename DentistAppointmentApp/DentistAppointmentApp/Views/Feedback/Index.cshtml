@@ -1,0 +1,51 @@
+﻿@using DentistApp.ViewModels.FeedbackViewModels
+@model IEnumerable<FeedbackViewViewModel>
+
+@{
+    ViewData["Title"] = "Patient Feedback";
+}
+
+<h2 class="mb-4 text-center">Patient Feedback</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center">
+        No feedback has been submitted yet.
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var feedback in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow-sm h-100 border-0 rounded-4">
+                    <div class="card-body d-flex flex-column">
+                        
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">@feedback.ProcedureManipulationType</h5>
+                            <span class="text-warning fs-5">
+                                @for (int i = 0; i < feedback.Rating; i++)
+                                {
+                                    <text>★</text>
+                                }
+                            </span>
+                        </div>
+
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            @feedback.ProcedurePatientName
+                        </h6>
+
+                        <p class="card-text flex-grow-1">
+                            @feedback.FeedbackText
+                        </p>
+
+                        <div class="mt-3 text-muted small">
+                            @feedback.CreatedOn
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

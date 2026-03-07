@@ -13,9 +13,9 @@
     public class FeedbackService : IFeedbackService
     {
         private readonly DentistAppDbContext dbContext;
-        private readonly PatientService patientService;
-        private readonly ProcedureService procedureService;
-        public FeedbackService(DentistAppDbContext dbContext, PatientService patientService, ProcedureService procedureService)
+        private readonly IPatientService patientService;
+        private readonly IProcedureService procedureService;
+        public FeedbackService(DentistAppDbContext dbContext, IPatientService patientService, IProcedureService procedureService)
         {
             this.dbContext = dbContext;
             this.patientService = patientService;
