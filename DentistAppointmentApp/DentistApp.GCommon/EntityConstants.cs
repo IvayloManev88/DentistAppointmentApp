@@ -60,5 +60,21 @@
             /// </summary>
             public const int NoteMaxLength = 450;
         }
+        public static class Feedback
+        {
+            /// <summary>
+            /// FeedbackTextMaxLength max length
+            /// </summary>
+            public const int FeedbackTextMaxLength = 1000;
+            /// <summary>
+            /// Feedback min value
+            /// </summary>
+            public const int FeedbackMinRating = 1;
+            /// <summary>
+            /// Feedback max value
+            /// </summary>
+            public const int FeedbackMaxRating = 5;
+
+        }
     }
 }

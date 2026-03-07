@@ -38,8 +38,11 @@ namespace DentistApp.Data.Models
         [Required]
         public Guid ManipulationTypeId { get; set; }
 
+        [Comment("Id of feedback left for the procedure")]
+        public Feedback? Feedback { get; set; }
+
         [Comment("Note left by the dentist after the procedure")]
-        [MaxLength(PhoneNumberMaxLenght)]
+        [MaxLength(NoteMaxLength)]
         public string? Note { get; set; }
 
         [Comment("If the procedure's IsDeleted is set to true it will not be displayed in the system")]

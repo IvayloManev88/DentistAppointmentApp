@@ -17,7 +17,7 @@
         public virtual DbSet<Procedure> Procedures { get; set; } = null!;
         public virtual DbSet<Appointment> Appointments { get; set; } = null!;
 
-
+        public virtual DbSet<Feedback> Feedbacks { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
