@@ -2,13 +2,13 @@
 {
     public class AppointmentViewAppointmentViewModel
     {
-        public string AppointmentId = null!;
-        public string PatientAppointmentName = null!;
-        public string DentistAppointmentName = null!;
-        public string AppointmentDate = null!;
-        public string PatientAppointmentPhoneNumber = null!;
-        public string ManipulationName = null!;
-        public string? AppointmentNote;
-        public string AppointmentUserCreated=null!;
+        public string AppointmentId { get; set; } = null!;
+        public string PatientAppointmentName { get; set; } = null!;
+        public string DentistAppointmentName { get; set; } = null!;
+        public string AppointmentDate { get; set; } = null!;
+        public string PatientAppointmentPhoneNumber { get; set; } = null!;
+        public string ManipulationName { get; set; } = null!;
+        public string? AppointmentNote { get; set; } 
+        public string AppointmentUserCreated { get; set; } = null!;
     }
 }

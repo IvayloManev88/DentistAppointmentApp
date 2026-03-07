@@ -63,9 +63,13 @@
         public static class Feedback
         {
             /// <summary>
-            /// FeedbackTextMaxLength max length
-            /// </summary>
+            /// FeedbackText Max Length
             public const int FeedbackTextMaxLength = 1000;
+
+            /// <summary>
+            /// Feedback Text Min Length 
+            /// </summary>
+            public const int FeedbackTextMinLength = 2;
             /// <summary>
             /// Feedback min value
             /// </summary>

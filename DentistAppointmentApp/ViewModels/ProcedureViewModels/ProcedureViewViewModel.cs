@@ -2,12 +2,12 @@
 {
     public class ProcedureViewViewModel
     {
-        public string ProcedureId = null!;
-        public string PatientProcedureName = null!;
-        public string DentistProcedureName = null!;
-        public string ProcedureDate = null!;
-        public string PatientProcedurePhoneNumber = null!;
-        public string ManipulationName = null!;
-        public string? ProcedureDentistNote;
+        public string ProcedureId { get; set; } = null!;
+        public string PatientProcedureName { get; set; } = null!;
+        public string DentistProcedureName { get; set; } = null!;
+        public string ProcedureDate { get; set; } = null!;
+        public string PatientProcedurePhoneNumber { get; set; } = null!;
+        public string ManipulationName { get; set; } = null!;
+        public string? ProcedureDentistNote { get; set; }
     }
 }
