@@ -79,5 +79,12 @@
 
             return !feedbackExists;
         }
+
+        public async Task<double> GetAverageRatingAsync()
+        {
+            return await dbContext.Feedbacks
+                .AsNoTracking()
+                .AverageAsync(f => f.Rating);
+        }
     }
 }

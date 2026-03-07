@@ -10,5 +10,6 @@ namespace DentistApp.Services.Core.Contracts
 
         Task CreateFeedbackAsync(FeedBackCreateViewModel feedbackToCreate, string patientId);
         Task<bool> CanUserLeaveFeedbackAsync(string patientId);
+        Task<double> GetAverageRatingAsync();
     }
 }

@@ -25,6 +25,9 @@
         public async Task<IActionResult> Index()
         {
             IEnumerable<FeedbackViewViewModel> feedbacks = await feedbackService.GetAllFeedbacksViewModelsAsync();
+
+            ViewBag.AverageRating = await feedbackService.GetAverageRatingAsync();
+
             if (User.Identity?.IsAuthenticated == true)
             {
                 string? userId = userManager.GetUserId(User);
