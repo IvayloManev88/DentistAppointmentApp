@@ -17,7 +17,7 @@
         public const string ProcedureUserIsNotInDatabase = "Current User is not in the Database";
         public const string ProcedureCreationError = "An error occurred while creating Procedure.Please try again!";
 
-
+        public const string FeedbackCreationError = "An error occurred while creating Feedback.Please try again!";
 
 
     }

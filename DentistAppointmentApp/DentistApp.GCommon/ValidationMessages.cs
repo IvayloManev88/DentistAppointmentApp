@@ -20,5 +20,7 @@ namespace DentistApp.GCommon
         public const string ProcedureCannotBeFoundValidationMessage = "Procedure not found";
         public const string ProcedureDentistNotInDatabaseValidationMessage = "Error while creating Procedure. The dentistId is not in the Databse";
 
+        public const string FeedbackUserNotInDatabase = "Error while creating Feedback. User not in Database";
+        public const string FeedbackUserCannotLeaveFeedback = "Error while creating Feedback. User cannot leave feedback";
     }
 }

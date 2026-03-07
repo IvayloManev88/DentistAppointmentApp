@@ -1,13 +1,14 @@
 ﻿namespace DentistApp.Web.Controllers
 {
     using DentistApp.Data.Models;
-    using DentistApp.Services.Core;
     using DentistApp.Services.Core.Contracts;
-    using DentistApp.ViewModels.AppointmentViewModels;
     using DentistApp.ViewModels.FeedbackViewModels;
+    using static DentistApp.GCommon.ControllersOutputMessages;
+
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
+
 
     [Authorize]
     public class FeedbackController:Controller
@@ -27,6 +28,33 @@
             return View(feedbacks);
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Create()
+        {
+            return View(new FeedBackCreateViewModel());
+        }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Create(FeedBackCreateViewModel inputViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(inputViewModel);
+            }
+            string patientId = userManager.GetUserId(User)!;
+
+            try
+            {
+                await feedbackService.CreateFeedbackAsync(inputViewModel, patientId);
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, FeedbackCreationError);
+                return View(inputViewModel);
+            }
+        }
     }
 }
