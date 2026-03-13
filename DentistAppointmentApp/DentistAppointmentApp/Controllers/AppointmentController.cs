@@ -2,14 +2,13 @@
 {
     using DentistApp.Data.Models;
     using DentistApp.Services.Core.Contracts;
+    using DentistApp.ViewModels.AppointmentsScheduleViewModels;
     using DentistApp.ViewModels.AppointmentViewModels;
-    using static DentistApp.GCommon.ControllersOutputMessages;
-
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-
     using System.Collections.Generic;
+    using static DentistApp.GCommon.ControllersOutputMessages;
 
     [Authorize]
     public class AppointmentController : Controller
@@ -187,6 +186,17 @@
                 ModelState.AddModelError(string.Empty, AppointmentCreationError);
                 return View(editViewModel);
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> WeeklySchedulePartial(DateTime? weekStartDate)
+        {
+            DateTime selectedDate = weekStartDate ?? DateTime.Today;
+
+            WeeklyScheduleViewModel model =
+                await appointmentService.GetWeeklyScheduleAsync(selectedDate);
+
+            return PartialView("_WeeklySchedulePartial", model);
         }
     }
 }

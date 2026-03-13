@@ -2,14 +2,15 @@
 {
     using DentistApp.Data;
     using DentistApp.Data.Models;
+    using DentistApp.Services.Core.Contracts;
+    using DentistApp.ViewModels.AppointmentsScheduleViewModels;
+    using DentistApp.ViewModels.AppointmentViewModels;
+    using Microsoft.EntityFrameworkCore;
+    using System.Collections.Generic;
+    using System.Globalization;
     using static DentistApp.GCommon.GlobalCommon;
     using static DentistApp.GCommon.ValidationMessages;
-    using DentistApp.Services.Core.Contracts;
-    using DentistApp.ViewModels.AppointmentViewModels;
-
-    using Microsoft.EntityFrameworkCore;
-
-    using System.Globalization;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     public class AppointmentService : IAppointmentService
     {
@@ -23,11 +24,11 @@
             this.patientService = patientService;
         }
 
-        public async Task <bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime, Guid? appointmentId=null)
+        public async Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime, Guid? appointmentId = null)
         {
             return await dbContext.Appointments
                 .AsNoTracking()
-                .AnyAsync(a => a.Date == appointmentDateTime &&! a.IsDeleted && (!appointmentId.HasValue || a.AppointmentId != appointmentId.Value));
+                .AnyAsync(a => a.Date == appointmentDateTime && !a.IsDeleted && (!appointmentId.HasValue || a.AppointmentId != appointmentId.Value));
         }
 
         public async Task CreateAppointmentAsync(AppointmentCreateViewModel appointmentToCreate, string userId)
@@ -68,7 +69,7 @@
 
         }
 
-        public async Task <AppointmentCreateViewModel> CreateViewModelAsync()
+        public async Task<AppointmentCreateViewModel> CreateViewModelAsync()
         {
             AppointmentCreateViewModel createModel = new AppointmentCreateViewModel();
             createModel.AppointmentDate = DateTime.Today;
@@ -78,7 +79,7 @@
 
         }
 
-        public async Task <Appointment?> GetAppointmentByIdAsync(Guid id)
+        public async Task<Appointment?> GetAppointmentByIdAsync(Guid id)
         {
             return await dbContext
                 .Appointments
@@ -86,7 +87,7 @@
                 && a.AppointmentId == id);
         }
 
-        public async Task <IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync()
+        public async Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync()
         {
             IEnumerable<AppointmentViewAppointmentViewModel> appointments = await dbContext
                 .Appointments
@@ -118,7 +119,7 @@
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task <Appointment?> GetAppointmentToManipulateByUserIdAsync(Guid id, string userId)
+        public async Task<Appointment?> GetAppointmentToManipulateByUserIdAsync(Guid id, string userId)
         {
             Appointment? appointmentToEdit = await dbContext
                 .Appointments
@@ -127,7 +128,7 @@
             return appointmentToEdit;
         }
 
-        public async Task <AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id)
+        public async Task<AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id)
         {
             Appointment? appointmentToEdit = await this.GetAppointmentByIdAsync(id);
             if (appointmentToEdit == null)
@@ -159,7 +160,7 @@
             {
                 throw new Exception(DuplicatedAppointmentTimeValidationMessage);
             }
-            
+
             if (await this.AppointmentInFuture(appointmentDateTime))
             {
                 throw new Exception(AppointmentCannotBeInThePastValidationMessage);
@@ -173,21 +174,83 @@
             editedAppointment.PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber;
             editedAppointment.ManipulationTypeId = appointmentToEdit.ManipulationTypeId;
             editedAppointment.Note = appointmentToEdit.Note;
-            
+
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task <bool> AppointmentInFuture(DateTime appointmentDateTime)
+        public async Task<bool> AppointmentInFuture(DateTime appointmentDateTime)
         {
             return appointmentDateTime < DateTime.Today;
         }
 
-        public async Task <bool> CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId)
+        public async Task<bool> CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId)
         {
             return await dbContext
                 .Appointments
                 .Where(a => a.PatientId == userId || a.DentistId == userId)
                 .AnyAsync(a => a.IsDeleted == false && a.AppointmentId == id);
+        }
+
+        public async Task<WeeklyScheduleViewModel> GetWeeklyScheduleAsync(DateTime date)
+        {
+            int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+
+            DateTime weekStartDate = date.AddDays(-diff).Date;
+           
+
+            DateTime weekEndDate = weekStartDate.AddDays(7);
+
+            List<DateTime> appointments = await dbContext
+                .Appointments
+                .AsNoTracking()
+                .Where(a => a.Date >= weekStartDate &&
+                   a.Date < weekEndDate &&
+                   !a.IsDeleted)
+                .Select(a => a.Date)
+                .ToListAsync();
+
+            WeeklyScheduleViewModel model = new WeeklyScheduleViewModel
+            {
+                WeekStartDate = weekStartDate
+            };
+
+            for (int dayOffset = 0; dayOffset < 6; dayOffset++) // Monday-Saturday
+            {
+                DateTime currentDate = weekStartDate.AddDays(dayOffset);
+
+                List<DateTime> dayAppointments = appointments
+                    .Where(a => a.Date.Date == currentDate.Date)
+                    .OrderBy(a => a)
+                    .ToList();
+
+                DayScheduleViewModel dayModel = new DayScheduleViewModel
+                {
+                    Date = currentDate,
+                    Appointments = dayAppointments
+                        .Select(a => new AppointmentScheduleItemViewModel
+                        {
+                            Start = a
+                        })
+                        .ToList()
+                };
+
+                for (int hour = WorkDayStart; hour < WorkDayEnd; hour++)
+                {
+                    DateTime slotStart = currentDate.AddHours(hour);
+
+                    bool isTaken = dayAppointments.Any(a => a == slotStart);
+
+                    if (!isTaken)
+                    {
+                        dayModel.FreeSlots.Add(new TimeSlotViewModel
+                        {
+                            Start = slotStart
+                        });
+                    }
+                }
+                model.Days.Add(dayModel);
+            }
+            return model;
         }
     }
 }

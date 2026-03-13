@@ -1,6 +1,7 @@
 ﻿namespace DentistApp.Services.Core.Contracts
 {
     using DentistApp.Data.Models;
+    using DentistApp.ViewModels.AppointmentsScheduleViewModels;
     using DentistApp.ViewModels.AppointmentViewModels;
 
     public interface IAppointmentService
@@ -26,5 +27,7 @@
         Task <AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id);
 
         Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit);
+
+        Task<WeeklyScheduleViewModel> GetWeeklyScheduleAsync(DateTime weekStartDate);
     }
 }
