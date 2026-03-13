@@ -1,0 +1,57 @@
+﻿@using System.Linq
+@using DentistApp.ViewModels.AppointmentsScheduleViewModels
+@model WeeklyScheduleViewModel
+<div class="weekly-schedule">
+
+    @foreach (var day in Model.Days)
+    {
+        <div class="day-block">
+
+            <h4>
+                @day.Date.ToString("dddd")
+                (@day.Date.ToString("dd.MM"))
+            </h4>
+
+            <div>
+
+                <strong>Appointments:</strong>
+
+                @if (!day.Appointments.Any())
+                {
+                    <div>No appointments</div>
+                }
+                else
+                {
+                    @foreach (var appointment in day.Appointments)
+                    {
+                        <div>
+                            @appointment.Start.ToString("HH:mm")
+                        </div>
+                    }
+                }
+
+            </div>
+
+            <div>
+
+                <strong>Free Slots:</strong>
+
+                @foreach (var slot in day.FreeSlots)
+                {
+                    <a asp-controller="Appointment"
+                       asp-action="Create"
+                       asp-route-selectedDate="@slot.Start.ToString("yyyy-MM-dd")"
+                       asp-route-selectedTime="@slot.Start.ToString("HH:mm")"
+                       class="btn btn-sm btn-success mb-1">
+
+                        @slot.Start.ToString("HH:mm")
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+    }
+
+</div>

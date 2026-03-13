@@ -1,0 +1,14 @@
+﻿<div id="weeklyScheduleContainer"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", loadWeeklySchedule);
+
+    async function loadWeeklySchedule() {
+
+        const response = await fetch('@Url.Action("WeeklySchedulePartial", "Appointment")');
+
+        const html = await response.text();
+
+        document.getElementById("weeklyScheduleContainer").innerHTML = html;
+    }
+</script>
