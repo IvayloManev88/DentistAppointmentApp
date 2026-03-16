@@ -69,11 +69,30 @@
 
         }
 
-        public async Task<AppointmentCreateViewModel> CreateViewModelAsync()
+        public async Task<AppointmentCreateViewModel> CreateViewModelAsync(string? selectedDate, string? selectedTime)
         {
             AppointmentCreateViewModel createModel = new AppointmentCreateViewModel();
-            createModel.AppointmentDate = DateTime.Today;
-            createModel.AppointmentTime = DateTime.Now.TimeOfDay;
+            if (!string.IsNullOrWhiteSpace(selectedDate) &&
+     DateTime.TryParseExact(selectedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+         DateTimeStyles.None, out DateTime parsedDate))
+            {
+                createModel.AppointmentDate = parsedDate.Date;
+            }
+            else
+            {
+                createModel.AppointmentDate = DateTime.Today;
+            }
+
+            if (!string.IsNullOrWhiteSpace(selectedTime) &&
+                TimeSpan.TryParseExact(selectedTime, @"hh\:mm", CultureInfo.InvariantCulture,
+                    out TimeSpan parsedTime))
+            {
+                createModel.AppointmentTime = parsedTime;
+            }
+            else
+            {
+                createModel.AppointmentTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
+            }   
             createModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
             return createModel;
 

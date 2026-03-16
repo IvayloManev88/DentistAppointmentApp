@@ -8,6 +8,7 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using System.Collections.Generic;
+    using System.Globalization;
     using static DentistApp.GCommon.ControllersOutputMessages;
 
     [Authorize]
@@ -34,9 +35,11 @@
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(string? selectedDate, string? selectedTime)
         {
-            AppointmentCreateViewModel createModel = await appointmentService.CreateViewModelAsync();
+            
+            AppointmentCreateViewModel createModel = await appointmentService.CreateViewModelAsync(selectedDate, selectedTime);
+            
             return View(createModel);
         }
 

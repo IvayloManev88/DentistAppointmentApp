@@ -8,7 +8,7 @@
     {
         Task <IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync();
 
-        Task <AppointmentCreateViewModel> CreateViewModelAsync();
+        Task <AppointmentCreateViewModel> CreateViewModelAsync(string? selectedDate, string? selectedTime);
 
         Task <bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime,Guid? appointmentId= null);
 

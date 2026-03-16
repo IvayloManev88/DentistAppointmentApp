@@ -41,5 +41,27 @@
             return Ok("You are a Dentist");
         }
 
+        public async Task<IActionResult> RemoveDentist()
+        {
+            if (!await roleManager.RoleExistsAsync(DentistRoleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(DentistRoleName));
+            }
+
+            ApplicationUser? currentUser = await userManager.GetUserAsync(User);
+
+            if (currentUser == null)
+            {
+                return NotFound();
+            }
+
+            if (await userManager.IsInRoleAsync(currentUser, DentistRoleName))
+            {
+                await userManager.RemoveFromRoleAsync(currentUser, DentistRoleName);
+            }
+
+            return Ok("You not a Dentist");
+        }
+
     }
 }
