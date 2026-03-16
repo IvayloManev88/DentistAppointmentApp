@@ -100,7 +100,7 @@
 
 .weekly-schedule-box {
     position: absolute;
-    top: 30px;
+    top: 110px;
     right: 30px;
     width: 320px;
     max-height: 500px;
@@ -109,6 +109,7 @@
     border-radius: 14px;
     padding: 16px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    z-index: 10;
 }
 
 
