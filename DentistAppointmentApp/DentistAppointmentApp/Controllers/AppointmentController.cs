@@ -189,6 +189,7 @@
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> WeeklySchedulePartial(DateTime? weekStartDate)
         {
             DateTime selectedDate = weekStartDate ?? DateTime.Today;
