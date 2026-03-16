@@ -38,6 +38,18 @@
 
                 @foreach (var slot in day.FreeSlots)
                 {
+                    bool isPast = slot.Start < DateTime.Now;
+
+                    if (isPast)
+                    {
+                        <button type="button"
+                                class="btn btn-sm btn-secondary mb-1"
+                                disabled>
+                            @slot.Start.ToString("HH:mm")
+                        </button>
+                    }
+                    else
+                    {
                     <a asp-controller="Appointment"
                        asp-action="Create"
                        asp-route-selectedDate="@slot.Start.ToString("yyyy-MM-dd")"
@@ -47,6 +59,7 @@
                         @slot.Start.ToString("HH:mm")
 
                     </a>
+                    }
                 }
 
             </div>
