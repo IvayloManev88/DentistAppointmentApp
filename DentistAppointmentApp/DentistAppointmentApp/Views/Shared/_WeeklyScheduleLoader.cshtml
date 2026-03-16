@@ -1,14 +1,36 @@
-﻿<div id="weeklyScheduleContainer"></div>
+﻿<div class="mb-2">
+    <button class="btn btn-outline-primary btn-sm" onclick="changeWeek(-7)">
+        Previous week
+    </button>
+
+    <button class="btn btn-outline-primary btn-sm" onclick="changeWeek(7)">
+        Next week
+    </button>
+</div>
+
+<div id="weeklyScheduleContainer"></div>
 
 <script>
+    let currentDate = new Date();
+
     document.addEventListener("DOMContentLoaded", loadWeeklySchedule);
 
     async function loadWeeklySchedule() {
 
-        const response = await fetch('@Url.Action("WeeklySchedulePartial", "Appointment")');
+        const formattedDate = currentDate.toISOString().split('T')[0];
+
+        const response = await fetch('@Url.Action("WeeklySchedulePartial", "Appointment")'
+            + '?weekStartDate=' + formattedDate);
 
         const html = await response.text();
 
         document.getElementById("weeklyScheduleContainer").innerHTML = html;
+    }
+
+    function changeWeek(days) {
+
+        currentDate.setDate(currentDate.getDate() + days);
+
+        loadWeeklySchedule();
     }
 </script>
