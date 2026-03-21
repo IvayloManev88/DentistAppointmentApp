@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using DentistApp.Data.Models;
+using static DentistApp.GCommon.Roles;
 
 namespace DentistApp.Web.Areas.Identity.Pages.Account
 {
@@ -22,11 +23,13 @@ namespace DentistApp.Web.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, UserManager<ApplicationUser> usermanager)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _userManager = usermanager;
         }
 
         /// <summary>
@@ -116,6 +119,13 @@ namespace DentistApp.Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+
+                    ApplicationUser currentUser = await _userManager.FindByEmailAsync(Input.Email);
+                    if (currentUser != null && await _userManager.IsInRoleAsync(currentUser, DentistRoleName))
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Dentist" });
+                    }
+
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
