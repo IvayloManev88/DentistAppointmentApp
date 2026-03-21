@@ -3,8 +3,6 @@
     using DentistApp.Data.Models;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.FeedbackViewModels;
-    using static DentistApp.GCommon.ControllersOutputMessages;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
 
