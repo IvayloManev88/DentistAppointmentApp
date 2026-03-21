@@ -25,42 +25,8 @@
 
             ViewBag.AverageRating = await feedbackService.GetAverageRatingAsync();
 
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                string? userId = userManager.GetUserId(User);
-                ViewBag.CanCreateFeedback = await feedbackService.CanUserLeaveFeedbackAsync(userId!);
-            }
-
             return View(feedbacks);
         }
 
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> Create()
-        {
-            return View(new FeedBackCreateViewModel());
-        }
-
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Create(FeedBackCreateViewModel inputViewModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(inputViewModel);
-            }
-            string patientId = userManager.GetUserId(User)!;
-
-            try
-            {
-                await feedbackService.CreateFeedbackAsync(inputViewModel, patientId);
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                ModelState.AddModelError(string.Empty, FeedbackCreationError);
-                return View(inputViewModel);
-            }
-        }
     }
 }
