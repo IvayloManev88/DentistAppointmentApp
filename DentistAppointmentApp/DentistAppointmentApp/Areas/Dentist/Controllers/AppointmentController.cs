@@ -1,4 +1,4 @@
-﻿namespace DentistApp.Web.Controllers
+﻿namespace DentistApp.Web.Areas.Dentist.Controllers
 {
     using DentistApp.Data.Models;
     using DentistApp.Services.Core.Contracts;
@@ -9,9 +9,8 @@
     using Microsoft.AspNetCore.Mvc;
     using System.Collections.Generic;
     using static DentistApp.GCommon.ControllersOutputMessages;
-
-    [Authorize]
-    public class AppointmentController : Controller
+    
+    public class AppointmentController : BaseController
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IManipulationService manipulationService;
@@ -36,9 +35,9 @@
         [HttpGet]
         public async Task<IActionResult> Create(string? selectedDate, string? selectedTime)
         {
-            
+
             AppointmentCreateViewModel createModel = await appointmentService.CreateViewModelAsync(selectedDate, selectedTime);
-            
+
             return View(createModel);
         }
 
@@ -75,8 +74,8 @@
                    .AddModelError(nameof(createModel.AppointmentDate), AppointmentSetInThePast);
                 return View(createModel);
             }
-            
-            if (await patientService.GetDentistIdAsync()==null)
+
+            if (await patientService.GetDentistIdAsync() == null)
             {
                 return BadRequest(DentistUserNotConfigured);
             }
@@ -97,7 +96,7 @@
         public async Task<IActionResult> Delete(Guid id)
         {
             string currentUserId = userManager.GetUserId(User)!;
-           
+
             if (!await appointmentService.CanAppointmentBeManipulatedByUserIdAsync(id, currentUserId))
             {
                 return NotFound();
@@ -119,7 +118,7 @@
         {
             /*An appointment should be edited only by the user created the appointment or the dentist*/
             string currentUserId = userManager.GetUserId(User)!;
-            
+
             if (!await appointmentService.CanAppointmentBeManipulatedByUserIdAsync(id, currentUserId))
             {
                 return NotFound();
@@ -149,7 +148,7 @@
             {
                 return NotFound();
             }
-            
+
             if (!await appointmentService.CanAppointmentBeManipulatedByUserIdAsync(editViewModel.AppointmentId.Value, currentUserId))
             {
                 return NotFound();

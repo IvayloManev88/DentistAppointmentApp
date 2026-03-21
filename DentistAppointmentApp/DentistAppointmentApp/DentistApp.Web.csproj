@@ -27,6 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Dentist\Data\" />
+    <Folder Include="Areas\Dentist\Models\" />
+    <Folder Include="Areas\Dentist\Views\Shared\" />
     <Folder Include="Areas\Identity\Data\" />
     <Folder Include="Data\" />
   </ItemGroup>

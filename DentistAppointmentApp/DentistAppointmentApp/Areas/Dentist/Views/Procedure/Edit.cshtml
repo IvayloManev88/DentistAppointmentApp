@@ -1,0 +1,116 @@
+﻿@model DentistApp.ViewModels.ProcedureViewModels.ProcedureCreateViewModel
+
+@{
+    ViewData["Title"] = "Edit Procedure";
+    ViewData["UsePaper"] = true;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-7 col-xl-6">
+
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h2 class="mb-0">Edit Procedure</h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Back
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    <form asp-action="Edit" method="post" novalidate>
+                        @* Important: used in POST to find the record *@
+                        <input asp-for="ProcedureId" type="hidden" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+                        <div class="row g-3">
+
+                            <!-- Procedure date -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="ProcedureDate" class="form-label"></label>
+                                <input asp-for="ProcedureDate"
+                                       type="date"
+                                       class="form-control"
+                                       value="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                       max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="ProcedureDate" class="text-danger"></span>
+                                <div class="form-text">
+                                    Date cannot be in the future.
+                                </div>
+                            </div>
+
+                            <!-- Patient -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="PatientId" class="form-label">Patient</label>
+                                <select asp-for="PatientId"
+                                        asp-items="Model.PatientsNames.Select(x => new SelectListItem
+                                        {
+                                            Value = x.Id.ToString(),
+                                            Text = x.Name
+                                        })"
+                                        class="form-select">
+                                    <option value="">-- Select patient --</option>
+                                </select>
+                                <span asp-validation-for="PatientId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Manipulation type -->
+                            <div class="col-12">
+                                <label asp-for="ManipulationTypeId" class="form-label"></label>
+                                <select asp-for="ManipulationTypeId"
+                                        asp-items="Model.ManipulationTypes.Select(x => new SelectListItem
+                                        {
+                                            Value = x.Id.ToString(),
+                                            Text = x.Name
+                                        })"
+                                        class="form-select">
+                                    <option value="">-- Select manipulation --</option>
+                                </select>
+                                <span asp-validation-for="ManipulationTypeId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Patient phone -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="PatientPhoneNumber" class="form-label"></label>
+                                <input asp-for="PatientPhoneNumber"
+                                       class="form-control"
+                                       placeholder="+359XXXXXXXXX or 0XXXXXXXXX" />
+                                <span asp-validation-for="PatientPhoneNumber" class="text-danger"></span>
+                            </div>
+
+                            <!-- Dentist note -->
+                            <div class="col-12">
+                                <label asp-for="DentistNote" class="form-label"></label>
+                                <textarea asp-for="DentistNote"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Optional note..."></textarea>
+                                <span asp-validation-for="DentistNote" class="text-danger"></span>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Save changes
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
