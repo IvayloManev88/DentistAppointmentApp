@@ -36,7 +36,7 @@
         public async Task<IActionResult> Create(string? selectedDate, string? selectedTime)
         {
 
-            AppointmentCreateViewModel createModel = await appointmentService.CreateViewModelAsync(selectedDate, selectedTime);
+            AppointmentCreateViewModel createModel = await appointmentService.CreateViewModelAsync(selectedDate, selectedTime, true);
 
             return View(createModel);
         }
@@ -44,7 +44,12 @@
         [HttpPost]
         public async Task<IActionResult> Create(AppointmentCreateViewModel createModel)
         {
-            createModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
+            createModel.ManipulationTypes = await manipulationService
+                .GetManipulationTypesAsync();
+
+            createModel.PatientsNames = await patientService
+                .GetPatientsAsync();
+
             if (!ModelState.IsValid)
             {
                 return View(createModel);
@@ -68,6 +73,13 @@
                 return View(createModel);
             }
 
+            if (!await patientService.IsUserInDbByIdAsync(createModel.PatientId!))
+            {
+                ModelState
+                    .AddModelError(nameof(createModel.PatientId), ProcedurePatientIsIncorrect);
+                return View(createModel);
+            }
+
             if (await appointmentService.AppointmentInFuture(appointmentDateTime))
             {
                 ModelState
@@ -79,7 +91,9 @@
             {
                 return BadRequest(DentistUserNotConfigured);
             }
-            string patientId = userManager.GetUserId(User)!;
+
+
+            string patientId = createModel.PatientId!;
             try
             {
                 await appointmentService.CreateAppointmentAsync(createModel, patientId);
@@ -125,7 +139,7 @@
             }
             try
             {
-                AppointmentCreateViewModel editViewModel = await appointmentService.LoadEditViewModelByIdAsync(id);
+                AppointmentCreateViewModel editViewModel = await appointmentService.LoadEditViewModelByIdAsync(id,true);
                 return View(editViewModel);
             }
             catch
@@ -139,6 +153,8 @@
         public async Task<IActionResult> Edit(AppointmentCreateViewModel editViewModel)
         {
             editViewModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
+            editViewModel.PatientsNames = await patientService.GetPatientsAsync();
+
             if (!ModelState.IsValid)
             {
                 return View(editViewModel);
@@ -162,6 +178,12 @@
                     .AddModelError(nameof(editViewModel.AppointmentDate), AppointmentDateTimeTaken);
                 return View(editViewModel);
             }
+            if (!await patientService.IsUserInDbByIdAsync(editViewModel.PatientId!))
+            {
+                ModelState
+                    .AddModelError(nameof(editViewModel.PatientId), ProcedurePatientIsIncorrect);
+                return View(editViewModel);
+            }
 
             if (!await manipulationService.ValidateManipulationTypesAsync(editViewModel.ManipulationTypeId))
             {
@@ -176,10 +198,10 @@
                    .AddModelError(nameof(editViewModel.AppointmentDate), AppointmentSetInThePast);
                 return View(editViewModel);
             }
-
+            string patientId = editViewModel.PatientId!;
             try
             {
-                await appointmentService.EditAppointmentAsync(editViewModel);
+                await appointmentService.EditAppointmentAsync(editViewModel, patientId);
                 return RedirectToAction(nameof(Index));
             }
             catch

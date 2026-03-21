@@ -18,7 +18,10 @@
         [Required]
         public Guid ManipulationTypeId { get; set; }
 
-        public IEnumerable<DropDown> ManipulationTypes { get; set; } = Enumerable.Empty<DropDown>();   
+        public IEnumerable<DropDown> ManipulationTypes { get; set; } = Enumerable.Empty<DropDown>();
+
+        public string? PatientId { get; set; } = null!;
+        public IEnumerable<DropDown>? PatientsNames { get; set; } = Enumerable.Empty<DropDown>();
 
         [Required]
         [RegularExpression(PhoneRegexValidation,

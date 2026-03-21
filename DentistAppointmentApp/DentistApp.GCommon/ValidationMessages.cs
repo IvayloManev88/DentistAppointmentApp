@@ -9,6 +9,7 @@ namespace DentistApp.GCommon
         public const string AppointmentCannotBeInThePastValidationMessage = "Appointment's Date and Time combination cannot be in the past";
         public const string AppointmentCannotBeCreatedWithoutDentistValidationMessage = "Error while creating Appointment. At least one dentist user should be configured";
         public const string AppointmentCannotBeFoundValidationMessage = "Appointment not found";
+        public const string AppointmentUserNotInDatabaseValidationMessage = "Error while creating Appointment. The user is not in the DataBase";
 
         public const string DuplicateManipulationNameValidationMessage = "Duplicated manipulation name";
         public const string ManipulationCannotBeFoundValidationMessage = "Manipulation not found";

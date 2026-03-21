@@ -52,6 +52,10 @@
             {
                 throw new Exception(AppointmentCannotBeCreatedWithoutDentistValidationMessage);
             }
+            if (!await patientService.IsUserInDbByIdAsync(userId))
+            {
+                throw new Exception(AppointmentUserNotInDatabaseValidationMessage);
+            }
 
             Appointment currentAppointment = new Appointment
             {
@@ -69,7 +73,7 @@
 
         }
 
-        public async Task<AppointmentCreateViewModel> CreateViewModelAsync(string? selectedDate, string? selectedTime)
+        public async Task<AppointmentCreateViewModel> CreateViewModelAsync(string? selectedDate, string? selectedTime, bool isCreatorDentist=false)
         {
             AppointmentCreateViewModel createModel = new AppointmentCreateViewModel();
             if (!string.IsNullOrWhiteSpace(selectedDate) &&
@@ -94,6 +98,11 @@
                 createModel.AppointmentTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
             }   
             createModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
+
+            if (isCreatorDentist)
+            {
+                createModel.PatientsNames = await patientService.GetPatientsAsync();
+            }
             return createModel;
 
         }
@@ -154,7 +163,7 @@
             return appointmentToEdit;
         }
 
-        public async Task<AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id)
+        public async Task<AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id, bool isEditorDentist = false)
         {
             Appointment? appointmentToEdit = await this.GetAppointmentByIdAsync(id);
             if (appointmentToEdit == null)
@@ -172,9 +181,15 @@
                 Note = appointmentToEdit.Note,
                 ManipulationTypes = await manipulationService.GetManipulationTypesAsync()
             };
+
+            if (isEditorDentist)
+            {
+                editViewModel.PatientsNames = await patientService.GetPatientsAsync();
+                editViewModel.PatientId = appointmentToEdit.PatientId;
+            }
             return editViewModel;
         }
-        public async Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit)
+        public async Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit, string? patientId)
         {
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(appointmentToEdit.ManipulationTypeId);
             if (!isManipulationCorrect)
@@ -200,6 +215,14 @@
             editedAppointment.PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber;
             editedAppointment.ManipulationTypeId = appointmentToEdit.ManipulationTypeId;
             editedAppointment.Note = appointmentToEdit.Note;
+            if (!string.IsNullOrWhiteSpace(patientId))
+            {
+                if (!await patientService.IsUserInDbByIdAsync(patientId))
+                {
+                    throw new Exception(AppointmentUserNotInDatabaseValidationMessage);
+                }
+                editedAppointment.PatientId = patientId;
+            }
 
             await dbContext.SaveChangesAsync();
         }

@@ -50,8 +50,10 @@
         {
             createModel.ManipulationTypes = await manipulationService
                 .GetManipulationTypesAsync();
+
             createModel.PatientsNames = await patientService
                 .GetPatientsAsync();
+
             if (!ModelState.IsValid)
             {
                 return View(createModel);

@@ -8,7 +8,7 @@
     {
         Task <IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync(string? userId=null);
 
-        Task <AppointmentCreateViewModel> CreateViewModelAsync(string? selectedDate, string? selectedTime);
+        Task <AppointmentCreateViewModel> CreateViewModelAsync(string? selectedDate, string? selectedTime, bool isCreatorDentist = false);
 
         Task <bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime,Guid? appointmentId= null);
 
@@ -24,9 +24,9 @@
 
         Task <bool> CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId);
 
-        Task <AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id);
+        Task <AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id, bool isEditorDentist=false);
 
-        Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit);
+        Task EditAppointmentAsync(AppointmentCreateViewModel appointmentToEdit, string? patientId=null);
 
         Task<WeeklyScheduleViewModel> GetWeeklyScheduleAsync(DateTime weekStartDate);
     }

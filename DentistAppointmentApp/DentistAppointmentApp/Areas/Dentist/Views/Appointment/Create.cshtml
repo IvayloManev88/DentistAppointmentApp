@@ -47,6 +47,20 @@
         <span asp-validation-for="ManipulationTypeId" class="text-danger"></span>
     </div>
 
+    <!-- Patient input -->
+    <div class="col-12 col-md-6">
+        <label asp-for="PatientId" class="form-label">Patient</label>
+        <select asp-for="PatientId"
+                asp-items="Model.PatientsNames.Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.Name
+                })"
+                class="form-select">
+            <option value="">-- Select patient --</option>
+        </select>
+        <span asp-validation-for="PatientId" class="text-danger"></span>
+    </div>
     <!-- Patient phone -->
     <div class="mb-3">
         <label asp-for="PatientPhoneNumber" class="form-label"></label>
