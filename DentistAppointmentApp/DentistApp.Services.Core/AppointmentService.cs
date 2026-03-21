@@ -106,11 +106,18 @@
                 && a.AppointmentId == id);
         }
 
-        public async Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync()
+        public async Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync(string? user=null)
         {
-            IEnumerable<AppointmentViewAppointmentViewModel> appointments = await dbContext
+            IQueryable<Appointment> query = dbContext
                 .Appointments
-                .AsNoTracking()
+                .AsNoTracking();
+
+            if (user != null)
+            {
+                query = query.Where(a=>a.PatientId == user||a.DentistId==user);
+            }
+
+            IEnumerable<AppointmentViewAppointmentViewModel> appointments = await query
                 .OrderBy(a => a.Date)
                 .Select(a => new AppointmentViewAppointmentViewModel
                 {
@@ -270,6 +277,11 @@
                 model.Days.Add(dayModel);
             }
             return model;
+        }
+
+        public Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsForPatientAsync(string userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

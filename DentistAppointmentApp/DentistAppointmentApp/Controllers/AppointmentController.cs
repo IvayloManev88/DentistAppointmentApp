@@ -29,7 +29,8 @@
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            IEnumerable<AppointmentViewAppointmentViewModel> appointments = await appointmentService.GetAllAppotinmentsViewModelsAsync();
+            string currentUserId = userManager.GetUserId(User)!;
+            IEnumerable<AppointmentViewAppointmentViewModel> appointments = await appointmentService.GetAllAppotinmentsViewModelsAsync(currentUserId);
             return View(appointments);
         }
 

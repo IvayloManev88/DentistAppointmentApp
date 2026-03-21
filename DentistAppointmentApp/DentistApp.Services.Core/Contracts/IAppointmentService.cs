@@ -6,7 +6,7 @@
 
     public interface IAppointmentService
     {
-        Task <IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync();
+        Task <IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync(string? userId=null);
 
         Task <AppointmentCreateViewModel> CreateViewModelAsync(string? selectedDate, string? selectedTime);
 
