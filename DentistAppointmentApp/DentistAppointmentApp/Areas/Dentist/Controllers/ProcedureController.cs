@@ -27,11 +27,14 @@
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? searchQuery)
         {
             string currentUserId = userManager.GetUserId(User)!;
             IEnumerable<ProcedureViewViewModel> procedures = await procedureService
-                .GetAllProceduresViewModelsAsync(currentUserId);
+                .GetAllProceduresViewModelsAsync(currentUserId, searchQuery);
+
+            ViewBag.SearchQuery = searchQuery;
+
             return View(procedures);
         }
 

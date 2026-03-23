@@ -4,7 +4,7 @@
     using DentistApp.ViewModels.ProcedureViewModels;
     public interface IProcedureService
     {
-        Task <IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId);
+        Task <IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId, string? searchQuery=null);
 
         Task <ProcedureCreateViewModel> GetCreateViewModelAsync();
 

@@ -70,17 +70,27 @@
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId)
+        public async Task<IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId, string? searchQuery=null)
         {
-            IEnumerable<ProcedureViewViewModel> procedures = await dbContext
+            IQueryable<Procedure> queryProcedures = dbContext
                .Procedures
                .AsNoTracking()
                .Include(p => p.ManipulationType)
                .Include(p => p.Dentist)
                .Include(p => p.Patient)
-               .Where(p => p.DentistId == userId || p.PatientId == userId)
-               .OrderBy(p => p.Date)
-               .Select(p => new ProcedureViewViewModel
+               .Where(p => p.DentistId == userId || p.PatientId == userId);
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                string normalizedQuery = searchQuery.ToLower();
+                queryProcedures = queryProcedures.Where(p=>
+                (p.Patient.FirstName + " " + p.Patient.LastName).ToLower().Contains(normalizedQuery)||
+                p.ManipulationType.Name.ToLower().Contains(normalizedQuery));
+            }
+
+            IEnumerable<ProcedureViewViewModel> procedures = await queryProcedures
+                .OrderBy(p=>p.Date) 
+                .Select(p => new ProcedureViewViewModel
                {
                    ProcedureId = p.ProcedureId.ToString(),
                    PatientProcedureName = $"{p.Patient.FirstName} {p.Patient.LastName}",
