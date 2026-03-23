@@ -4,6 +4,7 @@ using DentistApp.Services.Core.Contracts;
 using DentistApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using DentistApp.Data.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,12 @@ builder.Services.AddScoped<IProcedureService, ProcedureService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
 var app = builder.Build();
+
+using (var scope=app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    DatabaseSeeder.SeedRoles(services);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
