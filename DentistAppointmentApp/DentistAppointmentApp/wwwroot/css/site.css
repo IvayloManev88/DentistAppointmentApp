@@ -112,5 +112,18 @@
     z-index: 10;
 }
 
+.bad-request-icon {
+    font-size: 4rem;
+    color: #dc3545;
+}
+
+.card {
+    background-color: #ffffff;
+}
+
+.alert ul li {
+    margin-bottom: 0.5rem;
+}
+
 
 

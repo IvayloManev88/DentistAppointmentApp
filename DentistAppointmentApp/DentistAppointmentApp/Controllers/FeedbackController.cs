@@ -22,6 +22,7 @@
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             IEnumerable<FeedbackViewViewModel> feedbacks = await feedbackService.GetAllFeedbacksViewModelsAsync();
