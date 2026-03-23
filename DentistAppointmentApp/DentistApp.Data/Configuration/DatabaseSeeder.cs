@@ -124,5 +124,83 @@
                 }
             }
         }
+
+        public static async Task SeedManipulationsAsync(IServiceProvider serviceProvider)
+        {
+            var dbContext = serviceProvider.GetRequiredService<DentistAppDbContext>();
+            /*
+           if (dbContext.Manipulations.Any())
+           {
+               return;
+           }
+           */
+            ManipulationType[] manipulationsToSeed =
+            {
+                new ManipulationType
+                {
+                    ManipulationId = Guid.NewGuid(),
+                    Name = "Dental Check-up",
+                    PriceRange = "20-50",
+                    IsDeleted = false
+                },
+                new ManipulationType
+                {
+                    ManipulationId = Guid.NewGuid(),
+                    Name = "Teeth Cleaning",
+                    PriceRange = "50-120",
+                    IsDeleted = false
+                },
+                new ManipulationType
+                {
+                    ManipulationId = Guid.NewGuid(),
+                    Name = "Filling",
+                    PriceRange = "80",
+                    IsDeleted = false
+                },
+                new ManipulationType
+                {
+                    ManipulationId = Guid.NewGuid(),
+                    Name = "Root Canal Treatment",
+                    PriceRange = "200",
+                    IsDeleted = false
+                } 
+            };
+            await dbContext.AddRangeAsync(manipulationsToSeed);
+            await dbContext.SaveChangesAsync();
+
+        }
+
+
+
+        public static async Task SeedAppointmentsAsync(IServiceProvider serviceProvider)
+        {
+            var dbContext = serviceProvider.GetRequiredService<DentistAppDbContext>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            /*
+            if (dbContext.Appointments.Any())
+            {
+                return;
+            }
+            */
+            ApplicationUser? dentist = await userManager.FindByEmailAsync("TestDentist@abv.bg");
+            ApplicationUser? patient = await userManager.FindByEmailAsync("ivo@abv.bg");
+
+            if (dentist == null || patient == null)
+            {
+                throw new Exception("Users not found");
+            }
+
+            Appointment appointment = new Appointment
+            {
+                AppointmentId = Guid.NewGuid(),
+                DentistId = dentist.Id,
+                PatientId = patient.Id,
+                Date = new DateTime(2026, 4, 1, 10, 0, 0),
+                Note = "Initial consultation"
+            };
+
+            await dbContext.Appointments.AddAsync(appointment);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }

@@ -54,6 +54,7 @@ using (var scope=app.Services.CreateScope())
     var services = scope.ServiceProvider;
     DatabaseSeeder.SeedRoles(services);
     await DatabaseSeeder.SeedUsersAsync(services);
+    await DatabaseSeeder.SeedManipulationsAsync(services);
 }
 
 // Configure the HTTP request pipeline.
