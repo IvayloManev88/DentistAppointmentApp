@@ -1,10 +1,8 @@
-﻿using DentistApp.Data.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
-
-namespace DentistApp.Data.Configuration
+﻿namespace DentistApp.Data.Configuration
 {
+    using DentistApp.Data.Models;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Metadata.Builders;
     public class ProcedureConfiguration : IEntityTypeConfiguration<Procedure>
     {
         public void Configure(EntityTypeBuilder<Procedure> entity)

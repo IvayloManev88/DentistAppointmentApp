@@ -5,6 +5,7 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.DependencyInjection;
     using DentistApp.Data.Models;
+    using Microsoft.EntityFrameworkCore;
 
     public static class DatabaseSeeder
     {
@@ -128,12 +129,12 @@
         public static async Task SeedManipulationsAsync(IServiceProvider serviceProvider)
         {
             var dbContext = serviceProvider.GetRequiredService<DentistAppDbContext>();
-            /*
-           if (dbContext.Manipulations.Any())
-           {
+            
+            if (dbContext.ManipulationTypes.Any())
+            {
                return;
-           }
-           */
+            }
+           
             ManipulationType[] manipulationsToSeed =
             {
                 new ManipulationType
@@ -174,32 +175,179 @@
 
         public static async Task SeedAppointmentsAsync(IServiceProvider serviceProvider)
         {
+            //Using this type of seeding as not sure what Guids will be generated when users are seeded
             var dbContext = serviceProvider.GetRequiredService<DentistAppDbContext>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            /*
+           
             if (dbContext.Appointments.Any())
             {
                 return;
             }
-            */
+           
             ApplicationUser? dentist = await userManager.FindByEmailAsync("TestDentist@abv.bg");
-            ApplicationUser? patient = await userManager.FindByEmailAsync("ivo@abv.bg");
+            ApplicationUser? patientIvo = await userManager.FindByEmailAsync("ivo@abv.bg");
+            ApplicationUser? patientPesho = await userManager.FindByEmailAsync("pesho@abv.bg");
+            ApplicationUser? patientGeorgi = await userManager.FindByEmailAsync("Gorgi@abv.bg");
 
-            if (dentist == null || patient == null)
+            if (dentist == null || patientIvo == null|| patientPesho==null|| patientGeorgi==null)
             {
                 throw new Exception("Users not found");
             }
+            ManipulationType? manipulationCheckUp = await dbContext.ManipulationTypes
+                .SingleOrDefaultAsync(m=>m.Name== "Dental Check-up");
+            ManipulationType? manipulationRoot = await dbContext.ManipulationTypes
+                .SingleOrDefaultAsync(m => m.Name == "Root Canal Treatment");
+            ManipulationType? manipulationFilling = await dbContext.ManipulationTypes
+                .SingleOrDefaultAsync(m => m.Name == "Filling");
+            ManipulationType? manipulationCleaning = await dbContext.ManipulationTypes
+               .SingleOrDefaultAsync(m => m.Name == "Teeth Cleaning");
+            List<Appointment> appointmentsToSeed = new List<Appointment>();
 
-            Appointment appointment = new Appointment
+            if (manipulationCheckUp != null)
             {
-                AppointmentId = Guid.NewGuid(),
-                DentistId = dentist.Id,
-                PatientId = patient.Id,
-                Date = new DateTime(2026, 4, 1, 10, 0, 0),
-                Note = "Initial consultation"
-            };
+                appointmentsToSeed.Add(new Appointment
+                {
+                    AppointmentId = Guid.NewGuid(),
+                    DentistId = dentist.Id,
+                    PatientId = patientIvo.Id,
+                    ManipulationTypeId = manipulationCheckUp.ManipulationId,
+                    PatientPhoneNumber = "0876720270",
+                    Date = new DateTime(2026, 4, 9, 10, 0, 0),
+                    Note = "Initial consultation"
+                });
 
-            await dbContext.Appointments.AddAsync(appointment);
+                appointmentsToSeed.Add(new Appointment
+                {
+                      AppointmentId = Guid.NewGuid(),
+                      DentistId = dentist.Id,
+                      PatientId = patientPesho.Id,
+                      ManipulationTypeId = manipulationCheckUp.ManipulationId,
+                      PatientPhoneNumber = "0876555555",
+                      Date = new DateTime(2026, 4, 10, 13, 0, 0),
+                      Note = "Initial consultation"
+                });
+
+
+                appointmentsToSeed.Add(new Appointment
+                {
+                      AppointmentId = Guid.NewGuid(),
+                      DentistId = dentist.Id,
+                      PatientId = patientGeorgi.Id,
+                      ManipulationTypeId = manipulationCheckUp.ManipulationId,
+                      PatientPhoneNumber = "0876722122",
+                      Date = new DateTime(2026, 4, 11, 15, 0, 0),
+                      Note = "Initial consultation"
+                });
+            }
+
+            if (manipulationCleaning != null)
+            {
+                appointmentsToSeed.Add(new Appointment
+                {
+                    AppointmentId = Guid.NewGuid(),
+                    DentistId = dentist.Id,
+                    PatientId = patientIvo.Id,
+                    ManipulationTypeId = manipulationCleaning.ManipulationId,
+                    PatientPhoneNumber = "0876720270",
+                    Date = new DateTime(2026, 4, 12, 9, 0, 0),
+                    Note = "Teeth Cleaning"
+                });
+
+                appointmentsToSeed.Add(new Appointment
+                {
+                    AppointmentId = Guid.NewGuid(),
+                    DentistId = dentist.Id,
+                    PatientId = patientPesho.Id,
+                    ManipulationTypeId = manipulationCleaning.ManipulationId,
+                    PatientPhoneNumber = "0876555555",
+                    Date = new DateTime(2026, 4, 12, 10, 0, 0),
+                    Note = "Teeth Cleaning"
+                });
+
+                appointmentsToSeed.Add(new Appointment
+                {
+                    AppointmentId = Guid.NewGuid(),
+                    DentistId = dentist.Id,
+                    PatientId = patientGeorgi.Id,
+                    ManipulationTypeId = manipulationCleaning.ManipulationId,
+                    PatientPhoneNumber = "0876722122",
+                    Date = new DateTime(2026, 4, 12, 14, 0, 0),
+                    Note = "Teeth Cleaning"
+                });
+            }
+
+            if (manipulationFilling != null)
+            {
+                appointmentsToSeed.Add(new Appointment
+                {
+                      AppointmentId = Guid.NewGuid(),
+                      DentistId = dentist.Id,
+                      PatientId = patientIvo.Id,
+                      ManipulationTypeId = manipulationFilling.ManipulationId,
+                      PatientPhoneNumber = "0876720270",
+                      Date = new DateTime(2026, 4, 15, 10, 0, 0),
+                      Note = "Filling procedure"
+                });
+
+                appointmentsToSeed.Add(new Appointment
+                {
+                      AppointmentId = Guid.NewGuid(),
+                      DentistId = dentist.Id,
+                      PatientId = patientPesho.Id,
+                      ManipulationTypeId = manipulationFilling.ManipulationId,
+                      PatientPhoneNumber = "0876555555",
+                      Date = new DateTime(2026, 4, 16, 14, 0, 0),
+                      Note = "Filling procedure"
+                });
+
+                appointmentsToSeed.Add(new Appointment
+                {
+                      AppointmentId = Guid.NewGuid(),
+                      DentistId = dentist.Id,
+                      PatientId = patientGeorgi.Id,
+                      ManipulationTypeId = manipulationFilling.ManipulationId,
+                      PatientPhoneNumber = "0876722122",
+                      Date = new DateTime(2026, 4, 17, 7, 0, 0),
+                      Note = "Filling proceduren"
+                });
+            }
+
+            if (manipulationRoot != null)
+            {
+                appointmentsToSeed.Add(new Appointment
+                {
+                      AppointmentId = Guid.NewGuid(),
+                      DentistId = dentist.Id,
+                      PatientId = patientIvo.Id,
+                      ManipulationTypeId = manipulationRoot.ManipulationId,
+                      PatientPhoneNumber = "0876720270",
+                      Date = new DateTime(2026, 4, 13, 17, 0, 0),
+                      Note = "Root Canal"
+                });
+
+                appointmentsToSeed.Add(new Appointment
+                {
+                      AppointmentId = Guid.NewGuid(),
+                      DentistId = dentist.Id,
+                      PatientId = patientPesho.Id,
+                      ManipulationTypeId = manipulationRoot.ManipulationId,
+                      PatientPhoneNumber = "0876555555",
+                      Date = new DateTime(2026, 4, 13, 8, 0, 0),
+                      Note = "Root Canal"
+                });
+
+                appointmentsToSeed.Add(new Appointment
+                {
+                      AppointmentId = Guid.NewGuid(),
+                      DentistId = dentist.Id,
+                      PatientId = patientGeorgi.Id,
+                      ManipulationTypeId = manipulationRoot.ManipulationId,
+                      PatientPhoneNumber = "0876722122",
+                      Date = new DateTime(2026, 4, 13, 11, 0, 0),
+                      Note = "Root Canal"
+                });
+            }
+            await dbContext.AddRangeAsync(appointmentsToSeed);
             await dbContext.SaveChangesAsync();
         }
     }
