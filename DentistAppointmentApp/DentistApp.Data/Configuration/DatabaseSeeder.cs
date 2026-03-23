@@ -90,8 +90,8 @@
 
                   new ApplicationUser
                  {
-                    UserName = "Gorgi@abv.bg",
-                    Email = "Gorgi@abv.bg",
+                    UserName = "gorgi@abv.bg",
+                    Email = "gorgi@abv.bg",
                     FirstName = "Georgi",
                     LastName = "Georgiev",
                     EmailConfirmed = true
@@ -187,7 +187,7 @@
             ApplicationUser? dentist = await userManager.FindByEmailAsync("TestDentist@abv.bg");
             ApplicationUser? patientIvo = await userManager.FindByEmailAsync("ivo@abv.bg");
             ApplicationUser? patientPesho = await userManager.FindByEmailAsync("pesho@abv.bg");
-            ApplicationUser? patientGeorgi = await userManager.FindByEmailAsync("Gorgi@abv.bg");
+            ApplicationUser? patientGeorgi = await userManager.FindByEmailAsync("gorgi@abv.bg");
 
             if (dentist == null || patientIvo == null || patientPesho == null || patientGeorgi == null)
             {
@@ -357,16 +357,16 @@
             //Using this type of seeding as not sure what Guids will be generated when users are seeded
             var dbContext = serviceProvider.GetRequiredService<DentistAppDbContext>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            
+
             if (dbContext.Procedures.Any())
             {
                 return;
             }
-            
+
             ApplicationUser? dentist = await userManager.FindByEmailAsync("TestDentist@abv.bg");
             ApplicationUser? patientIvo = await userManager.FindByEmailAsync("ivo@abv.bg");
             ApplicationUser? patientPesho = await userManager.FindByEmailAsync("pesho@abv.bg");
-            ApplicationUser? patientGeorgi = await userManager.FindByEmailAsync("Gorgi@abv.bg");
+            ApplicationUser? patientGeorgi = await userManager.FindByEmailAsync("gorgi@abv.bg");
 
             if (dentist == null || patientIvo == null || patientPesho == null || patientGeorgi == null)
             {
@@ -529,6 +529,80 @@
                 });
             }
             await dbContext.AddRangeAsync(proceduresToSeed);
+            await dbContext.SaveChangesAsync();
+        }
+
+        public static async Task SeedFeedbackAsync(IServiceProvider serviceProvider)
+        {
+            //Using this type of seeding as not sure what Guids will be generated when users are seeded
+            var dbContext = serviceProvider.GetRequiredService<DentistAppDbContext>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            
+            if (dbContext.Feedbacks.Any())
+            {
+                return;
+            }
+            
+
+            ApplicationUser? patientIvo = await userManager.FindByEmailAsync("ivo@abv.bg");
+            ApplicationUser? patientPesho = await userManager.FindByEmailAsync("pesho@abv.bg");
+            ApplicationUser? patientGeorgi = await userManager.FindByEmailAsync("gorgi@abv.bg");
+
+            if (patientIvo == null || patientPesho == null || patientGeorgi == null)
+            {
+                throw new Exception("Users not found");
+            }
+            List<Feedback> feedbackToSeed = new List<Feedback>();
+            Procedure? procedurePatientIvoFeedback = await dbContext.Procedures
+                .Include(p => p.Feedback)
+                .Where(p => p.PatientId == patientIvo.Id)
+                .FirstOrDefaultAsync();
+
+            if (procedurePatientIvoFeedback != null && procedurePatientIvoFeedback.Feedback==null)
+            {
+                feedbackToSeed.Add(new Feedback
+                {
+                    FeedbackId = Guid.NewGuid(),
+                    CreatedOn = new DateTime(2026, 4, 9, 0, 0, 0),
+                    Rating = 3,
+                    FeedbackText = "Mid Service",
+                    ProcedureId = procedurePatientIvoFeedback.ProcedureId
+                });
+            }
+
+            Procedure? procedurePatientPeshoFeedback = await dbContext.Procedures
+                .Include(p => p.Feedback)
+                .Where(p => p.PatientId == patientPesho.Id)
+                .FirstOrDefaultAsync();
+            if (procedurePatientPeshoFeedback != null&& procedurePatientPeshoFeedback.Feedback==null)
+            {
+                feedbackToSeed.Add(new Feedback
+                {
+                    FeedbackId = Guid.NewGuid(),
+                    CreatedOn = new DateTime(2026, 4, 8, 0, 0, 0),
+                    Rating = 5,
+                    FeedbackText = "Great Service",
+                    ProcedureId = procedurePatientPeshoFeedback.ProcedureId
+                });
+            }
+
+            Procedure? procedurePatientGoshoFeedback = await dbContext.Procedures
+                .Include(p => p.Feedback)
+                .Where(p => p.PatientId == patientGeorgi.Id)
+                .FirstOrDefaultAsync();
+            if (procedurePatientGoshoFeedback != null && procedurePatientGoshoFeedback.Feedback == null)
+            {
+                feedbackToSeed.Add(new Feedback
+                {
+                    FeedbackId = Guid.NewGuid(),
+                    CreatedOn = new DateTime(2026, 4, 7, 0, 0, 0),
+                    Rating = 1,
+                    FeedbackText = "Bad Service",
+                    ProcedureId = procedurePatientGoshoFeedback.ProcedureId
+                });
+            }
+
+            await dbContext.Feedbacks.AddRangeAsync(feedbackToSeed);
             await dbContext.SaveChangesAsync();
         }
     }
