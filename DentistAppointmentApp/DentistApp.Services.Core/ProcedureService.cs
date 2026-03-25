@@ -90,9 +90,7 @@
             int pageSize = ItemsPerPage;
             int totalItemsQueryCount =await queryProcedures.CountAsync();
 
-            if (page < 1) page = 1;
-
-            if (pageSize < 1) pageSize = 5;
+            page = Math.Max(1, page);
            
             IEnumerable<ProcedureViewViewModel> procedures = await queryProcedures
                 .OrderByDescending(p => p.Date)
