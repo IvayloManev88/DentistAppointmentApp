@@ -23,11 +23,11 @@
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? searchQuery)
+        public async Task<IActionResult> Index(string? searchQuery, int page=1)
         {
             string currentUserId = userManager.GetUserId(User)!;
-            IEnumerable<ProcedureViewViewModel> procedures = await procedureService
-                .GetAllProceduresViewModelsAsync(currentUserId, searchQuery);
+            ProcedurePaginationViewModel procedures = await procedureService
+                .GetAllProceduresViewModelsAsync(currentUserId, searchQuery,page);
 
             ViewBag.SearchQuery = searchQuery;
             return View(procedures);

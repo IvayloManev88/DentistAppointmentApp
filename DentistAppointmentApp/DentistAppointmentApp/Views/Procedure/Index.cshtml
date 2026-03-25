@@ -1,21 +1,23 @@
 ﻿@using DentistApp.ViewModels.ProcedureViewModels
-@model ProcedureViewViewModel[]
-
+@model ProcedurePaginationViewModel
 
 @{
-	ViewData["Title"] = "Procedures";
-	ViewData["UsePaper"] = true;
+    ViewData["Title"] = "Procedures";
+    ViewData["UsePaper"] = true;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-	<h2 class="mb-0">Procedures</h2>
+    <h2 class="mb-0">Procedures</h2>
+
     <form asp-action="Index" asp-controller="Procedure" method="get" class="row g-2 mb-4">
+        <input type="hidden" name="page" value="1" />
+
         <div class="input-group">
             <span class="input-group-text">🔍</span>
             <input type="text"
                    id="searchQuery"
                    name="searchQuery"
-                   value="@ViewBag.SearchQuery"
+                   value="@Model.SearchQuery"
                    class="form-control"
                    placeholder="Search by manipulation..." />
         </div>
@@ -25,18 +27,24 @@
         </div>
 
         <div class="col-auto">
-            <a asp-action="Index" asp-controller="Procedure" class="btn btn-outline-secondary">Clear</a>
+            <a asp-action="Index"
+               asp-controller="Procedure"
+               class="btn btn-outline-secondary">
+                Clear
+            </a>
         </div>
     </form>
 </div>
+
 <div class="weekly-schedule-box mb-4">
     <partial name="_WeeklyScheduleLoader" />
 </div>
-@if (!Model.Any())
+
+@if (!Model.Procedures.Any())
 {
-	<div class="alert alert-info">
-		No Procedures found.
-	</div>
+    <div class="alert alert-info">
+        No Procedures found.
+    </div>
 }
 else
 {
@@ -53,7 +61,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var procedure in Model)
+                @foreach (var procedure in Model.Procedures)
                 {
                     <tr>
                         <td>@procedure.PatientProcedureName</td>
@@ -76,4 +84,43 @@ else
             </tbody>
         </table>
     </div>
+
+    <nav aria-label="Procedures pages" class="mt-4">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item @(Model.CurrentPage <= 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-controller="Procedure"
+                   asp-route-searchQuery="@Model.SearchQuery"
+                   asp-route-page="@(Model.CurrentPage - 1)">
+                    Previous
+                </a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPagesCount; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-controller="Procedure"
+                       asp-route-searchQuery="@Model.SearchQuery"
+                       asp-route-page="@i">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(Model.CurrentPage >= Model.TotalPagesCount ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-controller="Procedure"
+                   asp-route-searchQuery="@Model.SearchQuery"
+                   asp-route-page="@(Model.CurrentPage + 1)">
+                    Next
+                </a>
+            </li>
+
+        </ul>
+    </nav>
 }

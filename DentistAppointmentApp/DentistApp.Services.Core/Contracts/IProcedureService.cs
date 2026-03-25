@@ -2,9 +2,10 @@
 {
     using DentistApp.Data.Models;
     using DentistApp.ViewModels.ProcedureViewModels;
+    
     public interface IProcedureService
     {
-        Task <IEnumerable<ProcedureViewViewModel>> GetAllProceduresViewModelsAsync(string userId, string? searchQuery=null);
+        Task <ProcedurePaginationViewModel> GetAllProceduresViewModelsAsync(string userId, string? searchQuery=null, int page = 1);
 
         Task <ProcedureCreateViewModel> GetCreateViewModelAsync();
 

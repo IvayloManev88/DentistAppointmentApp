@@ -7,5 +7,6 @@
         public const int WorkDayStart = 9;
         public const int WorkDayEnd = 17;
         public const string DentistArea = "Dentist";
+        public const int ItemsPerPage = 10;
     }
 }
