@@ -1,10 +1,14 @@
+using DentistApp.Data;
+using DentistApp.Data.Configuration;
 using DentistApp.Data.Models;
+using DentistApp.Data.Repositories;
+using DentistApp.Data.Repositories.Contracts;
+
 using DentistApp.Services.Core;
 using DentistApp.Services.Core.Contracts;
-using DentistApp.Data;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using DentistApp.Data.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +50,8 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IProcedureService, ProcedureService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
 var app = builder.Build();
 

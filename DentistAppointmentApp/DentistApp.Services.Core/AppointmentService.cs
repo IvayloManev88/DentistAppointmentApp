@@ -2,6 +2,8 @@
 {
     using DentistApp.Data;
     using DentistApp.Data.Models;
+    using DentistApp.Data.Repositories.Contracts;
+    using DentistApp.Data.Repositories.Dtos;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.AppointmentsScheduleViewModels;
     using DentistApp.ViewModels.AppointmentViewModels;
@@ -17,18 +19,20 @@
         private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
-        public AppointmentService(DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService)
+        private readonly IAppointmentRepository appointmentRepository;
+        private readonly IDateTimeService dateTimeService;
+        public AppointmentService(DentistAppDbContext dbContext, IDateTimeService dateTimeService,IManipulationService manipulationService, IPatientService patientService, IAppointmentRepository appointmentRepository)
         {
             this.dbContext = dbContext;
             this.manipulationService = manipulationService;
             this.patientService = patientService;
+            this.appointmentRepository= appointmentRepository;
+            this.dateTimeService = dateTimeService;
         }
 
         public async Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime, Guid? appointmentId = null)
         {
-            return await dbContext.Appointments
-                .AsNoTracking()
-                .AnyAsync(a => a.Date == appointmentDateTime && !a.IsDeleted && (!appointmentId.HasValue || a.AppointmentId != appointmentId.Value));
+            return await appointmentRepository.AppointmentDuplicateDateAndTimeAsync(appointmentDateTime, appointmentId);
         }
 
         public async Task CreateAppointmentAsync(AppointmentCreateViewModel appointmentToCreate, string userId)
@@ -39,11 +43,11 @@
                 throw new Exception(ManipulationNotCorrectValidationMessage);
             }
             DateTime appointmentDateTime = appointmentToCreate.AppointmentDate.Date + appointmentToCreate.AppointmentTime;
-            if (await this.AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
+            if (await appointmentRepository.AppointmentDuplicateDateAndTimeAsync(appointmentDateTime))
             {
                 throw new Exception(DuplicatedAppointmentTimeValidationMessage);
             }
-            if (appointmentDateTime < DateTime.Today)
+            if (appointmentDateTime < dateTimeService.Today())
             {
                 throw new Exception(AppointmentCannotBeInThePastValidationMessage);
             }
@@ -68,8 +72,8 @@
 
             };
 
-            await dbContext.Appointments.AddAsync(currentAppointment);
-            await dbContext.SaveChangesAsync();
+            await appointmentRepository.AddAsync(currentAppointment);
+            await appointmentRepository.SaveChangesAsync();
 
         }
 
@@ -77,14 +81,14 @@
         {
             AppointmentCreateViewModel createModel = new AppointmentCreateViewModel();
             if (!string.IsNullOrWhiteSpace(selectedDate) &&
-     DateTime.TryParseExact(selectedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+         DateTime.TryParseExact(selectedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture,
          DateTimeStyles.None, out DateTime parsedDate))
             {
                 createModel.AppointmentDate = parsedDate.Date;
             }
             else
             {
-                createModel.AppointmentDate = DateTime.Today;
+                createModel.AppointmentDate = dateTimeService.Today();
             }
 
             if (!string.IsNullOrWhiteSpace(selectedTime) &&
@@ -95,7 +99,7 @@
             }
             else
             {
-                createModel.AppointmentTime = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, 0);
+                createModel.AppointmentTime = dateTimeService.GetTime();
             }   
             createModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
 
@@ -117,28 +121,20 @@
 
         public async Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync(string? user=null)
         {
-            IQueryable<Appointment> query = dbContext
-                .Appointments
-                .AsNoTracking();
+            var appointmentListings = await appointmentRepository.GetAllAppotinmentsViewModelsAsync(user);
 
-            if (user != null)
+            var appointments = appointmentListings.Select(a => new AppointmentViewAppointmentViewModel
             {
-                query = query.Where(a=>a.PatientId == user||a.DentistId==user);
-            }
+                AppointmentId = a.AppointmentId.ToString(),
+                PatientAppointmentName = $"{a.PatientFirstName} {a.PatientLastName}",
+                DentistAppointmentName = $"{a.DentistFirstName} {a.DentistLastName}",
+                AppointmentDate = a.AppointmentDate.ToString(ApplicationDateTimeFormat, CultureInfo.InvariantCulture),
+                PatientAppointmentPhoneNumber = a.PatientPhoneNumber,
+                ManipulationName = a.ManipulationName,
+                AppointmentNote = a.AppointmentNote,
+                AppointmentUserCreated = a.PatientId.ToString()
+            });
 
-            IEnumerable<AppointmentViewAppointmentViewModel> appointments = await query
-                .OrderBy(a => a.Date)
-                .Select(a => new AppointmentViewAppointmentViewModel
-                {
-                    AppointmentId = a.AppointmentId.ToString(),
-                    PatientAppointmentName = $"{a.Patient.FirstName} {a.Patient.LastName}",
-                    DentistAppointmentName = $"{a.Dentist.FirstName} {a.Dentist.LastName}",
-                    AppointmentDate = a.Date.ToString(ApplicationDateTimeFormat, CultureInfo.InvariantCulture),
-                    PatientAppointmentPhoneNumber = a.PatientPhoneNumber,
-                    ManipulationName = a.ManipulationType.Name,
-                    AppointmentNote = a.Note,
-                    AppointmentUserCreated = a.PatientId.ToString()
-                }).ToArrayAsync();
             return appointments;
         }
 
@@ -229,7 +225,7 @@
 
         public async Task<bool> AppointmentInFuture(DateTime appointmentDateTime)
         {
-            return appointmentDateTime < DateTime.Today;
+            return appointmentDateTime < dateTimeService.Today();
         }
 
         public async Task<bool> CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId)
