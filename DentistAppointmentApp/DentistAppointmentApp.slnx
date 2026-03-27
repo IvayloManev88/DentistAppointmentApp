@@ -9,6 +9,9 @@
   <Folder Name="/Services/">
     <Project Path="DentistApp.Services.Core/DentistApp.Services.Core.csproj" Id="21ee123c-353c-43ae-b89b-1741081a9acf" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Services.Test/DentistApp.Services.UnitTest.csproj" Id="5788ae8a-af26-4daf-a091-8388cf60dca4" />
+  </Folder>
   <Folder Name="/ViewModels/">
     <Project Path="ViewModels/DentistApp.ViewModels.csproj" Id="9c93c9b5-a566-4fd5-bae3-4c2cc4cfd2fc" />
   </Folder>
