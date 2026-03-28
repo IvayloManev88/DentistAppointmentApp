@@ -297,10 +297,5 @@
             }
             return model;
         }
-
-        public Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsForPatientAsync(string userId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
