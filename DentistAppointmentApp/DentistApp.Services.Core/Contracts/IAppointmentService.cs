@@ -12,7 +12,7 @@
 
         Task <bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime,Guid? appointmentId= null);
 
-        Task <bool> AppointmentInFuture(DateTime appointmentDateTime);
+        Task <bool> IsAppointmentNotInFuture(DateTime appointmentDateTime);
 
         Task CreateAppointmentAsync(AppointmentCreateViewModel appointmentToCreate, string userId);
 

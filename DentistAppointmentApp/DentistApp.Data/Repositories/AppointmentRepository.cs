@@ -23,8 +23,8 @@ namespace DentistApp.Data.Repositories
             return await dbContext.Appointments
             .AsNoTracking()
             .AnyAsync(a => a.Date == appointmentDateTime &&
-            !a.IsDeleted && 
-            (!appointmentId.HasValue || 
+            !a.IsDeleted &&
+            (!appointmentId.HasValue ||
             a.AppointmentId != appointmentId.Value));
         }
 
@@ -62,6 +62,48 @@ namespace DentistApp.Data.Repositories
         public async Task SaveChangesAsync()
         {
             await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<Appointment?> GetAppointmentByIdAsync(Guid id)
+        {
+            return await dbContext
+                 .Appointments
+                 .SingleOrDefaultAsync(a => a.IsDeleted == false
+                 && a.AppointmentId == id);
+        }
+
+        public async Task SoftDeleteAppointmentAsync(Appointment appointment)
+        {
+            appointment.IsDeleted = true;
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<Appointment?> GetAppointmentToManipulateByUserIdAsync(Guid id, string userId)
+        {
+            return await dbContext
+                .Appointments
+                .Where(a => a.PatientId == userId || a.DentistId == userId)
+                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == id);
+        }
+
+        public async Task<bool> CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId)
+        {
+            return await dbContext
+                .Appointments
+                .Where(a => a.PatientId == userId || a.DentistId == userId)
+                .AnyAsync(a => a.IsDeleted == false && a.AppointmentId == id);
+        }
+
+        public async Task<List<DateTime>> GetAppointmentsAsDateTimeList(DateTime weekStartDate, DateTime weekEndDate)
+        { 
+            return await dbContext
+                .Appointments
+                .AsNoTracking()
+                .Where(a => a.Date >= weekStartDate &&
+                   a.Date < weekEndDate &&
+                   !a.IsDeleted)
+                .Select(a => a.Date)
+                .ToListAsync();
         }
     }
 }

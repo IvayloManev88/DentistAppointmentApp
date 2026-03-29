@@ -113,10 +113,8 @@
 
         public async Task<Appointment?> GetAppointmentByIdAsync(Guid id)
         {
-            return await dbContext
-                .Appointments
-                .SingleOrDefaultAsync(a => a.IsDeleted == false
-                && a.AppointmentId == id);
+            return await appointmentRepository
+                .GetAppointmentByIdAsync(id);
         }
 
         public async Task<IEnumerable<AppointmentViewAppointmentViewModel>> GetAllAppotinmentsViewModelsAsync(string? user=null)
@@ -140,28 +138,25 @@
 
         public async Task DeleteAppointmentByIdAsync(Guid id)
         {
-            Appointment? appointmentToDelete = await this.GetAppointmentByIdAsync(id);
+            Appointment? appointmentToDelete = await appointmentRepository.GetAppointmentByIdAsync(id);
             if (appointmentToDelete == null)
             {
                 throw new Exception(AppointmentCannotBeFoundValidationMessage);
             }
 
-            appointmentToDelete.IsDeleted = true;
-            await dbContext.SaveChangesAsync();
+            await appointmentRepository.SoftDeleteAppointmentAsync(appointmentToDelete);
+            await appointmentRepository.SaveChangesAsync();
         }
 
         public async Task<Appointment?> GetAppointmentToManipulateByUserIdAsync(Guid id, string userId)
         {
-            Appointment? appointmentToEdit = await dbContext
-                .Appointments
-                .Where(a => a.PatientId == userId || a.DentistId == userId)
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.AppointmentId == id);
-            return appointmentToEdit;
+            return await appointmentRepository
+                .GetAppointmentToManipulateByUserIdAsync(id, userId);
         }
 
         public async Task<AppointmentCreateViewModel> LoadEditViewModelByIdAsync(Guid id, bool isEditorDentist = false)
         {
-            Appointment? appointmentToEdit = await this.GetAppointmentByIdAsync(id);
+            Appointment? appointmentToEdit = await appointmentRepository.GetAppointmentByIdAsync(id);
             if (appointmentToEdit == null)
             {
                 throw new Exception(AppointmentCannotBeFoundValidationMessage);
@@ -198,19 +193,27 @@
                 throw new Exception(DuplicatedAppointmentTimeValidationMessage);
             }
 
-            if (await this.AppointmentInFuture(appointmentDateTime))
+            if (await this.IsAppointmentNotInFuture(appointmentDateTime))
             {
                 throw new Exception(AppointmentCannotBeInThePastValidationMessage);
             }
-            Appointment? editedAppointment = await this.GetAppointmentByIdAsync(appointmentToEdit.AppointmentId!.Value);
+
+            if (appointmentToEdit.AppointmentId == null)
+            {
+                throw new Exception(AppointmentCannotBeFoundValidationMessage);
+            }
+            Appointment? editedAppointment = await appointmentRepository.GetAppointmentByIdAsync(appointmentToEdit.AppointmentId.Value);
+
             if (editedAppointment == null)
             {
                 throw new Exception(AppointmentCannotBeFoundValidationMessage);
             }
+
             editedAppointment.Date = appointmentDateTime;
             editedAppointment.PatientPhoneNumber = appointmentToEdit.PatientPhoneNumber;
             editedAppointment.ManipulationTypeId = appointmentToEdit.ManipulationTypeId;
             editedAppointment.Note = appointmentToEdit.Note;
+
             if (!string.IsNullOrWhiteSpace(patientId))
             {
                 if (!await patientService.IsUserInDbByIdAsync(patientId))
@@ -220,20 +223,18 @@
                 editedAppointment.PatientId = patientId;
             }
 
-            await dbContext.SaveChangesAsync();
+            await appointmentRepository.SaveChangesAsync();
         }
 
-        public async Task<bool> AppointmentInFuture(DateTime appointmentDateTime)
+        public async Task<bool> IsAppointmentNotInFuture(DateTime appointmentDateTime)
         {
             return appointmentDateTime < dateTimeService.Today();
         }
 
         public async Task<bool> CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId)
         {
-            return await dbContext
-                .Appointments
-                .Where(a => a.PatientId == userId || a.DentistId == userId)
-                .AnyAsync(a => a.IsDeleted == false && a.AppointmentId == id);
+            return await appointmentRepository
+                .CanAppointmentBeManipulatedByUserIdAsync(id, userId);
         }
 
         public async Task<WeeklyScheduleViewModel> GetWeeklyScheduleAsync(DateTime date)
@@ -245,14 +246,8 @@
 
             DateTime weekEndDate = weekStartDate.AddDays(7);
 
-            List<DateTime> appointments = await dbContext
-                .Appointments
-                .AsNoTracking()
-                .Where(a => a.Date >= weekStartDate &&
-                   a.Date < weekEndDate &&
-                   !a.IsDeleted)
-                .Select(a => a.Date)
-                .ToListAsync();
+            List<DateTime> appointments = await appointmentRepository
+                .GetAppointmentsAsDateTimeList(weekStartDate, weekEndDate);
 
             WeeklyScheduleViewModel model = new WeeklyScheduleViewModel
             {

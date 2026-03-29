@@ -12,5 +12,15 @@
         Task SaveChangesAsync();
 
         Task<AppointmentListingDto[]> GetAllAppotinmentsViewModelsAsync(string? userId = null);
+
+        Task<Appointment?> GetAppointmentByIdAsync(Guid id);
+
+        Task SoftDeleteAppointmentAsync(Appointment appointment);
+
+        Task<Appointment?> GetAppointmentToManipulateByUserIdAsync(Guid id, string userId);
+
+        Task<bool> CanAppointmentBeManipulatedByUserIdAsync(Guid id, string userId);
+
+        Task<List<DateTime>> GetAppointmentsAsDateTimeList(DateTime weekStartDate, DateTime weekEndDate);
     }
 }

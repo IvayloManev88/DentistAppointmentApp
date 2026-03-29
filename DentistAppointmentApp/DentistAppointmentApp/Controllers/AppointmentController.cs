@@ -70,7 +70,7 @@
                 return View(createModel);
             }
 
-            if (await appointmentService.AppointmentInFuture(appointmentDateTime))
+            if (await appointmentService.IsAppointmentNotInFuture(appointmentDateTime))
             {
                 ModelState
                    .AddModelError(nameof(createModel.AppointmentDate), AppointmentSetInThePast);
@@ -172,7 +172,7 @@
                 return View(editViewModel);
             }
 
-            if (await appointmentService.AppointmentInFuture(appointmentDate))
+            if (await appointmentService.IsAppointmentNotInFuture(appointmentDate))
             {
                 ModelState
                    .AddModelError(nameof(editViewModel.AppointmentDate), AppointmentSetInThePast);
