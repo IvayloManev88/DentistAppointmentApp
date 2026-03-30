@@ -29,7 +29,7 @@
             patientService = Substitute.For<IPatientService>();
             dateTimeService = Substitute.For<IDateTimeService>();
 
-            appointmentService = new AppointmentService(null!, dateTimeService, manipulationService, patientService, appointmentRepository);
+            appointmentService = new AppointmentService(dateTimeService, manipulationService, patientService, appointmentRepository);
         }
 
 
