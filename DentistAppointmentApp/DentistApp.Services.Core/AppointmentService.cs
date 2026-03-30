@@ -3,27 +3,26 @@
     using DentistApp.Data;
     using DentistApp.Data.Models;
     using DentistApp.Data.Repositories.Contracts;
-    using DentistApp.Data.Repositories.Dtos;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.AppointmentsScheduleViewModels;
     using DentistApp.ViewModels.AppointmentViewModels;
-    using Microsoft.EntityFrameworkCore;
+
     using System.Collections.Generic;
     using System.Globalization;
+
     using static DentistApp.GCommon.GlobalCommon;
     using static DentistApp.GCommon.ValidationMessages;
-    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     public class AppointmentService : IAppointmentService
     {
-        private readonly DentistAppDbContext dbContext;
+       
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
         private readonly IAppointmentRepository appointmentRepository;
         private readonly IDateTimeService dateTimeService;
-        public AppointmentService(DentistAppDbContext dbContext, IDateTimeService dateTimeService,IManipulationService manipulationService, IPatientService patientService, IAppointmentRepository appointmentRepository)
+        public AppointmentService(IDateTimeService dateTimeService,IManipulationService manipulationService, IPatientService patientService, IAppointmentRepository appointmentRepository)
         {
-            this.dbContext = dbContext;
+            
             this.manipulationService = manipulationService;
             this.patientService = patientService;
             this.appointmentRepository= appointmentRepository;

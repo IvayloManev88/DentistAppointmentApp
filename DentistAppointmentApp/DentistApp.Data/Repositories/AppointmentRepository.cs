@@ -18,6 +18,11 @@ namespace DentistApp.Data.Repositories
             await dbContext.Appointments.AddAsync(appointment);
         }
 
+        public async Task SaveChangesAsync()
+        {
+            await dbContext.SaveChangesAsync();
+        }
+
         public async Task<bool> AppointmentDuplicateDateAndTimeAsync(DateTime appointmentDateTime, Guid? appointmentId = null)
         {
             return await dbContext.Appointments
@@ -57,11 +62,6 @@ namespace DentistApp.Data.Repositories
                 .ToArrayAsync();
 
             return appointments;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await dbContext.SaveChangesAsync();
         }
 
         public async Task<Appointment?> GetAppointmentByIdAsync(Guid id)

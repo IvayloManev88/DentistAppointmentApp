@@ -7,30 +7,21 @@
     using DentistApp.ViewModels;
 
     using Microsoft.AspNetCore.Identity;
-    using Microsoft.EntityFrameworkCore;    
+    using Microsoft.EntityFrameworkCore;
+    using DentistApp.Data.Repositories.Contracts;
 
     public class PatientService : IPatientService
     {
-        private readonly DentistAppDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
-        public PatientService(DentistAppDbContext dbContext, UserManager<ApplicationUser> userManager)
+        private readonly IPatientRepository patientRepository;
+        public PatientService(UserManager<ApplicationUser> userManager, IPatientRepository patientRepository)
         {
-            this.dbContext = dbContext;
             this.userManager = userManager;
+            this.patientRepository = patientRepository;
         }
         public async Task <IEnumerable<DropDown>> GetPatientsAsync()
         {
-            return await dbContext.Users.
-                AsNoTracking().
-                Where(u => u.IsDeleted == false)
-                .OrderBy(u => u.FirstName)
-                .ThenBy(u => u.LastName)
-                .Select(u => new DropDown
-                {
-                    Id=Guid.Parse(u.Id), 
-                    Name=$"{u.FirstName} {u.LastName}"
-                })
-                .ToArrayAsync();
+            return await patientRepository.GetPatientsAsync();
         }
         public async Task <string?> GetDentistIdAsync()
         {
@@ -38,7 +29,7 @@
                 .GetUsersInRoleAsync(DentistRoleName);
 
             return dentists
-                .FirstOrDefault()?.Id.ToString();
+                .FirstOrDefault()?.Id;
         }
 
         public async Task <bool> IsUserDentistByIdAsync(string userId)
@@ -55,8 +46,7 @@
 
         public async Task <bool> IsUserInDbByIdAsync(string userId)
         {
-            return dbContext.Users
-                .Any(u => u.Id == userId);
+            return await patientRepository.IsUserInDbByIdAsync(userId);
         }
     }
 }

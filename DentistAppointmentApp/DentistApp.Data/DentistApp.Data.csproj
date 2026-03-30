@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DentistApp.Data.Models\DentistApp.Data.Models.csproj" />
     <ProjectReference Include="..\DentistApp.GCommon\DentistApp.GCommon.csproj" />
+    <ProjectReference Include="..\ViewModels\DentistApp.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>
