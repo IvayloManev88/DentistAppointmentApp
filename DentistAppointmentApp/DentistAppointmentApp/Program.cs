@@ -53,6 +53,7 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 
 var app = builder.Build();
 

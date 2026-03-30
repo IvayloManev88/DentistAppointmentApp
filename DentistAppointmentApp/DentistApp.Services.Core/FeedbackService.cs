@@ -1,41 +1,37 @@
 ﻿namespace DentistApp.Services.Core
 {
-    using DentistApp.Data;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels.FeedbackViewModels;
-    using static DentistApp.GCommon.GlobalCommon;
     using static DentistApp.GCommon.ValidationMessages;
 
-    using Microsoft.EntityFrameworkCore;
-    using System.Globalization;
     using DentistApp.Data.Models;
+    using DentistApp.Data.Repositories.Contracts;
+    using DentistApp.Data.Repositories.Dtos;
 
     public class FeedbackService : IFeedbackService
     {
-        private readonly DentistAppDbContext dbContext;
         private readonly IPatientService patientService;
         private readonly IProcedureService procedureService;
-        public FeedbackService(DentistAppDbContext dbContext, IPatientService patientService, IProcedureService procedureService)
+        private readonly IFeedbackRepository feedbackRepository;
+        public FeedbackService(IPatientService patientService, IProcedureService procedureService, IFeedbackRepository feedbackRepository)
         {
-            this.dbContext = dbContext;
             this.patientService = patientService;
             this.procedureService = procedureService;
+            this.feedbackRepository= feedbackRepository;
         }
         public async Task<IEnumerable<FeedbackViewViewModel>> GetAllFeedbacksViewModelsAsync()
         {
-            IEnumerable<FeedbackViewViewModel> feedbacks = await dbContext
-                .Feedbacks
-                .AsNoTracking()
-                .OrderByDescending(f => f.CreatedOn)
+            IEnumerable<FeedbackListingDto> feedbackDto = await feedbackRepository.GetAllFeedbacksViewModelsAsync();
+            IEnumerable<FeedbackViewViewModel> feedbacks = feedbackDto
                 .Select(f => new FeedbackViewViewModel
                 {
-                    CreatedOn = f.CreatedOn.ToString(ApplicationDateTimeFormat, CultureInfo.InvariantCulture),
+                    CreatedOn = f.CreatedOn,
                     FeedbackText = f.FeedbackText,
                     Rating = f.Rating,
-                    ProcedureManipulationType = f.Procedure.ManipulationType.Name,
-                    ProcedurePatientName = f.Procedure.Patient.FirstName + " " + f.Procedure.Patient.LastName.Substring(0, 1) + "."
-                })
-                .ToArrayAsync();
+                    ProcedureManipulationType = f.ProcedureManipulationType,
+                    ProcedurePatientName = f.ProcedurePatientName
+                });
+                
             return feedbacks;
         }
 
@@ -61,30 +57,30 @@
                     FeedbackText = feedbackToCreate.FeedbackText,
                     Rating = feedbackToCreate.Rating
                 };
-                await dbContext.Feedbacks.AddAsync(feedbackToAdd);
-                await dbContext.SaveChangesAsync();
+                await feedbackRepository.AddAsync(feedbackToAdd);
+                await feedbackRepository.SaveChangesAsync();
             }
         }
 
         public async Task<bool> CanUserLeaveFeedbackAsync(string patientId)
         {
-            Guid? latestProcedureId = await procedureService.GetLatestProcedureByUserIdAsync(patientId);
+            Guid? latestProcedureId = await procedureService
+                .GetLatestProcedureByUserIdAsync(patientId);
+
             if (latestProcedureId == null)
             {
                 return false;
             }
-            bool feedbackExists = await dbContext.Feedbacks
-            .AsNoTracking()
-            .AnyAsync(f => f.ProcedureId == latestProcedureId);
+            bool feedbackExists = await feedbackRepository
+                .DoesFeedbackOnLastProcedureExist(latestProcedureId.Value);
 
             return !feedbackExists;
         }
 
         public async Task<double> GetAverageRatingAsync()
         {
-            return await dbContext.Feedbacks
-                .AsNoTracking()
-                .AverageAsync(f => f.Rating);
+            return await feedbackRepository
+                .GetAverageRatingAsync();
         }
     }
 }
