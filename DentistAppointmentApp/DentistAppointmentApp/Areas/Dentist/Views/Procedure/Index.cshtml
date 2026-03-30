@@ -88,7 +88,8 @@ else
 						<td class="text-end">
 							<a class="btn btn-sm btn-outline-primary"
 							   asp-action="Edit"
-							   asp-route-id="@procedure.ProcedureId">
+							   asp-route-id="@procedure.ProcedureId"
+							   asp-route-searchQuery="@ViewBag.SearchQuery">
 								Edit
 							</a>
 
@@ -96,6 +97,7 @@ else
 								  asp-route-id="@procedure.ProcedureId"
 								  method="post"
 								  class="d-inline">
+								<input type="hidden" name="searchQuery" value="@ViewBag.SearchQuery" />
 								<button type="submit"
 										class="btn btn-sm btn-outline-danger ms-2"
 										onclick="return confirm('Delete this procedure?');">

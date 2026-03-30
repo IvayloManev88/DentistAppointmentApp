@@ -104,7 +104,7 @@
 
         [HttpPost]
         [Authorize(Roles = DentistRoleName)]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id, string? searchQuery)
         {
             if (!await procedureService.IsProcedureValid(id))
             {
@@ -114,17 +114,17 @@
             try
             {
                 await procedureService.DeleteProcedureByIdAsync(id);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { searchQuery });
             }
             catch
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { searchQuery });
             }
         }
 
         [HttpGet]
         [Authorize(Roles = DentistRoleName)]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id, string? searchQuery)
         {
             if (!await procedureService.IsProcedureValid(id))
             {
@@ -134,6 +134,9 @@
             try
             {
                 ProcedureCreateViewModel editViewModel = await procedureService.LoadProcedureEditViewModelByIdAsync(id);
+
+                ViewBag.SearchQuery = searchQuery;
+
                 return View(editViewModel);
             }
             catch
@@ -144,7 +147,7 @@
 
         [HttpPost]
         [Authorize(Roles = DentistRoleName)]
-        public async Task<IActionResult> Edit(ProcedureCreateViewModel editViewModel)
+        public async Task<IActionResult> Edit(ProcedureCreateViewModel editViewModel,string? searchQuery)
         {
             editViewModel.ManipulationTypes = await manipulationService
                 .GetManipulationTypesAsync();
@@ -195,7 +198,7 @@
             try
             {
                 await procedureService.EditProcedureAsync(editViewModel, dentistId);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { searchQuery });
             }
             catch
             {

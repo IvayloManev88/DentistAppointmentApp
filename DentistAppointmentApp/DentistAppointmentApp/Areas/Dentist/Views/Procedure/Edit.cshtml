@@ -22,6 +22,7 @@
                     <form asp-action="Edit" method="post" novalidate>
                         @* Important: used in POST to find the record *@
                         <input asp-for="ProcedureId" type="hidden" />
+                        <input type="hidden" name="searchQuery" value="@ViewBag.SearchQuery" />
 
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
 
