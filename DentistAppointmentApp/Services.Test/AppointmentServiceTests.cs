@@ -380,6 +380,7 @@
                 await appointmentService.CreateViewModelAsync("2026-03-28", "14:30", false);
 
             // Assert
+            Assert.NotNull(result.PatientsNames);
             Assert.Empty(result.PatientsNames);
 
 
@@ -580,6 +581,7 @@
             Assert.Equal(manipulationTypeId, result.ManipulationTypeId);
             Assert.Equal("Test note", result.Note);
             Assert.Equal(manipulationTypes, result.ManipulationTypes);
+            Assert.NotNull(result.PatientsNames);
             Assert.Empty(result.PatientsNames);
             Assert.Null(result.PatientId);
         }
