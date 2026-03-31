@@ -117,8 +117,7 @@
                 {
                     Id = mt.ManipulationId,
                     Name = mt.ManipulationName
-                });
-                
+                });   
         }
 
         public async Task <bool> IsManipulationNameDuplicatedAsync(string name, Guid? id=null)
