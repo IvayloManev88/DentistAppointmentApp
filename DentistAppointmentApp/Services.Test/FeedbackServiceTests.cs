@@ -1,16 +1,16 @@
 ﻿namespace DentistApp.Services.UnitTest
 {
     using DentistApp.Data.Repositories.Contracts;
-    using DentistApp.Data.Repositories.Dtos;
     using static DentistApp.GCommon.ValidationMessages;
 
     using DentistApp.Services.Core;
     using DentistApp.Services.Core.Contracts;
-    
+
     using DentistApp.ViewModels.FeedbackViewModels;
-    
+
     using NSubstitute;
     using DentistApp.Data.Models;
+    using DentistApp.Data.Repositories.Dtos.FeedbackDtos;
 
     public class FeedbackServiceTests
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DentistApp.Data.Repositories.Dtos
+namespace DentistApp.Data.Repositories.Dtos.FeedbackDtos
 {
     public class FeedbackListingDto
     {

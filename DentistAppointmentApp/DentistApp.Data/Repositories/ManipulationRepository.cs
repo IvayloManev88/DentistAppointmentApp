@@ -2,8 +2,7 @@
 {
     using DentistApp.Data.Models;
     using DentistApp.Data.Repositories.Contracts;
-    using DentistApp.Data.Repositories.Dtos;
-    using DentistApp.ViewModels.ManipulationViewModels;
+    using DentistApp.Data.Repositories.Dtos.ManipulationDtos;
     using Microsoft.EntityFrameworkCore;
 
     public class ManipulationRepository:IManipulationRepository

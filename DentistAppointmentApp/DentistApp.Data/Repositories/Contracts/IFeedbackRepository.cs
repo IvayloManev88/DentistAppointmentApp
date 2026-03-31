@@ -1,7 +1,8 @@
 ﻿namespace DentistApp.Data.Repositories.Contracts
 {
     using DentistApp.Data.Models;
-    using DentistApp.Data.Repositories.Dtos;
+    using DentistApp.Data.Repositories.Dtos.FeedbackDtos;
+
     public interface IFeedbackRepository
     {
         Task<IEnumerable<FeedbackListingDto>> GetAllFeedbacksViewModelsAsync();

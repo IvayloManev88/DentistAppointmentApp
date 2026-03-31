@@ -6,7 +6,7 @@
 
     using DentistApp.Data.Models;
     using DentistApp.Data.Repositories.Contracts;
-    using DentistApp.Data.Repositories.Dtos;
+    using DentistApp.Data.Repositories.Dtos.FeedbackDtos;
 
     public class FeedbackService : IFeedbackService
     {

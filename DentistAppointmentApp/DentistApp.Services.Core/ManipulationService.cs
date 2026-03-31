@@ -9,7 +9,7 @@
 
     using Microsoft.EntityFrameworkCore;
     using DentistApp.Data.Repositories.Contracts;
-    using DentistApp.Data.Repositories.Dtos;
+    using DentistApp.Data.Repositories.Dtos.ManipulationDtos;
 
     public class ManipulationService : IManipulationService
     {

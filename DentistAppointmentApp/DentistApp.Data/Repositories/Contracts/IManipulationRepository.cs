@@ -1,9 +1,7 @@
-﻿using DentistApp.Data.Models;
-using DentistApp.Data.Repositories.Dtos;
-using DentistApp.ViewModels.ManipulationViewModels;
-
-namespace DentistApp.Data.Repositories.Contracts
+﻿namespace DentistApp.Data.Repositories.Contracts
 {
+    using DentistApp.Data.Models;
+    using DentistApp.Data.Repositories.Dtos.ManipulationDtos;
     public interface IManipulationRepository
     {
         Task AddAsync(ManipulationType manipulationToAdd);

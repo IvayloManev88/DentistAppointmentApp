@@ -1,4 +1,4 @@
-﻿namespace DentistApp.Data.Repositories.Dtos
+﻿namespace DentistApp.Data.Repositories.Dtos.ManipulationDtos
 {
     public class ManipulationDropdownListingDto
     {

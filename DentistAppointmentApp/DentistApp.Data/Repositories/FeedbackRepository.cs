@@ -3,12 +3,12 @@
 namespace DentistApp.Data.Repositories
 {
     using DentistApp.Data.Repositories.Contracts;
-    using DentistApp.Data.Repositories.Dtos;
     using static DentistApp.GCommon.GlobalCommon;
     using DentistApp.ViewModels.FeedbackViewModels;
     using Microsoft.EntityFrameworkCore;
     using System.Globalization;
     using DentistApp.Data.Models;
+    using DentistApp.Data.Repositories.Dtos.FeedbackDtos;
 
     public class FeedbackRepository:IFeedbackRepository
     {

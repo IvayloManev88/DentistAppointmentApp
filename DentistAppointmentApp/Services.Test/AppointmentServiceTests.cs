@@ -2,7 +2,6 @@
 {
     using DentistApp.Data.Models;
     using DentistApp.Data.Repositories.Contracts;
-    using DentistApp.Data.Repositories.Dtos;
     using DentistApp.Services.Core;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels;
@@ -12,6 +11,7 @@
     using Xunit;
     using static DentistApp.GCommon.ValidationMessages;
     using static DentistApp.GCommon.GlobalCommon;
+    using DentistApp.Data.Repositories.Dtos.AppointmentDtos;
 
     public class AppointmentServiceTests
     {
