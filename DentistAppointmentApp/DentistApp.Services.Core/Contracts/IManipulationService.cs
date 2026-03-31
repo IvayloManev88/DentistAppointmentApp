@@ -15,8 +15,6 @@
 
         Task CreateManipulationAsync(ManipulationCreateViewModel manipulationToCreate);
 
-        Task <ManipulationType?> GetManipulationByIdAsync(Guid id);
-
         Task DeleteManipulationAsync(Guid id);
 
         Task <ManipulationEditViewModel> GetManipulationEditViewModelAsync(Guid id);
@@ -24,5 +22,7 @@
         Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit);
 
         Task <bool> ValidateManipulationTypesAsync(Guid currentManipulation);
+
+        Task<ManipulationType?> GetManipulationByIdAsync(Guid id);
     }
 }

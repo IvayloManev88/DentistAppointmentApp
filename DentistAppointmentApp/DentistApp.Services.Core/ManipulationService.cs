@@ -8,13 +8,15 @@
     using static DentistApp.GCommon.ValidationMessages;
 
     using Microsoft.EntityFrameworkCore;
-    
+    using DentistApp.Data.Repositories.Contracts;
+    using DentistApp.Data.Repositories.Dtos;
+
     public class ManipulationService : IManipulationService
     {
-        private readonly DentistAppDbContext dbContext;
-        public ManipulationService(DentistAppDbContext dbContext)
+        private readonly IManipulationRepository manipulationRepository;
+        public ManipulationService(IManipulationRepository manipulationRepository)
         {
-            this.dbContext = dbContext;
+            this.manipulationRepository = manipulationRepository;
         }
 
         public async Task CreateManipulationAsync(ManipulationCreateViewModel manipulationToCreate)
@@ -29,13 +31,14 @@
                 PriceRange = manipulationToCreate.PriceRange
 
             };
-            await dbContext.ManipulationTypes.AddAsync(currentManipulation);
-            await dbContext.SaveChangesAsync();
+            await manipulationRepository.AddAsync(currentManipulation);
+            await manipulationRepository.SaveChangesAsync();
         }
 
         public async Task DeleteManipulationAsync(Guid id)
         {
-            ManipulationType? manipulationToDelete = await this.GetManipulationByIdAsync(id);
+            ManipulationType? manipulationToDelete = await manipulationRepository
+                .GetManipulationByIdAsync(id);
 
             if (manipulationToDelete==null)
             {
@@ -43,7 +46,7 @@
             }
 
             manipulationToDelete.IsDeleted = true;
-            await dbContext.SaveChangesAsync();
+            await manipulationRepository.SaveChangesAsync();
         }
 
         public async Task EditManipulationAsync(ManipulationEditViewModel manipulationToEdit)
@@ -52,42 +55,39 @@
             {
                 throw new Exception(DuplicateManipulationNameValidationMessage);
             }
-            ManipulationType? editManipulation = await this.GetManipulationByIdAsync(manipulationToEdit.ManipulationId!.Value);
+            ManipulationType? editManipulation = await manipulationRepository
+                .GetManipulationByIdAsync(manipulationToEdit.ManipulationId!.Value);
+
             if (editManipulation == null)
             {
                 throw new Exception(ManipulationCannotBeFoundValidationMessage);
             }
+
             editManipulation.Name=manipulationToEdit.Name;
             editManipulation.PriceRange=manipulationToEdit.PriceRange;
-            await dbContext.SaveChangesAsync();
+
+            await manipulationRepository.SaveChangesAsync();
         }
 
         public async Task <IEnumerable<ManipulationViewAllViewModel>> GetAllManipulationTypesAsync()
         {
-            return await dbContext
-                .ManipulationTypes
-                    .AsNoTracking()
-                    .Where(m => m.IsDeleted == false)
-                    .OrderBy(m => m.Name)
+            IEnumerable<ManipulationListingDto> manipulationsToView = await manipulationRepository
+                .GetAllManipulationTypesAsync();
+
+            return  manipulationsToView
                     .Select(m => new ManipulationViewAllViewModel
                     {
-                        ManipulationId = m.ManipulationId.ToString(),
+                        ManipulationId = m.ManipulationId,
                         Name = m.Name,
                         PriceRange = m.PriceRange
-                    }).ToArrayAsync();
+                    });
         }
-
-        public async Task <ManipulationType?> GetManipulationByIdAsync(Guid id)
-        {
-            return await dbContext
-                .ManipulationTypes
-                .SingleOrDefaultAsync(m => m.IsDeleted == false 
-                && m.ManipulationId == id);
-        }
-
+              
         public async Task <ManipulationEditViewModel> GetManipulationEditViewModelAsync(Guid id)
         {
-            ManipulationType? manipulationToEdit = await this.GetManipulationByIdAsync(id);
+            ManipulationType? manipulationToEdit = await manipulationRepository
+                .GetManipulationByIdAsync(id);
+
             if (manipulationToEdit == null)
             {
                 throw new Exception(ManipulationCannotBeFoundValidationMessage);
@@ -101,33 +101,36 @@
             return editViewModel;
         }
 
+        public async Task<ManipulationType?> GetManipulationByIdAsync(Guid id)
+        {
+            return await manipulationRepository
+                .GetManipulationByIdAsync(id);
+        }
+
         public async Task <IEnumerable<DropDown>> GetManipulationTypesAsync()
         {
-            return await dbContext.ManipulationTypes
-                .Where(mt => mt.IsDeleted == false)
-                .OrderBy(mt => mt.Name)
+            IEnumerable<ManipulationDropdownListingDto> manipulationsForDropDown = await manipulationRepository
+                .GetManipulationTypesAsync();
+
+            return manipulationsForDropDown
                 .Select(mt => new DropDown
-                { 
-                    Id =mt.ManipulationId,
-                    Name = mt.Name 
-                })
-                .ToArrayAsync();
+                {
+                    Id = mt.ManipulationId,
+                    Name = mt.ManipulationName
+                });
+                
         }
 
         public async Task <bool> IsManipulationNameDuplicatedAsync(string name, Guid? id=null)
         {
-            return await this.dbContext
-                .ManipulationTypes
-                .AsNoTracking()
-                .AnyAsync(m => m.Name == name 
-                && m.IsDeleted == false
-                && (id == null || m.ManipulationId != id));
+            return await manipulationRepository
+                .IsManipulationNameDuplicatedAsync(name, id);
         }
 
         public async Task <bool> ValidateManipulationTypesAsync(Guid currentManipulation)
         {
-            return dbContext.ManipulationTypes
-                .Any(m => m.ManipulationId == currentManipulation);
+            return await manipulationRepository
+                .ValidateManipulationTypesAsync(currentManipulation);
         }
     }
 }

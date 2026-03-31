@@ -54,6 +54,7 @@ builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IManipulationRepository, ManipulationRepository>();
 
 var app = builder.Build();
 
