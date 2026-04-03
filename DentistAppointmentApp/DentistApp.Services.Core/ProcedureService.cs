@@ -152,7 +152,7 @@
                 throw new Exception(ManipulationNotCorrectValidationMessage);
             }
 
-            if (procedureToEdit.ProcedureDate > DateTime.Today)
+            if (procedureToEdit.ProcedureDate > dateTimeService.Today())
             {
                 throw new Exception(ProcedureCannotBeInTheFutureValidationMessage);
             }
