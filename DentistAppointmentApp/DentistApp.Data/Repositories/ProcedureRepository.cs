@@ -2,6 +2,7 @@
 {
     using DentistApp.Data.Models;
     using DentistApp.Data.Repositories.Contracts;
+    using DentistApp.Data.Repositories.Dtos.ProcedureDtos;
     using Microsoft.EntityFrameworkCore;
 
     public class ProcedureRepository : IProcedureRepository
@@ -23,21 +24,10 @@
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task SoftDeleteAppointmentAsync(Procedure procedure)
+        public async Task SoftDeleteProcedureAsync(Procedure procedure)
         {
             procedure.IsDeleted = true;
             await dbContext.SaveChangesAsync();
-        }
-
-        public async Task<IQueryable<Procedure>> GetQueryableProceduresAsync(string userId)
-        {
-            return dbContext
-               .Procedures
-               .AsNoTracking()
-               .Include(p => p.ManipulationType)
-               .Include(p => p.Dentist)
-               .Include(p => p.Patient)
-               .Where(p => p.DentistId == userId || p.PatientId == userId);
         }
 
         public async Task<Procedure?> GetProcedureByIdAsync(Guid procedureId)
@@ -63,6 +53,44 @@
             .OrderByDescending(p => p.Date)
             .Select(p => p.ProcedureId)
             .FirstOrDefaultAsync();
+        }
+
+        public async Task<(ProcedureListingDto[] Procedures, int TotalCount)> GetPagedProceduresAsync(string userId, string? searchQuery, int page, int pageSize)
+        {
+            IQueryable<Procedure> query = dbContext.Procedures
+                .AsNoTracking()
+                .Where(p => p.PatientId == userId || p.DentistId == userId);
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                string normalizedQuery = searchQuery.ToLower().Trim();
+
+                query = query.Where(p =>
+                    (p.Patient.FirstName + " " + p.Patient.LastName).ToLower().Contains(normalizedQuery) ||
+                    p.ManipulationType.Name.ToLower().Contains(normalizedQuery));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            ProcedureListingDto[] procedures = await query
+                .OrderByDescending(p => p.Date)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProcedureListingDto
+                {
+                    ProcedureId = p.ProcedureId,
+                    PatientFirstName = p.Patient.FirstName,
+                    PatientLastName = p.Patient.LastName,
+                    DentistFirstName = p.Dentist.FirstName,
+                    DentistLastName = p.Dentist.LastName,
+                    ProcedureDate = p.Date,
+                    PatientPhoneNumber = p.PatientPhoneNumber,
+                    ManipulationName = p.ManipulationType.Name,
+                    DentistNote = p.Note
+                })
+                .ToArrayAsync();
+
+            return (procedures, totalCount);
         }
     }
 }

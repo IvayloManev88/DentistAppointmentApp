@@ -1,20 +1,16 @@
-﻿using DentistApp.Data.Models;
-
-namespace DentistApp.Data.Repositories.Contracts
+﻿namespace DentistApp.Data.Repositories.Contracts
 {
+    using DentistApp.Data.Models;
+    using DentistApp.Data.Repositories.Dtos.ProcedureDtos;
     public interface IProcedureRepository
     {
         Task AddAsync(Procedure procedure);
 
         Task SaveChangesAsync();
-        Task SoftDeleteAppointmentAsync(Procedure procedure);
-
-        Task<IQueryable<Procedure>> GetQueryableProceduresAsync(string userId);
-
+        Task SoftDeleteProcedureAsync(Procedure procedure);
         Task<Procedure?> GetProcedureByIdAsync(Guid procedureId);
-
         Task<bool> IsProcedureValidAsync(Guid procedureId);
-
         Task<Guid?> GetLatestProcedureByUserIdAsync(string userId);
+        Task<(ProcedureListingDto[] Procedures, int TotalCount)> GetPagedProceduresAsync(string userId, string? searchQuery, int page, int pageSize);
     }
 }

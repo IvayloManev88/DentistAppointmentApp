@@ -39,7 +39,7 @@
             {
                 throw new Exception(ManipulationNotCorrectValidationMessage);
             }
-            if (procedureToCreate.ProcedureDate > DateTime.Today)
+            if (procedureToCreate.ProcedureDate > dateTimeService.Today())
             {
                 throw new Exception(ProcedureCannotBeInTheFutureValidationMessage);
             }
@@ -78,40 +78,27 @@
             }
 
             await procedureRepository
-                .SoftDeleteAppointmentAsync(procedureToDelete);
+                .SoftDeleteProcedureAsync(procedureToDelete);
         }
 
         public async Task<ProcedurePaginationViewModel> GetAllProceduresViewModelsAsync(string userId, string? searchQuery=null, int page = 1)
         {
-            IQueryable<Procedure> queryProcedures = await procedureRepository
-                .GetQueryableProceduresAsync(userId);
-
-            if (!string.IsNullOrWhiteSpace(searchQuery))
-            {
-                string normalizedQuery = searchQuery.ToLower().Trim();
-                queryProcedures = queryProcedures.Where(p=>
-                (p.Patient.FirstName + " " + p.Patient.LastName).ToLower().Contains(normalizedQuery)||
-                p.ManipulationType.Name.ToLower().Contains(normalizedQuery));
-            }
             int pageSize = ItemsPerPage;
-            int totalItemsQueryCount =await queryProcedures.CountAsync();
-
             page = Math.Max(1, page);
-           
-            IEnumerable<ProcedureViewViewModel> procedures = await queryProcedures
-                .OrderByDescending(p => p.Date)
-                .Skip((page-1)*pageSize)
-                .Take(pageSize)
+            var (proceduresDto, totalCount) = await procedureRepository
+                .GetPagedProceduresAsync(userId, searchQuery, page, pageSize);
+
+            IEnumerable<ProcedureViewViewModel> procedures = proceduresDto
                 .Select(p => new ProcedureViewViewModel
                {
-                   ProcedureId = p.ProcedureId.ToString(),
-                   PatientProcedureName = $"{p.Patient.FirstName} {p.Patient.LastName}",
-                   DentistProcedureName = $"{p.Dentist.FirstName} {p.Dentist.LastName}",
-                   ProcedureDate = p.Date.ToString(ApplicationDateTimeFormat, CultureInfo.InvariantCulture),
-                   PatientProcedurePhoneNumber = p.PatientPhoneNumber,
-                   ManipulationName = p.ManipulationType.Name,
-                   ProcedureDentistNote = p.Note
-               }).ToArrayAsync();
+                    ProcedureId = p.ProcedureId.ToString(),
+                    PatientProcedureName = $"{p.PatientFirstName} {p.PatientLastName}",
+                    DentistProcedureName = $"{p.DentistFirstName} {p.DentistLastName}",
+                    ProcedureDate = p.ProcedureDate.ToString(ApplicationDateTimeFormat, CultureInfo.InvariantCulture),
+                    PatientProcedurePhoneNumber = p.PatientPhoneNumber,
+                    ManipulationName = p.ManipulationName,
+                    ProcedureDentistNote = p.DentistNote
+                });
 
             ProcedurePaginationViewModel resultViewModel = new ProcedurePaginationViewModel
             {
@@ -119,7 +106,7 @@
                 SearchQuery = searchQuery,
                 CurrentPage = page,
                 ProceduresPerPage = pageSize,
-                TotalItemsCount = totalItemsQueryCount
+                TotalItemsCount = totalCount
             };
 
             return resultViewModel;
