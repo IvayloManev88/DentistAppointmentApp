@@ -2,27 +2,36 @@
 {
     using DentistApp.Data;
     using DentistApp.Data.Models;
-    using static DentistApp.GCommon.GlobalCommon;
-    using static DentistApp.GCommon.ValidationMessages;
+    using DentistApp.Data.Repositories.Contracts;
     using DentistApp.Services.Core.Contracts;
     using DentistApp.ViewModels;
     using DentistApp.ViewModels.ProcedureViewModels;
 
     using Microsoft.EntityFrameworkCore;
+
     using System.Globalization;
+
+    using static DentistApp.GCommon.GlobalCommon;
+    using static DentistApp.GCommon.ValidationMessages;
 
     public class ProcedureService : IProcedureService
     {
-        private readonly DentistAppDbContext dbContext;
         private readonly IManipulationService manipulationService;
         private readonly IPatientService patientService;
-        public ProcedureService(DentistAppDbContext dbContext, IManipulationService manipulationService, IPatientService patientService)
+        private readonly IProcedureRepository procedureRepository;
+        private readonly IDateTimeService dateTimeService;
+        public ProcedureService(IManipulationService manipulationService, IPatientService patientService, IProcedureRepository procedureRepository, IDateTimeService dateTimeService)
         {
-            this.dbContext = dbContext;
             this.manipulationService = manipulationService;
             this.patientService = patientService;
+            this.procedureRepository = procedureRepository;
+            this.dateTimeService = dateTimeService;
         }
-
+        public async Task<Procedure?> GetProcedureByIdAsync(Guid procedureId)
+        {
+            return await procedureRepository
+                .GetProcedureByIdAsync(procedureId);
+        }
         public async Task CreateProcedureAsync(ProcedureCreateViewModel procedureToCreate, string dentistId)
         {
             bool isManipulationCorrect = await manipulationService.ValidateManipulationTypesAsync(procedureToCreate.ManipulationTypeId);
@@ -54,8 +63,10 @@
                 Note = procedureToCreate.DentistNote
             };
 
-            await dbContext.Procedures.AddAsync(currentProcedure);
-            await dbContext.SaveChangesAsync();
+            await procedureRepository
+                .AddAsync(currentProcedure);
+            await procedureRepository
+                .SaveChangesAsync();
         }
 
         public async Task DeleteProcedureByIdAsync(Guid procedureId)
@@ -66,19 +77,14 @@
                 throw new Exception(ProcedureCannotBeFoundValidationMessage);
             }
 
-            procedureToDelete.IsDeleted = true;
-            await dbContext.SaveChangesAsync();
+            await procedureRepository
+                .SoftDeleteAppointmentAsync(procedureToDelete);
         }
 
         public async Task<ProcedurePaginationViewModel> GetAllProceduresViewModelsAsync(string userId, string? searchQuery=null, int page = 1)
         {
-            IQueryable<Procedure> queryProcedures = dbContext
-               .Procedures
-               .AsNoTracking()
-               .Include(p => p.ManipulationType)
-               .Include(p => p.Dentist)
-               .Include(p => p.Patient)
-               .Where(p => p.DentistId == userId || p.PatientId == userId);
+            IQueryable<Procedure> queryProcedures = await procedureRepository
+                .GetQueryableProceduresAsync(userId);
 
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
@@ -127,13 +133,6 @@
             createModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
             createModel.PatientsNames = await patientService.GetPatientsAsync();
             return createModel;
-        }
-
-        public async Task<Procedure?> GetProcedureByIdAsync(Guid procedureId)
-        {
-            return await dbContext
-                .Procedures
-                .SingleOrDefaultAsync(a => a.IsDeleted == false && a.ProcedureId == procedureId);
         }
 
         public async Task<ProcedureCreateViewModel> LoadProcedureEditViewModelByIdAsync(Guid procedureId)
@@ -199,31 +198,24 @@
             editProcedure.PatientId = procedureToEdit.PatientId;
             editProcedure.DentistId = dentistId;
 
-            await dbContext.SaveChangesAsync();
+            await procedureRepository.SaveChangesAsync();
         }
 
         public async Task<bool> IsProcedureDateInTheFuture(DateTime procedureDate)
         {
-            return procedureDate > DateTime.Today;
+            return procedureDate > dateTimeService.Today();
         }
 
         public async Task<bool> IsProcedureValid(Guid procedureId)
         {
-            return await dbContext
-                .Procedures
-                .AnyAsync(a => a.IsDeleted == false &&
-                a.ProcedureId == procedureId);
+            return await procedureRepository
+                .IsProcedureValidAsync(procedureId);
         }
 
         public async Task<Guid?> GetLatestProcedureByUserIdAsync(string userId)
         {
-            Guid? latestProcedureId = await dbContext.Procedures
-            .AsNoTracking()
-            .Where(p => p.PatientId == userId)
-            .OrderByDescending(p => p.Date)
-            .Select(p => p.ProcedureId)
-            .FirstOrDefaultAsync();
-            return latestProcedureId;
+           return await procedureRepository
+                .GetLatestProcedureByUserIdAsync(userId);
         }
     }
 }

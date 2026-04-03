@@ -55,6 +55,7 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IManipulationRepository, ManipulationRepository>();
+builder.Services.AddScoped<IProcedureRepository, ProcedureRepository>();
 
 var app = builder.Build();
 
