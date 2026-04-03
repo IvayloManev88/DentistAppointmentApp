@@ -94,7 +94,7 @@
                     ProcedureId = p.ProcedureId.ToString(),
                     PatientProcedureName = $"{p.PatientFirstName} {p.PatientLastName}",
                     DentistProcedureName = $"{p.DentistFirstName} {p.DentistLastName}",
-                    ProcedureDate = p.ProcedureDate.ToString(ApplicationDateTimeFormat, CultureInfo.InvariantCulture),
+                    ProcedureDate = p.ProcedureDate.ToString(DateFormat, CultureInfo.InvariantCulture),
                     PatientProcedurePhoneNumber = p.PatientPhoneNumber,
                     ManipulationName = p.ManipulationName,
                     ProcedureDentistNote = p.DentistNote
@@ -114,9 +114,8 @@
 
         public async Task<ProcedureCreateViewModel> GetCreateViewModelAsync()
         {
-            IEnumerable<DropDown> manipulationTypes = await manipulationService.GetManipulationTypesAsync();
             ProcedureCreateViewModel createModel = new ProcedureCreateViewModel();
-            createModel.ProcedureDate = DateTime.Today;
+            createModel.ProcedureDate = dateTimeService.Today();
             createModel.ManipulationTypes = await manipulationService.GetManipulationTypesAsync();
             createModel.PatientsNames = await patientService.GetPatientsAsync();
             return createModel;

@@ -11,6 +11,6 @@
         Task<Procedure?> GetProcedureByIdAsync(Guid procedureId);
         Task<bool> IsProcedureValidAsync(Guid procedureId);
         Task<Guid?> GetLatestProcedureByUserIdAsync(string userId);
-        Task<(ProcedureListingDto[] Procedures, int TotalCount)> GetPagedProceduresAsync(string userId, string? searchQuery, int page, int pageSize);
+        Task<(ProcedureListingDto[] procedures, int totalCount)> GetPagedProceduresAsync(string userId, string? searchQuery, int page, int pageSize);
     }
 }

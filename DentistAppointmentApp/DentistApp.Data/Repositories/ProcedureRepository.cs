@@ -55,7 +55,7 @@
             .FirstOrDefaultAsync();
         }
 
-        public async Task<(ProcedureListingDto[] Procedures, int TotalCount)> GetPagedProceduresAsync(string userId, string? searchQuery, int page, int pageSize)
+        public async Task<(ProcedureListingDto[] procedures, int totalCount)> GetPagedProceduresAsync(string userId, string? searchQuery, int page, int pageSize)
         {
             IQueryable<Procedure> query = dbContext.Procedures
                 .AsNoTracking()
