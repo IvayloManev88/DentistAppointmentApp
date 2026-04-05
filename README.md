@@ -3,6 +3,10 @@
 ---
 
 This is a web application aiming to cover creating and managing dentist appointments, procedures done to the patient and adding variety of Manipulations.
+Short overview of the application could be found on the following links:
+- Functionality for non-registered users -> https://www.youtube.com/watch?v=hNavj5bNEMA
+- Functionality for registered users (without Dentist role) -> https://www.youtube.com/watch?v=F_p9gZgrWxY
+- Functionality for registered Dentist users -> https://www.youtube.com/watch?v=7X2z-Ucr3tI
 
 ---
 ![.NET Version] Version="10.0.2";
